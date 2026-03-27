@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CuttingsClones — Portal del Trabajador</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --verde: #2d7a2d;
@@ -13,10 +11,11 @@
       --verde-hover: #236b23;
       --dorado: #b8960c;
       --dorado-claro: #faf4e0;
+      --dorado-hover: #a3850a;
       --gris-oscuro: #3a3a3a;
       --gris-texto: #555;
       --gris-borde: #e2e8f0;
-      --fondo: #f7f9f7;
+      --fondo: #f5f7f2;
       --blanco: #ffffff;
       --rojo: #dc2626;
       --rojo-claro: #fef2f2;
@@ -30,7 +29,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       background: var(--fondo);
       color: var(--gris-oscuro);
       line-height: 1.5;
@@ -41,10 +40,10 @@
     header {
       background: linear-gradient(135deg, var(--verde) 0%, #1a5c1a 100%);
       color: white;
-      padding: 16px 20px;
+      padding: 14px 16px;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       position: sticky;
       top: 0;
@@ -52,53 +51,52 @@
     }
 
     .logo {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: white;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      overflow: hidden;
-    }
-
-    .logo img {
-      width: 36px;
-      height: 36px;
-      object-fit: contain;
-    }
-
-    .logo-placeholder {
-      font-size: 22px;
+      font-size: 24px;
       line-height: 1;
     }
 
     .header-text h1 {
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 700;
       letter-spacing: -0.3px;
+      line-height: 1.2;
     }
 
-    .header-text p {
+    .header-text .subtitle {
       font-size: 12px;
-      opacity: 0.85;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+
+    .header-text .tagline {
+      font-size: 10px;
+      opacity: 0.7;
       font-weight: 400;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
     /* ── MAIN ── */
     main {
       max-width: 720px;
       margin: 0 auto;
-      padding: 16px 12px 40px;
+      padding: 12px 10px 40px;
     }
 
     /* ── SECCIONES ── */
     section {
       background: var(--blanco);
       border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
       box-shadow: var(--sombra);
       border: 1px solid var(--gris-borde);
     }
@@ -108,14 +106,14 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 12px;
-      padding-bottom: 10px;
+      padding-bottom: 8px;
       border-bottom: 2px solid var(--verde-claro);
     }
 
     .section-icon {
-      font-size: 18px;
-      width: 32px;
-      height: 32px;
+      font-size: 16px;
+      width: 30px;
+      height: 30px;
       background: var(--verde-claro);
       border-radius: 8px;
       display: flex;
@@ -125,7 +123,7 @@
     }
 
     .section-header h2 {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       color: var(--verde);
     }
@@ -142,6 +140,10 @@
       border-radius: 8px;
       padding: 10px;
       border: 1px solid var(--gris-borde);
+    }
+
+    .info-chip.full-width {
+      grid-column: 1 / -1;
     }
 
     .info-chip.aviso {
@@ -176,7 +178,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
     }
 
     .form-group label {
@@ -187,8 +189,8 @@
       letter-spacing: 0.3px;
     }
 
-    input, select, textarea {
-      padding: 9px 10px;
+    input, select {
+      padding: 8px 10px;
       border: 1px solid var(--gris-borde);
       border-radius: 8px;
       font-size: 13px;
@@ -198,7 +200,7 @@
       transition: border-color 0.15s;
     }
 
-    input:focus, select:focus, textarea:focus {
+    input:focus, select:focus {
       outline: none;
       border-color: var(--verde);
       box-shadow: 0 0 0 2px rgba(45,122,45,0.15);
@@ -206,10 +208,10 @@
 
     /* ── BOTONES ── */
     .btn {
-      padding: 9px 16px;
+      padding: 8px 14px;
       border: none;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       font-family: inherit;
       cursor: pointer;
@@ -217,7 +219,12 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
     }
 
     .btn-primary {
@@ -227,32 +234,31 @@
 
     .btn-primary:hover {
       background: var(--verde-hover);
-      box-shadow: var(--sombra-hover);
     }
 
-    .btn-success {
+    .btn-done {
       background: var(--verde-claro);
       color: var(--verde);
       border: 1px solid #c3e6c3;
     }
 
-    .btn-success:hover {
+    .btn-done:hover {
       background: #d4edd4;
     }
 
-    .btn-warn {
+    .btn-postpone {
       background: var(--dorado-claro);
-      color: #8a7000;
+      color: #7a6500;
       border: 1px solid #e6d78a;
     }
 
-    .btn-warn:hover {
+    .btn-postpone:hover {
       background: #f5edd0;
     }
 
     .btn-sm {
       padding: 6px 10px;
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .mensaje {
@@ -310,7 +316,7 @@
 
     .zona-header {
       background: var(--verde-claro);
-      padding: 10px 14px;
+      padding: 10px 12px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -318,8 +324,12 @@
       user-select: none;
     }
 
+    .zona-header:active {
+      background: #d8efd8;
+    }
+
     .zona-header h3 {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--verde);
       flex: 1;
@@ -337,16 +347,30 @@
     }
 
     .zona-icon {
-      font-size: 16px;
+      font-size: 15px;
+    }
+
+    .zona-chevron {
+      font-size: 12px;
+      color: var(--verde);
+      transition: transform 0.2s;
+    }
+
+    .zona-card.collapsed .zona-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .zona-card.collapsed .zona-body {
+      display: none;
     }
 
     .zona-body {
-      padding: 8px;
+      padding: 6px;
     }
 
     .zona-vacia {
       color: var(--gris-texto);
-      font-size: 13px;
+      font-size: 12px;
       padding: 8px;
       text-align: center;
     }
@@ -368,8 +392,8 @@
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 6px;
+      gap: 6px;
+      margin-bottom: 4px;
     }
 
     .tarea-titulo {
@@ -377,11 +401,12 @@
       font-size: 13px;
       color: var(--gris-oscuro);
       flex: 1;
+      line-height: 1.3;
     }
 
     .prioridad {
       display: inline-block;
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 99px;
       font-size: 10px;
       font-weight: 700;
@@ -408,7 +433,7 @@
     .tarea-meta {
       font-size: 11px;
       color: var(--gris-texto);
-      margin-bottom: 3px;
+      margin-bottom: 2px;
       display: flex;
       align-items: center;
       gap: 4px;
@@ -424,8 +449,9 @@
       background: var(--fondo);
       border-radius: 6px;
       padding: 6px 8px;
-      margin: 6px 0;
+      margin: 6px 0 0;
       border-left: 3px solid var(--dorado);
+      line-height: 1.4;
     }
 
     .tarea-actions {
@@ -438,124 +464,60 @@
       flex: 1;
     }
 
-    /* ── MODAL POSPONER ── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 200;
-      align-items: flex-end;
-      justify-content: center;
-    }
-
-    .modal-overlay.activo {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--blanco);
-      border-radius: 16px 16px 0 0;
-      padding: 20px;
-      width: 100%;
-      max-width: 420px;
-      animation: slideUp 0.2s ease-out;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-
-    .modal h3 {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--gris-oscuro);
-      margin-bottom: 4px;
-    }
-
-    .modal .modal-sub {
-      font-size: 13px;
-      color: var(--gris-texto);
-      margin-bottom: 16px;
-    }
-
-    .modal-opciones {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .modal-opcion {
-      padding: 12px;
-      border: 1px solid var(--gris-borde);
-      border-radius: 8px;
-      background: var(--fondo);
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--gris-oscuro);
-      text-align: left;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: all 0.15s;
-    }
-
-    .modal-opcion:hover {
-      border-color: var(--verde);
-      background: var(--verde-claro);
-    }
-
-    .modal-opcion .opcion-icon {
-      font-size: 18px;
-      width: 28px;
-      text-align: center;
-    }
-
-    .modal-fecha-custom {
+    /* ── PANEL POSPONER (INLINE) ── */
+    .posponer-panel {
       display: none;
       margin-top: 8px;
-      padding: 12px;
-      border: 1px solid var(--gris-borde);
+      padding: 10px;
+      background: var(--dorado-claro);
+      border: 1px solid #e6d78a;
       border-radius: 8px;
-      background: var(--fondo);
+      animation: fadeIn 0.15s ease-out;
     }
 
-    .modal-fecha-custom.visible {
+    .posponer-panel.visible {
       display: block;
     }
 
-    .modal-fecha-custom label {
-      font-size: 12px;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .posponer-panel-label {
+      font-size: 11px;
       font-weight: 600;
-      color: var(--gris-texto);
-      display: block;
-      margin-bottom: 6px;
+      color: #7a6500;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
-    .modal-fecha-custom input[type="date"] {
-      width: 100%;
+    .posponer-quick {
+      display: flex;
+      gap: 6px;
       margin-bottom: 8px;
     }
 
-    .modal-cancelar {
-      width: 100%;
-      margin-top: 12px;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: transparent;
-      color: var(--gris-texto);
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
+    .posponer-quick .btn {
+      flex: none;
     }
 
-    .modal-cancelar:hover {
-      background: var(--fondo);
+    .posponer-custom {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .posponer-custom input[type="date"] {
+      flex: 1;
+      padding: 6px 8px;
+      font-size: 12px;
+      background: white;
+    }
+
+    .posponer-custom .btn {
+      flex-shrink: 0;
     }
 
     /* ── CARGANDO ── */
@@ -583,23 +545,18 @@
     /* ── RESPONSIVE ── */
     @media (min-width: 640px) {
       main {
-        padding: 20px 16px 40px;
+        padding: 16px 16px 40px;
       }
 
       section {
-        padding: 20px;
-        margin-bottom: 16px;
+        padding: 18px;
+        margin-bottom: 14px;
       }
 
       .tareas-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
-      }
-
-      .modal {
-        border-radius: 16px;
-        margin-bottom: 20px;
+        gap: 10px;
       }
     }
 
@@ -615,17 +572,24 @@
       .tarea-actions {
         flex-direction: column;
       }
+
+      .posponer-custom {
+        flex-direction: column;
+      }
+
+      .posponer-custom input[type="date"] {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo">
-      <span class="logo-placeholder">&#127793;</span>
-    </div>
+    <div class="logo">&#127793;</div>
     <div class="header-text">
       <h1>CuttingsClones</h1>
-      <p>Portal del Trabajador</p>
+      <div class="subtitle">Portal del Trabajador</div>
+      <div class="tagline">Cultivo Profesional</div>
     </div>
   </header>
 
@@ -633,24 +597,24 @@
     <!-- INFO UTIL -->
     <section>
       <div class="section-header">
-        <div class="section-icon">&#9432;</div>
-        <h2>Informacion util</h2>
+        <div class="section-icon">&#8505;</div>
+        <h2>Informaci&oacute;n &uacute;til</h2>
       </div>
       <div class="info-grid">
         <div class="info-chip">
-          <div class="info-label">Horario</div>
+          <div class="info-label">&#128336; Horario</div>
           <div class="info-value" id="horario"><div class="skeleton"></div></div>
         </div>
         <div class="info-chip">
-          <div class="info-label">Telefono soporte</div>
+          <div class="info-label">&#128222; Soporte</div>
           <div class="info-value" id="telefono_soporte"><div class="skeleton"></div></div>
         </div>
-        <div class="info-chip" style="grid-column: 1 / -1;">
-          <div class="info-label">Instrucciones</div>
+        <div class="info-chip full-width">
+          <div class="info-label">&#128203; Instrucciones</div>
           <div class="info-value" id="instrucciones"><div class="skeleton"></div></div>
         </div>
         <div class="info-chip aviso">
-          <div class="info-label">Aviso del dia</div>
+          <div class="info-label">&#9888;&#65039; Aviso del d&iacute;a</div>
           <div class="info-value" id="aviso_del_dia"><div class="skeleton"></div></div>
         </div>
       </div>
@@ -711,47 +675,22 @@
     </section>
   </main>
 
-  <!-- MODAL POSPONER -->
-  <div class="modal-overlay" id="modalPosponer">
-    <div class="modal">
-      <h3>Posponer tarea</h3>
-      <p class="modal-sub" id="modalTareaNombre"></p>
-      <div class="modal-opciones">
-        <button class="modal-opcion" onclick="posponerManana()">
-          <span class="opcion-icon">&#9197;</span>
-          <span>Posponer 1 dia (manana)</span>
-        </button>
-        <button class="modal-opcion" onclick="mostrarFechaCustom()">
-          <span class="opcion-icon">&#128197;</span>
-          <span>Elegir fecha</span>
-        </button>
-      </div>
-      <div class="modal-fecha-custom" id="fechaCustomBox">
-        <label for="fechaPosponer">Selecciona la nueva fecha:</label>
-        <input type="date" id="fechaPosponer" />
-        <button class="btn btn-primary" style="width:100%;" onclick="posponerConFecha()">Confirmar</button>
-      </div>
-      <button class="modal-cancelar" onclick="cerrarModal()">Cancelar</button>
-    </div>
-  </div>
-
   <script>
     const base_url = 'https://primary-production-2cf7.up.railway.app/webhook';
-    let tareaIdPosponer = null;
 
     // ── ICONOS POR ZONA ──
     const zonaIconos = {
-      madres: '&#127793;',
-      esquejes: '&#127806;',
-      floracion: '&#127804;',
-      limpieza: '&#129529;',
-      mantenimiento: '&#128295;'
+      madres: '\u{1F331}',
+      esquejes: '\u{2702}\u{FE0F}',
+      floracion: '\u{1F338}',
+      limpieza: '\u{1F9F9}',
+      mantenimiento: '\u{1F527}'
     };
 
     // ── FECHA HOY ──
     function fechaHoyISO() {
       const h = new Date();
-      return `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
+      return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0');
     }
 
     function ponerFechaHoy() {
@@ -761,7 +700,7 @@
     // ── INFO LANDING ──
     async function cargarInfoLanding() {
       try {
-        const res = await fetch(`${base_url}/info-landing`);
+        const res = await fetch(base_url + '/info-landing');
         if (!res.ok) throw new Error('error');
         const data = await res.json();
         document.getElementById('horario').textContent = data.horario || '-';
@@ -769,7 +708,7 @@
         document.getElementById('telefono_soporte').textContent = data.telefono_soporte || '-';
         document.getElementById('aviso_del_dia').textContent = data.aviso_del_dia || '-';
       } catch (e) {
-        ['horario','instrucciones','telefono_soporte','aviso_del_dia'].forEach(id => {
+        ['horario', 'instrucciones', 'telefono_soporte', 'aviso_del_dia'].forEach(function(id) {
           document.getElementById(id).textContent = 'Error al cargar';
         });
       }
@@ -777,21 +716,21 @@
 
     // ── PRODUCTOS IPM ──
     async function cargarProductosIPM() {
-      const select = document.getElementById('producto');
+      var select = document.getElementById('producto');
       try {
-        const res = await fetch(`${base_url}/ipm-productos`);
+        var res = await fetch(base_url + '/ipm-productos');
         if (!res.ok) throw new Error('error');
-        const data = await res.json();
-        const items = Array.isArray(data) ? (data[0]?.items || []) : (data.items || []);
+        var data = await res.json();
+        var items = Array.isArray(data) ? (data[0] && data[0].items ? data[0].items : []) : (data.items || []);
         select.innerHTML = '<option value="">Selecciona producto</option>';
         if (items.length === 0) {
           select.innerHTML = '<option value="">Sin productos</option>';
           return;
         }
-        for (const item of items) {
-          const opt = document.createElement('option');
-          opt.value = item.producto || '';
-          opt.textContent = item.producto || '';
+        for (var i = 0; i < items.length; i++) {
+          var opt = document.createElement('option');
+          opt.value = items[i].producto || '';
+          opt.textContent = items[i].producto || '';
           select.appendChild(opt);
         }
       } catch (e) {
@@ -801,87 +740,121 @@
 
     // ── TABLA IPM ──
     async function cargarTablaIPM() {
-      const tabla = document.getElementById('tablaIPM');
+      var tabla = document.getElementById('tablaIPM');
       try {
-        const res = await fetch(`${base_url}/ipm-lista`);
+        var res = await fetch(base_url + '/ipm-lista');
         if (!res.ok) throw new Error('error');
-        const data = await res.json();
-        const items = Array.isArray(data) ? (data[0]?.items || []) : (data.items || []);
+        var data = await res.json();
+        var items = Array.isArray(data) ? (data[0] && data[0].items ? data[0].items : []) : (data.items || []);
         if (items.length === 0) {
-          tabla.innerHTML = '<tr><td colspan="2" class="sin-datos">Sin datos todavia</td></tr>';
+          tabla.innerHTML = '<tr><td colspan="2" class="sin-datos">Sin datos todav\u00eda</td></tr>';
           return;
         }
-        tabla.innerHTML = items.map(item => `
-          <tr>
-            <td>${item.fecha || ''}</td>
-            <td>${item.producto || ''}</td>
-          </tr>
-        `).join('');
+        var html = '';
+        for (var i = 0; i < items.length; i++) {
+          html += '<tr><td>' + escapeHtml(items[i].fecha || '') + '</td><td>' + escapeHtml(items[i].producto || '') + '</td></tr>';
+        }
+        tabla.innerHTML = html;
       } catch (e) {
         tabla.innerHTML = '<tr><td colspan="2" class="error">Error al cargar</td></tr>';
       }
     }
 
-    // ── TAREAS ──
+    // ── HELPERS ──
     function capitalizar(t) {
       return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
     }
 
-    function renderBloqueZona(zona, tareas) {
-      const count = Array.isArray(tareas) ? tareas.length : 0;
-      const icono = zonaIconos[zona] || '&#128204;';
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
+    }
 
-      let body;
+    function escapeAttr(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // ── TAREAS ──
+    function renderBloqueZona(zona, tareas) {
+      var count = Array.isArray(tareas) ? tareas.length : 0;
+      var icono = zonaIconos[zona] || '\u{1F4CC}';
+
+      var body;
       if (count === 0) {
         body = '<p class="zona-vacia">Sin tareas pendientes</p>';
       } else {
-        body = tareas.map(t => {
-          const prioClass = t.prioridad || 'media';
-          const prioLabel = t.prioridad || 'media';
-          const escapedId = String(t.id).replace(/'/g, "\\'");
-          const escapedTarea = String(t.tarea || '').replace(/'/g, "\\'");
+        body = '';
+        for (var i = 0; i < tareas.length; i++) {
+          var t = tareas[i];
+          var prioClass = t.prioridad || 'media';
+          var prioLabel = t.prioridad || 'media';
+          var safeId = escapeAttr(t.id);
+          var panelId = 'posponer-' + safeId;
 
-          return `
-            <div class="tarea-card">
-              <div class="tarea-top">
-                <div class="tarea-titulo">${t.tarea || ''}</div>
-                <span class="prioridad ${prioClass}">${prioLabel}</span>
-              </div>
-              ${t.fecha ? `<div class="tarea-meta"><strong>Fecha:</strong> ${t.fecha}</div>` : ''}
-              ${t.recurrente ? `<div class="tarea-meta"><strong>Recurrente:</strong> ${t.recurrente}</div>` : ''}
-              ${t.dia_recurrencia ? `<div class="tarea-meta"><strong>Dia:</strong> ${t.dia_recurrencia}</div>` : ''}
-              ${t.observaciones ? `<div class="tarea-obs">${t.observaciones}</div>` : ''}
-              <div class="tarea-actions">
-                <button class="btn btn-success btn-sm" onclick="marcarTareaHecha('${escapedId}')">&#10003; Hecha</button>
-                <button class="btn btn-warn btn-sm" onclick="abrirModalPosponer('${escapedId}', '${escapedTarea}')">&#9202; Posponer</button>
-              </div>
-            </div>`;
-        }).join('');
+          var mananaDate = calcManana();
+
+          body += '<div class="tarea-card">';
+          body += '<div class="tarea-top">';
+          body += '<div class="tarea-titulo">' + escapeHtml(t.tarea || '') + '</div>';
+          body += '<span class="prioridad ' + escapeAttr(prioClass) + '">' + escapeHtml(prioLabel) + '</span>';
+          body += '</div>';
+          if (t.fecha) body += '<div class="tarea-meta"><strong>Fecha:</strong> ' + escapeHtml(t.fecha) + '</div>';
+          if (t.recurrente) body += '<div class="tarea-meta"><strong>Recurrente:</strong> ' + escapeHtml(String(t.recurrente)) + '</div>';
+          if (t.dia_recurrencia) body += '<div class="tarea-meta"><strong>D\u00eda:</strong> ' + escapeHtml(String(t.dia_recurrencia)) + '</div>';
+          if (t.observaciones) body += '<div class="tarea-obs">' + escapeHtml(t.observaciones) + '</div>';
+
+          body += '<div class="tarea-actions">';
+          body += '<button class="btn btn-done btn-sm" onclick="marcarTareaHecha(\'' + safeId + '\')">Hecha \u2713</button>';
+          body += '<button class="btn btn-postpone btn-sm" onclick="togglePosponer(\'' + safeId + '\')">Posponer \u23F0</button>';
+          body += '</div>';
+
+          // Inline postpone panel
+          body += '<div class="posponer-panel" id="' + panelId + '">';
+          body += '<div class="posponer-panel-label">Posponer tarea</div>';
+          body += '<div class="posponer-quick">';
+          body += '<button class="btn btn-postpone btn-sm" onclick="posponerManana(\'' + safeId + '\')">Ma\u00f1ana</button>';
+          body += '</div>';
+          body += '<div class="posponer-custom">';
+          body += '<input type="date" id="fecha-' + safeId + '" min="' + mananaDate + '" />';
+          body += '<button class="btn btn-primary btn-sm" onclick="posponerConFecha(\'' + safeId + '\')">Confirmar</button>';
+          body += '</div>';
+          body += '</div>';
+
+          body += '</div>';
+        }
       }
 
-      return `
-        <div class="zona-card">
-          <div class="zona-header">
-            <span class="zona-icon">${icono}</span>
-            <h3>${capitalizar(zona)}</h3>
-            <span class="zona-badge">${count}</span>
-          </div>
-          <div class="zona-body">${body}</div>
-        </div>`;
+      return '<div class="zona-card">' +
+        '<div class="zona-header" onclick="toggleZona(this)">' +
+        '<span class="zona-icon">' + icono + '</span>' +
+        '<h3>' + capitalizar(zona) + '</h3>' +
+        '<span class="zona-badge">' + count + '</span>' +
+        '<span class="zona-chevron">\u25BC</span>' +
+        '</div>' +
+        '<div class="zona-body">' + body + '</div>' +
+        '</div>';
+    }
+
+    function toggleZona(headerEl) {
+      var card = headerEl.parentElement;
+      card.classList.toggle('collapsed');
     }
 
     async function cargarTareas() {
-      const contenedor = document.getElementById('contenedorTareas');
+      var contenedor = document.getElementById('contenedorTareas');
       try {
-        const res = await fetch(`${base_url}/tareas-lista`);
+        var res = await fetch(base_url + '/tareas-lista');
         if (!res.ok) throw new Error('error');
-        const data = await res.json();
-        const itemsPorZona = data.items_por_zona || {};
-        const zonas = ['madres', 'esquejes', 'floracion', 'limpieza', 'mantenimiento'];
+        var data = await res.json();
+        var itemsPorZona = data.items_por_zona || {};
+        var zonas = ['madres', 'esquejes', 'floracion', 'limpieza', 'mantenimiento'];
         contenedor.className = 'tareas-grid';
-        contenedor.innerHTML = zonas
-          .map(z => renderBloqueZona(z, itemsPorZona[z] || []))
-          .join('');
+        var html = '';
+        for (var i = 0; i < zonas.length; i++) {
+          html += renderBloqueZona(zonas[i], itemsPorZona[zonas[i]] || []);
+        }
+        contenedor.innerHTML = html;
       } catch (e) {
         contenedor.className = 'error';
         contenedor.textContent = 'Error al cargar tareas';
@@ -890,15 +863,15 @@
 
     // ── MARCAR HECHA ──
     async function marcarTareaHecha(id) {
-      if (!confirm('Marcar esta tarea como hecha?')) return;
+      if (!confirm('\u00bfMarcar esta tarea como hecha?')) return;
       try {
-        const res = await fetch(`${base_url}/tareas-eliminar`, {
+        var res = await fetch(base_url + '/tareas-eliminar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id })
+          body: JSON.stringify({ id: id })
         });
         if (!res.ok) throw new Error('error');
-        const data = await res.json();
+        var data = await res.json();
         if (!data.ok) throw new Error('no ok');
         await cargarTareas();
       } catch (e) {
@@ -907,83 +880,71 @@
     }
 
     // ── POSPONER ──
-    function abrirModalPosponer(id, nombre) {
-      tareaIdPosponer = id;
-      document.getElementById('modalTareaNombre').textContent = nombre;
-      document.getElementById('fechaCustomBox').classList.remove('visible');
-      document.getElementById('modalPosponer').classList.add('activo');
-
-      // Fecha minima: manana
-      const manana = new Date();
-      manana.setDate(manana.getDate() + 1);
-      const input = document.getElementById('fechaPosponer');
-      input.min = manana.toISOString().split('T')[0];
-      input.value = '';
+    function calcManana() {
+      var d = new Date();
+      d.setDate(d.getDate() + 1);
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
-    function cerrarModal() {
-      document.getElementById('modalPosponer').classList.remove('activo');
-      tareaIdPosponer = null;
+    function togglePosponer(id) {
+      var panel = document.getElementById('posponer-' + id);
+      if (!panel) return;
+      // Close all other panels first
+      var allPanels = document.querySelectorAll('.posponer-panel.visible');
+      for (var i = 0; i < allPanels.length; i++) {
+        if (allPanels[i] !== panel) {
+          allPanels[i].classList.remove('visible');
+        }
+      }
+      panel.classList.toggle('visible');
     }
 
-    function mostrarFechaCustom() {
-      document.getElementById('fechaCustomBox').classList.add('visible');
-    }
-
-    async function enviarPosponer(nuevaFecha) {
+    async function posponerTarea(id, fecha) {
       try {
-        const res = await fetch(`${base_url}/tareas-posponer`, {
+        var res = await fetch(base_url + '/tareas-posponer', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: tareaIdPosponer, nueva_fecha: nuevaFecha })
+          body: JSON.stringify({ id: id, nueva_fecha: fecha })
         });
         if (!res.ok) throw new Error('error');
-        const data = await res.json();
+        var data = await res.json();
         if (!data.ok) throw new Error('no ok');
-        cerrarModal();
         await cargarTareas();
       } catch (e) {
         alert('No se pudo posponer la tarea');
       }
     }
 
-    function posponerManana() {
-      const manana = new Date();
-      manana.setDate(manana.getDate() + 1);
-      const fecha = manana.toISOString().split('T')[0];
-      enviarPosponer(fecha);
+    function posponerManana(id) {
+      var fecha = calcManana();
+      posponerTarea(id, fecha);
     }
 
-    function posponerConFecha() {
-      const fecha = document.getElementById('fechaPosponer').value;
-      if (!fecha) {
+    function posponerConFecha(id) {
+      var input = document.getElementById('fecha-' + id);
+      if (!input || !input.value) {
         alert('Selecciona una fecha');
         return;
       }
-      enviarPosponer(fecha);
+      posponerTarea(id, input.value);
     }
 
-    // Cerrar modal al tocar fuera
-    document.getElementById('modalPosponer').addEventListener('click', function(e) {
-      if (e.target === this) cerrarModal();
-    });
-
     // ── FORM IPM ──
-    document.getElementById('formIPM').addEventListener('submit', async (e) => {
+    document.getElementById('formIPM').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const fecha = document.getElementById('fecha').value;
-      const producto = document.getElementById('producto').value;
-      const mensaje = document.getElementById('mensaje');
+      var fecha = document.getElementById('fecha').value;
+      var producto = document.getElementById('producto').value;
+      var mensaje = document.getElementById('mensaje');
       mensaje.textContent = '';
 
       try {
-        const res = await fetch(`${base_url}/ipm-guardar`, {
+        var res = await fetch(base_url + '/ipm-guardar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fecha, producto })
+          body: JSON.stringify({ fecha: fecha, producto: producto })
         });
         if (!res.ok) throw new Error('error');
-        const data = await res.json();
+        var data = await res.json();
         mensaje.textContent = data.mensaje || 'Guardado correctamente';
         document.getElementById('producto').value = '';
         ponerFechaHoy();

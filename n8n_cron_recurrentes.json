@@ -1,0 +1,206 @@
+{
+  "name": "Cron Tareas Recurrentes",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * *"
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-1111-4aaa-bbbb-000000000001",
+      "name": "Cron Diario 6AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1626272047,
+          "mode": "list",
+          "cachedResultName": "tareas_recurrentes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1626272047"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-2222-4aaa-bbbb-000000000002",
+      "name": "Leer Plantillas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [220, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1404161276,
+          "mode": "list",
+          "cachedResultName": "tareas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1404161276"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-3333-4aaa-bbbb-000000000003",
+      "name": "Leer Tareas Existentes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [440, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get day of week in Spanish\nconst dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];\nconst hoy = new Date();\nconst diaHoy = dias[hoy.getDay()];\nconst fechaHoy = hoy.toISOString().split('T')[0]; // YYYY-MM-DD\n\n// Get templates from first input (Leer Plantillas)\nconst plantillas = $('Leer Plantillas').all().map(item => item.json);\n\n// Get existing tasks from second input (Leer Tareas Existentes)\nconst tareasExistentes = $('Leer Tareas Existentes').all().map(item => item.json);\n\n// Filter active templates for today's day\nconst plantillasHoy = plantillas.filter(p => {\n  const activa = String(p.activa || '').trim().toLowerCase();\n  const dia = String(p.dia_recurrencia || '').trim().toLowerCase();\n  return activa === 'si' && dia === diaHoy;\n});\n\nif (plantillasHoy.length === 0) {\n  return []; // Nothing to create today\n}\n\n// Check for duplicates: same tarea + zona + fecha = today and not \"hecha\"\nconst nuevas = plantillasHoy.filter(p => {\n  const yaExiste = tareasExistentes.some(t => {\n    return String(t.tarea || '').trim().toLowerCase() === String(p.tarea || '').trim().toLowerCase()\n      && String(t.zona || '').trim().toLowerCase() === String(p.zona || '').trim().toLowerCase()\n      && String(t.fecha || '').trim() === fechaHoy\n      && String(t.estado || '').trim().toLowerCase() !== 'hecha';\n  });\n  return !yaExiste;\n});\n\nif (nuevas.length === 0) {\n  return []; // All already exist\n}\n\n// Generate new task IDs (find max existing id + 1)\nlet maxId = 0;\nfor (const t of tareasExistentes) {\n  const id = parseInt(t.id);\n  if (!isNaN(id) && id > maxId) maxId = id;\n}\n\nreturn nuevas.map((p, i) => ({\n  json: {\n    id: String(maxId + 1 + i),\n    zona: p.zona || '',\n    tarea: p.tarea || '',\n    prioridad: p.prioridad || 'media',\n    estado: 'pendiente',\n    fecha: fechaHoy,\n    recurrente: 'si',\n    dia_recurrencia: p.dia_recurrencia || '',\n    observaciones: p.observaciones || ''\n  }\n}));"
+      },
+      "id": "a1b2c3d4-4444-4aaa-bbbb-000000000004",
+      "name": "Filtrar y Generar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1404161276,
+          "mode": "list",
+          "cachedResultName": "tareas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1404161276"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "zona": "={{ $json.zona }}",
+            "tarea": "={{ $json.tarea }}",
+            "prioridad": "={{ $json.prioridad }}",
+            "estado": "pendiente",
+            "fecha": "={{ $json.fecha }}",
+            "recurrente": "si",
+            "dia_recurrencia": "={{ $json.dia_recurrencia }}",
+            "observaciones": "={{ $json.observaciones }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {"id": "id", "displayName": "id", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": "zona", "displayName": "zona", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": "tarea", "displayName": "tarea", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": "prioridad", "displayName": "prioridad", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": "estado", "displayName": "estado", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": "fecha", "displayName": "fecha", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": "recurrente", "displayName": "recurrente", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": "dia_recurrencia", "displayName": "dia_recurrencia", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": "observaciones", "displayName": "observaciones", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true}
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-5555-4aaa-bbbb-000000000005",
+      "name": "Crear Tareas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [880, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Cron Diario 6AM": {
+      "main": [
+        [
+          {
+            "node": "Leer Plantillas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Plantillas": {
+      "main": [
+        [
+          {
+            "node": "Leer Tareas Existentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Tareas Existentes": {
+      "main": [
+        [
+          {
+            "node": "Filtrar y Generar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar y Generar": {
+      "main": [
+        [
+          {
+            "node": "Crear Tareas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "instanceId": "cuttingsclones"
+  },
+  "tags": []
+}
