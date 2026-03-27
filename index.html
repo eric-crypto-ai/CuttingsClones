@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CuttingsClones — Portal del Trabajador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde: #2d7a2d;
+      --verde-claro: #e8f5e8;
+      --verde-hover: #236b23;
+      --dorado: #b8960c;
+      --dorado-claro: #faf4e0;
+      --gris-oscuro: #3a3a3a;
+      --gris-texto: #555;
+      --gris-borde: #e2e8f0;
+      --fondo: #f7f9f7;
+      --blanco: #ffffff;
+      --rojo: #dc2626;
+      --rojo-claro: #fef2f2;
+      --naranja: #ea580c;
+      --naranja-claro: #fff7ed;
+      --radius: 10px;
+      --sombra: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --sombra-hover: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--fondo);
+      color: var(--gris-oscuro);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, var(--verde) 0%, #1a5c1a 100%);
+      color: white;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .logo img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .logo-placeholder {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .header-text h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .header-text p {
+      font-size: 12px;
+      opacity: 0.85;
+      font-weight: 400;
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px 12px 40px;
+    }
+
+    /* ── SECCIONES ── */
+    section {
+      background: var(--blanco);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--sombra);
+      border: 1px solid var(--gris-borde);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--verde-claro);
+    }
+
+    .section-icon {
+      font-size: 18px;
+      width: 32px;
+      height: 32px;
+      background: var(--verde-claro);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .section-header h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--verde);
+    }
+
+    /* ── INFO UTIL ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .info-chip {
+      background: var(--fondo);
+      border-radius: 8px;
+      padding: 10px;
+      border: 1px solid var(--gris-borde);
+    }
+
+    .info-chip.aviso {
+      grid-column: 1 / -1;
+      background: var(--dorado-claro);
+      border-color: var(--dorado);
+    }
+
+    .info-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--gris-texto);
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .info-value {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gris-oscuro);
+    }
+
+    /* ── FORMULARIO IPM ── */
+    .form-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--gris-texto);
+      letter-spacing: 0.3px;
+    }
+
+    input, select, textarea {
+      padding: 9px 10px;
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--fondo);
+      color: var(--gris-oscuro);
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--verde);
+      box-shadow: 0 0 0 2px rgba(45,122,45,0.15);
+    }
+
+    /* ── BOTONES ── */
+    .btn {
+      padding: 9px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--verde);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--verde-hover);
+      box-shadow: var(--sombra-hover);
+    }
+
+    .btn-success {
+      background: var(--verde-claro);
+      color: var(--verde);
+      border: 1px solid #c3e6c3;
+    }
+
+    .btn-success:hover {
+      background: #d4edd4;
+    }
+
+    .btn-warn {
+      background: var(--dorado-claro);
+      color: #8a7000;
+      border: 1px solid #e6d78a;
+    }
+
+    .btn-warn:hover {
+      background: #f5edd0;
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .mensaje {
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--verde);
+    }
+
+    /* ── TABLA IPM ── */
+    .tabla-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: var(--verde-claro);
+      color: var(--verde);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--gris-borde);
+      color: var(--gris-oscuro);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ── TAREAS ── */
+    .tareas-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .zona-card {
+      border: 1px solid var(--gris-borde);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .zona-header {
+      background: var(--verde-claro);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .zona-header h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--verde);
+      flex: 1;
+    }
+
+    .zona-badge {
+      background: var(--verde);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      min-width: 22px;
+      text-align: center;
+    }
+
+    .zona-icon {
+      font-size: 16px;
+    }
+
+    .zona-body {
+      padding: 8px;
+    }
+
+    .zona-vacia {
+      color: var(--gris-texto);
+      font-size: 13px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .tarea-card {
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 6px;
+      background: var(--blanco);
+      transition: box-shadow 0.15s;
+    }
+
+    .tarea-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .tarea-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .tarea-titulo {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--gris-oscuro);
+      flex: 1;
+    }
+
+    .prioridad {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+    }
+
+    .prioridad.alta {
+      background: var(--rojo-claro);
+      color: var(--rojo);
+    }
+
+    .prioridad.media {
+      background: var(--naranja-claro);
+      color: var(--naranja);
+    }
+
+    .prioridad.baja {
+      background: var(--verde-claro);
+      color: var(--verde);
+    }
+
+    .tarea-meta {
+      font-size: 11px;
+      color: var(--gris-texto);
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tarea-meta strong {
+      color: var(--gris-oscuro);
+    }
+
+    .tarea-obs {
+      font-size: 12px;
+      color: var(--gris-texto);
+      background: var(--fondo);
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin: 6px 0;
+      border-left: 3px solid var(--dorado);
+    }
+
+    .tarea-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tarea-actions .btn {
+      flex: 1;
+    }
+
+    /* ── MODAL POSPONER ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-overlay.activo {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--blanco);
+      border-radius: 16px 16px 0 0;
+      padding: 20px;
+      width: 100%;
+      max-width: 420px;
+      animation: slideUp 0.2s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gris-oscuro);
+      margin-bottom: 4px;
+    }
+
+    .modal .modal-sub {
+      font-size: 13px;
+      color: var(--gris-texto);
+      margin-bottom: 16px;
+    }
+
+    .modal-opciones {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-opcion {
+      padding: 12px;
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+      background: var(--fondo);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gris-oscuro);
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.15s;
+    }
+
+    .modal-opcion:hover {
+      border-color: var(--verde);
+      background: var(--verde-claro);
+    }
+
+    .modal-opcion .opcion-icon {
+      font-size: 18px;
+      width: 28px;
+      text-align: center;
+    }
+
+    .modal-fecha-custom {
+      display: none;
+      margin-top: 8px;
+      padding: 12px;
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+      background: var(--fondo);
+    }
+
+    .modal-fecha-custom.visible {
+      display: block;
+    }
+
+    .modal-fecha-custom label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gris-texto);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .modal-fecha-custom input[type="date"] {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .modal-cancelar {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--gris-texto);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .modal-cancelar:hover {
+      background: var(--fondo);
+    }
+
+    /* ── CARGANDO ── */
+    .cargando, .error, .sin-datos {
+      color: var(--gris-texto);
+      font-size: 13px;
+      text-align: center;
+      padding: 16px;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      height: 14px;
+      width: 80%;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (min-width: 640px) {
+      main {
+        padding: 20px 16px 40px;
+      }
+
+      section {
+        padding: 20px;
+        margin-bottom: 16px;
+      }
+
+      .tareas-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .modal {
+        border-radius: 16px;
+        margin-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        flex-direction: column;
+      }
+
+      .tarea-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span class="logo-placeholder">&#127793;</span>
+    </div>
+    <div class="header-text">
+      <h1>CuttingsClones</h1>
+      <p>Portal del Trabajador</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- INFO UTIL -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#9432;</div>
+        <h2>Informacion util</h2>
+      </div>
+      <div class="info-grid">
+        <div class="info-chip">
+          <div class="info-label">Horario</div>
+          <div class="info-value" id="horario"><div class="skeleton"></div></div>
+        </div>
+        <div class="info-chip">
+          <div class="info-label">Telefono soporte</div>
+          <div class="info-value" id="telefono_soporte"><div class="skeleton"></div></div>
+        </div>
+        <div class="info-chip" style="grid-column: 1 / -1;">
+          <div class="info-label">Instrucciones</div>
+          <div class="info-value" id="instrucciones"><div class="skeleton"></div></div>
+        </div>
+        <div class="info-chip aviso">
+          <div class="info-label">Aviso del dia</div>
+          <div class="info-value" id="aviso_del_dia"><div class="skeleton"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REGISTRO IPM -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#128196;</div>
+        <h2>Registrar producto IPM</h2>
+      </div>
+      <form id="formIPM">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" required />
+          </div>
+          <div class="form-group">
+            <label for="producto">Producto</label>
+            <select id="producto" required>
+              <option value="">Cargando...</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+      <div id="mensaje" class="mensaje"></div>
+    </section>
+
+    <!-- TABLA IPM -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#128202;</div>
+        <h2>Control IPM</h2>
+      </div>
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Producto</th>
+            </tr>
+          </thead>
+          <tbody id="tablaIPM">
+            <tr><td colspan="2" class="cargando">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAREAS -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#9745;</div>
+        <h2>Tareas por zona</h2>
+      </div>
+      <div id="contenedorTareas" class="cargando">Cargando tareas...</div>
+    </section>
+  </main>
+
+  <!-- MODAL POSPONER -->
+  <div class="modal-overlay" id="modalPosponer">
+    <div class="modal">
+      <h3>Posponer tarea</h3>
+      <p class="modal-sub" id="modalTareaNombre"></p>
+      <div class="modal-opciones">
+        <button class="modal-opcion" onclick="posponerManana()">
+          <span class="opcion-icon">&#9197;</span>
+          <span>Posponer 1 dia (manana)</span>
+        </button>
+        <button class="modal-opcion" onclick="mostrarFechaCustom()">
+          <span class="opcion-icon">&#128197;</span>
+          <span>Elegir fecha</span>
+        </button>
+      </div>
+      <div class="modal-fecha-custom" id="fechaCustomBox">
+        <label for="fechaPosponer">Selecciona la nueva fecha:</label>
+        <input type="date" id="fechaPosponer" />
+        <button class="btn btn-primary" style="width:100%;" onclick="posponerConFecha()">Confirmar</button>
+      </div>
+      <button class="modal-cancelar" onclick="cerrarModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <script>
+    const base_url = 'https://primary-production-2cf7.up.railway.app/webhook';
+    let tareaIdPosponer = null;
+
+    // ── ICONOS POR ZONA ──
+    const zonaIconos = {
+      madres: '&#127793;',
+      esquejes: '&#127806;',
+      floracion: '&#127804;',
+      limpieza: '&#129529;',
+      mantenimiento: '&#128295;'
+    };
+
+    // ── FECHA HOY ──
+    function fechaHoyISO() {
+      const h = new Date();
+      return `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
+    }
+
+    function ponerFechaHoy() {
+      document.getElementById('fecha').value = fechaHoyISO();
+    }
+
+    // ── INFO LANDING ──
+    async function cargarInfoLanding() {
+      try {
+        const res = await fetch(`${base_url}/info-landing`);
+        if (!res.ok) throw new Error('error');
+        const data = await res.json();
+        document.getElementById('horario').textContent = data.horario || '-';
+        document.getElementById('instrucciones').textContent = data.instrucciones || '-';
+        document.getElementById('telefono_soporte').textContent = data.telefono_soporte || '-';
+        document.getElementById('aviso_del_dia').textContent = data.aviso_del_dia || '-';
+      } catch (e) {
+        ['horario','instrucciones','telefono_soporte','aviso_del_dia'].forEach(id => {
+          document.getElementById(id).textContent = 'Error al cargar';
+        });
+      }
+    }
+
+    // ── PRODUCTOS IPM ──
+    async function cargarProductosIPM() {
+      const select = document.getElementById('producto');
+      try {
+        const res = await fetch(`${base_url}/ipm-productos`);
+        if (!res.ok) throw new Error('error');
+        const data = await res.json();
+        const items = Array.isArray(data) ? (data[0]?.items || []) : (data.items || []);
+        select.innerHTML = '<option value="">Selecciona producto</option>';
+        if (items.length === 0) {
+          select.innerHTML = '<option value="">Sin productos</option>';
+          return;
+        }
+        for (const item of items) {
+          const opt = document.createElement('option');
+          opt.value = item.producto || '';
+          opt.textContent = item.producto || '';
+          select.appendChild(opt);
+        }
+      } catch (e) {
+        select.innerHTML = '<option value="">Error al cargar</option>';
+      }
+    }
+
+    // ── TABLA IPM ──
+    async function cargarTablaIPM() {
+      const tabla = document.getElementById('tablaIPM');
+      try {
+        const res = await fetch(`${base_url}/ipm-lista`);
+        if (!res.ok) throw new Error('error');
+        const data = await res.json();
+        const items = Array.isArray(data) ? (data[0]?.items || []) : (data.items || []);
+        if (items.length === 0) {
+          tabla.innerHTML = '<tr><td colspan="2" class="sin-datos">Sin datos todavia</td></tr>';
+          return;
+        }
+        tabla.innerHTML = items.map(item => `
+          <tr>
+            <td>${item.fecha || ''}</td>
+            <td>${item.producto || ''}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tabla.innerHTML = '<tr><td colspan="2" class="error">Error al cargar</td></tr>';
+      }
+    }
+
+    // ── TAREAS ──
+    function capitalizar(t) {
+      return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
+    }
+
+    function renderBloqueZona(zona, tareas) {
+      const count = Array.isArray(tareas) ? tareas.length : 0;
+      const icono = zonaIconos[zona] || '&#128204;';
+
+      let body;
+      if (count === 0) {
+        body = '<p class="zona-vacia">Sin tareas pendientes</p>';
+      } else {
+        body = tareas.map(t => {
+          const prioClass = t.prioridad || 'media';
+          const prioLabel = t.prioridad || 'media';
+          const escapedId = String(t.id).replace(/'/g, "\\'");
+          const escapedTarea = String(t.tarea || '').replace(/'/g, "\\'");
+
+          return `
+            <div class="tarea-card">
+              <div class="tarea-top">
+                <div class="tarea-titulo">${t.tarea || ''}</div>
+                <span class="prioridad ${prioClass}">${prioLabel}</span>
+              </div>
+              ${t.fecha ? `<div class="tarea-meta"><strong>Fecha:</strong> ${t.fecha}</div>` : ''}
+              ${t.recurrente ? `<div class="tarea-meta"><strong>Recurrente:</strong> ${t.recurrente}</div>` : ''}
+              ${t.dia_recurrencia ? `<div class="tarea-meta"><strong>Dia:</strong> ${t.dia_recurrencia}</div>` : ''}
+              ${t.observaciones ? `<div class="tarea-obs">${t.observaciones}</div>` : ''}
+              <div class="tarea-actions">
+                <button class="btn btn-success btn-sm" onclick="marcarTareaHecha('${escapedId}')">&#10003; Hecha</button>
+                <button class="btn btn-warn btn-sm" onclick="abrirModalPosponer('${escapedId}', '${escapedTarea}')">&#9202; Posponer</button>
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      return `
+        <div class="zona-card">
+          <div class="zona-header">
+            <span class="zona-icon">${icono}</span>
+            <h3>${capitalizar(zona)}</h3>
+            <span class="zona-badge">${count}</span>
+          </div>
+          <div class="zona-body">${body}</div>
+        </div>`;
+    }
+
+    async function cargarTareas() {
+      const contenedor = document.getElementById('contenedorTareas');
+      try {
+        const res = await fetch(`${base_url}/tareas-lista`);
+        if (!res.ok) throw new Error('error');
+        const data = await res.json();
+        const itemsPorZona = data.items_por_zona || {};
+        const zonas = ['madres', 'esquejes', 'floracion', 'limpieza', 'mantenimiento'];
+        contenedor.className = 'tareas-grid';
+        contenedor.innerHTML = zonas
+          .map(z => renderBloqueZona(z, itemsPorZona[z] || []))
+          .join('');
+      } catch (e) {
+        contenedor.className = 'error';
+        contenedor.textContent = 'Error al cargar tareas';
+      }
+    }
+
+    // ── MARCAR HECHA ──
+    async function marcarTareaHecha(id) {
+      if (!confirm('Marcar esta tarea como hecha?')) return;
+      try {
+        const res = await fetch(`${base_url}/tareas-eliminar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        if (!res.ok) throw new Error('error');
+        const data = await res.json();
+        if (!data.ok) throw new Error('no ok');
+        await cargarTareas();
+      } catch (e) {
+        alert('No se pudo marcar como hecha');
+      }
+    }
+
+    // ── POSPONER ──
+    function abrirModalPosponer(id, nombre) {
+      tareaIdPosponer = id;
+      document.getElementById('modalTareaNombre').textContent = nombre;
+      document.getElementById('fechaCustomBox').classList.remove('visible');
+      document.getElementById('modalPosponer').classList.add('activo');
+
+      // Fecha minima: manana
+      const manana = new Date();
+      manana.setDate(manana.getDate() + 1);
+      const input = document.getElementById('fechaPosponer');
+      input.min = manana.toISOString().split('T')[0];
+      input.value = '';
+    }
+
+    function cerrarModal() {
+      document.getElementById('modalPosponer').classList.remove('activo');
+      tareaIdPosponer = null;
+    }
+
+    function mostrarFechaCustom() {
+      document.getElementById('fechaCustomBox').classList.add('visible');
+    }
+
+    async function enviarPosponer(nuevaFecha) {
+      try {
+        const res = await fetch(`${base_url}/tareas-posponer`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: tareaIdPosponer, nueva_fecha: nuevaFecha })
+        });
+        if (!res.ok) throw new Error('error');
+        const data = await res.json();
+        if (!data.ok) throw new Error('no ok');
+        cerrarModal();
+        await cargarTareas();
+      } catch (e) {
+        alert('No se pudo posponer la tarea');
+      }
+    }
+
+    function posponerManana() {
+      const manana = new Date();
+      manana.setDate(manana.getDate() + 1);
+      const fecha = manana.toISOString().split('T')[0];
+      enviarPosponer(fecha);
+    }
+
+    function posponerConFecha() {
+      const fecha = document.getElementById('fechaPosponer').value;
+      if (!fecha) {
+        alert('Selecciona una fecha');
+        return;
+      }
+      enviarPosponer(fecha);
+    }
+
+    // Cerrar modal al tocar fuera
+    document.getElementById('modalPosponer').addEventListener('click', function(e) {
+      if (e.target === this) cerrarModal();
+    });
+
+    // ── FORM IPM ──
+    document.getElementById('formIPM').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fecha = document.getElementById('fecha').value;
+      const producto = document.getElementById('producto').value;
+      const mensaje = document.getElementById('mensaje');
+      mensaje.textContent = '';
+
+      try {
+        const res = await fetch(`${base_url}/ipm-guardar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fecha, producto })
+        });
+        if (!res.ok) throw new Error('error');
+        const data = await res.json();
+        mensaje.textContent = data.mensaje || 'Guardado correctamente';
+        document.getElementById('producto').value = '';
+        ponerFechaHoy();
+        await cargarTablaIPM();
+      } catch (e) {
+        mensaje.textContent = 'Error al guardar';
+      }
+    });
+
+    // ── INIT ──
+    ponerFechaHoy();
+    cargarInfoLanding();
+    cargarProductosIPM();
+    cargarTablaIPM();
+    cargarTareas();
+  </script>
+</body>
+</html>
