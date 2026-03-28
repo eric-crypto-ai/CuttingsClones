@@ -19,7 +19,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const body = $('Webhook Crear').first().json.body;\n\nconst tarea = String(body.tarea || '').trim();\nconst zona = String(body.zona || '').trim().toLowerCase();\nconst prioridad = String(body.prioridad || 'media').trim().toLowerCase();\nconst fecha = String(body.fecha || '').trim();\nconst observaciones = String(body.observaciones || '').trim();\n\nconst id = 'T' + Date.now();\n\nreturn [{\n  json: {\n    id,\n    tarea,\n    zona,\n    prioridad,\n    fecha,\n    observaciones,\n    recurrente: '',\n    dia_recurrencia: ''\n  }\n}];"
+        "jsCode": "const body = $('Webhook Crear').first().json.body;\n\nconst tarea = String(body.tarea || '').trim();\nconst zona = String(body.zona || '').trim().toLowerCase();\nconst prioridad = String(body.prioridad || 'media').trim().toLowerCase();\nconst fecha = String(body.fecha || '').trim();\nconst observaciones = String(body.observaciones || '').trim();\n\nconst id = 'T' + Date.now();\n\nreturn [{\n  json: {\n    id,\n    zona,\n    tarea,\n    prioridad,\n    estado: 'pendiente',\n    fecha,\n    recurrente: '',\n    dia_recurrencia: '',\n    observaciones\n  }\n}];"
       },
       "id": "ct000001-4444-4aaa-b444-000000000004",
       "name": "Preparar Datos",
@@ -48,24 +48,26 @@
           "mappingMode": "defineBelow",
           "value": {
             "id": "={{ $json.id }}",
-            "tarea": "={{ $json.tarea }}",
             "zona": "={{ $json.zona }}",
+            "tarea": "={{ $json.tarea }}",
             "prioridad": "={{ $json.prioridad }}",
+            "estado": "={{ $json.estado }}",
             "fecha": "={{ $json.fecha }}",
-            "observaciones": "={{ $json.observaciones }}",
             "recurrente": "={{ $json.recurrente }}",
-            "dia_recurrencia": "={{ $json.dia_recurrencia }}"
+            "dia_recurrencia": "={{ $json.dia_recurrencia }}",
+            "observaciones": "={{ $json.observaciones }}"
           },
           "matchingColumns": [],
           "schema": [
             { "id": "id", "displayName": "id", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
-            { "id": "tarea", "displayName": "tarea", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
             { "id": "zona", "displayName": "zona", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
+            { "id": "tarea", "displayName": "tarea", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
             { "id": "prioridad", "displayName": "prioridad", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
+            { "id": "estado", "displayName": "estado", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
             { "id": "fecha", "displayName": "fecha", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
-            { "id": "observaciones", "displayName": "observaciones", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
             { "id": "recurrente", "displayName": "recurrente", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
-            { "id": "dia_recurrencia", "displayName": "dia_recurrencia", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false }
+            { "id": "dia_recurrencia", "displayName": "dia_recurrencia", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
+            { "id": "observaciones", "displayName": "observaciones", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false }
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": true
