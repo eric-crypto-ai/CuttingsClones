@@ -19,77 +19,13 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict"
-          },
-          "conditions": [
-            {
-              "id": "cond-tarea-check",
-              "leftValue": "={{ $json.body.tarea }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "isNotEmpty",
-                "singleValue": true
-              }
-            },
-            {
-              "id": "cond-zona-check",
-              "leftValue": "={{ $json.body.zona }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "isNotEmpty",
-                "singleValue": true
-              }
-            },
-            {
-              "id": "cond-fecha-check",
-              "leftValue": "={{ $json.body.fecha }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "isNotEmpty",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "ct000001-2222-4aaa-b222-000000000002",
-      "name": "Validar Input",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [500, 340]
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\n  \"ok\": false,\n  \"error\": \"faltan_campos_requeridos\",\n  \"mensaje\": \"Los campos tarea, zona y fecha son obligatorios\"\n}",
-        "options": {
-          "responseCode": 400
-        }
-      },
-      "id": "ct000001-3333-4aaa-b333-000000000003",
-      "name": "Error Validacion",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.5,
-      "position": [740, 540]
-    },
-    {
-      "parameters": {
-        "jsCode": "const body = $('Webhook Crear').first().json.body;\n\n// Generar ID único basado en timestamp\nconst id = 'T' + Date.now();\n\n// Campos de la nueva tarea\nconst tarea = String(body.tarea || '').trim();\nconst zona = String(body.zona || '').trim().toLowerCase();\nconst prioridad = String(body.prioridad || 'media').trim().toLowerCase();\nconst fecha = String(body.fecha || '').trim();\nconst observaciones = String(body.observaciones || '').trim();\n\nreturn [{\n  json: {\n    id,\n    tarea,\n    zona,\n    prioridad,\n    fecha,\n    observaciones,\n    recurrente: '',\n    dia_recurrencia: ''\n  }\n}];"
+        "jsCode": "const body = $('Webhook Crear').first().json.body;\n\nconst tarea = String(body.tarea || '').trim();\nconst zona = String(body.zona || '').trim().toLowerCase();\nconst prioridad = String(body.prioridad || 'media').trim().toLowerCase();\nconst fecha = String(body.fecha || '').trim();\nconst observaciones = String(body.observaciones || '').trim();\n\nconst id = 'T' + Date.now();\n\nreturn [{\n  json: {\n    id,\n    tarea,\n    zona,\n    prioridad,\n    fecha,\n    observaciones,\n    recurrente: '',\n    dia_recurrencia: ''\n  }\n}];"
       },
       "id": "ct000001-4444-4aaa-b444-000000000004",
       "name": "Preparar Datos",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [740, 340]
+      "position": [500, 340]
     },
     {
       "parameters": {
@@ -122,78 +58,14 @@
           },
           "matchingColumns": [],
           "schema": [
-            {
-              "id": "id",
-              "displayName": "id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "tarea",
-              "displayName": "tarea",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": false
-            },
-            {
-              "id": "zona",
-              "displayName": "zona",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": false
-            },
-            {
-              "id": "prioridad",
-              "displayName": "prioridad",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": false
-            },
-            {
-              "id": "fecha",
-              "displayName": "fecha",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": false
-            },
-            {
-              "id": "observaciones",
-              "displayName": "observaciones",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": false
-            },
-            {
-              "id": "recurrente",
-              "displayName": "recurrente",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": false
-            },
-            {
-              "id": "dia_recurrencia",
-              "displayName": "dia_recurrencia",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": false
-            }
+            { "id": "id", "displayName": "id", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "tarea", "displayName": "tarea", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
+            { "id": "zona", "displayName": "zona", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
+            { "id": "prioridad", "displayName": "prioridad", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
+            { "id": "fecha", "displayName": "fecha", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
+            { "id": "observaciones", "displayName": "observaciones", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
+            { "id": "recurrente", "displayName": "recurrente", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false },
+            { "id": "dia_recurrencia", "displayName": "dia_recurrencia", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": false }
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": true
@@ -204,7 +76,7 @@
       "name": "Agregar Tarea",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
-      "position": [980, 340],
+      "position": [740, 340],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "U9MmYhXUgVdOQej5",
@@ -215,76 +87,30 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\n  \"ok\": true,\n  \"mensaje\": \"Tarea creada correctamente\",\n  \"id\": \"{{ $('Preparar Datos').first().json.id }}\"\n}",
+        "responseBody": "={ \"ok\": true, \"mensaje\": \"Tarea creada correctamente\" }",
         "options": {}
       },
       "id": "ct000001-6666-4aaa-b666-000000000006",
       "name": "Respuesta OK",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
-      "position": [1220, 340]
+      "position": [980, 340]
     }
   ],
   "connections": {
     "Webhook Crear": {
-      "main": [
-        [
-          {
-            "node": "Validar Input",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Validar Input": {
-      "main": [
-        [
-          {
-            "node": "Preparar Datos",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Error Validacion",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Preparar Datos", "type": "main", "index": 0 }]]
     },
     "Preparar Datos": {
-      "main": [
-        [
-          {
-            "node": "Agregar Tarea",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Agregar Tarea", "type": "main", "index": 0 }]]
     },
     "Agregar Tarea": {
-      "main": [
-        [
-          {
-            "node": "Respuesta OK",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Respuesta OK", "type": "main", "index": 0 }]]
     }
   },
   "active": true,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "versionId": "1",
-  "meta": {
-    "instanceId": ""
-  },
+  "settings": { "executionOrder": "v1" },
+  "versionId": "2",
+  "meta": { "instanceId": "" },
   "tags": []
 }
