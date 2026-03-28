@@ -24,7 +24,16 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(/opt/homebrew/bin/gh repo:*)",
-      "Bash(/opt/homebrew/bin/gh api:*)"
+      "Bash(/opt/homebrew/bin/gh api:*)",
+      "Bash(git rm:*)",
+      "Bash(rm -rf n8n-skills/.git)",
+      "Bash(rm /Users/ericcastillo/Proyecto_CuttingsClones/.git/index.lock)",
+      "Bash(rm -rf /Users/ericcastillo/Proyecto_CuttingsClones/n8n-skills/.git)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(git fetch:*)",
+      "Bash(git rebase:*)"
     ]
   }
 }
