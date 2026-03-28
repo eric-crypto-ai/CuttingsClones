@@ -14,10 +14,7 @@
       "name": "Webhook Posponer",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
-      "position": [
-        260,
-        340
-      ],
+      "position": [260, 340],
       "webhookId": "tareas-posponer"
     },
     {
@@ -58,10 +55,7 @@
       "name": "Validar Input",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [
-        500,
-        340
-      ]
+      "position": [500, 340]
     },
     {
       "parameters": {
@@ -73,10 +67,7 @@
       "name": "Error Validacion",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
-      "position": [
-        740,
-        540
-      ]
+      "position": [740, 540]
     },
     {
       "parameters": {
@@ -100,10 +91,7 @@
       "name": "Leer Tareas",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
-      "position": [
-        740,
-        340
-      ],
+      "position": [740, 340],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "U9MmYhXUgVdOQej5",
@@ -113,16 +101,55 @@
     },
     {
       "parameters": {
-        "jsCode": "const idBuscado = $('Webhook Posponer').first().json.body.id;\nconst nuevaFecha = $('Webhook Posponer').first().json.body.nueva_fecha;\nconst filas = $input.all().map(item => item.json);\nconst tarea = filas.find(f => String(f.id).trim() === String(idBuscado).trim());\nif (!tarea) {\n  throw new Error('tarea_no_encontrada');\n}\nreturn [{\n  json: {\n    id: tarea.id,\n    nueva_fecha: nuevaFecha,\n    row_number: tarea.row_number\n  }\n}];"
+        "jsCode": "const idBuscado = $('Webhook Posponer').first().json.body.id;\nconst nuevaFecha = $('Webhook Posponer').first().json.body.nueva_fecha;\nconst filas = $input.all().map(item => item.json);\nconst tarea = filas.find(f => String(f.id || '').trim() === String(idBuscado || '').trim());\n\nif (!tarea) {\n  return [{\n    json: {\n      encontrada: false,\n      error: 'tarea_no_encontrada'\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    encontrada: true,\n    id: tarea.id,\n    nueva_fecha: nuevaFecha,\n    row_number: tarea.row_number\n  }\n}];"
       },
       "id": "a1b2c3d4-5555-4aaa-b555-000000000005",
       "name": "Buscar y Preparar",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        980,
-        340
-      ]
+      "position": [980, 340]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-encontrada",
+              "leftValue": "={{ $json.encontrada }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-8888-4aaa-b888-000000000008",
+      "name": "Tarea Encontrada",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1220, 340]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"ok\": false,\n  \"error\": \"tarea_no_encontrada\"\n}",
+        "options": {}
+      },
+      "id": "a1b2c3d4-9999-4aaa-b999-000000000009",
+      "name": "Error No Encontrada",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [1460, 540]
     },
     {
       "parameters": {
@@ -147,9 +174,7 @@
             "id": "={{ $json.id }}",
             "fecha": "={{ $json.nueva_fecha }}"
           },
-          "matchingColumns": [
-            "id"
-          ],
+          "matchingColumns": ["id"],
           "schema": [
             {
               "id": "id",
@@ -180,10 +205,7 @@
       "name": "Actualizar Fecha",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
-      "position": [
-        1220,
-        340
-      ],
+      "position": [1460, 340],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "U9MmYhXUgVdOQej5",
@@ -201,10 +223,7 @@
       "name": "Respuesta OK",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
-      "position": [
-        1460,
-        340
-      ]
+      "position": [1700, 340]
     }
   ],
   "connections": {
@@ -252,7 +271,25 @@
       "main": [
         [
           {
+            "node": "Tarea Encontrada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tarea Encontrada": {
+      "main": [
+        [
+          {
             "node": "Actualizar Fecha",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error No Encontrada",
             "type": "main",
             "index": 0
           }
@@ -275,7 +312,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "1",
+  "versionId": "2",
   "meta": {
     "instanceId": ""
   },

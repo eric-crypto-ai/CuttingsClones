@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node api_script.js sheets:list-sheets '{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\"}')",
+      "Bash(node -e \"const c=require\\(''./credentials.json''\\); console.log\\(c.client_email\\)\")",
+      "Bash(node api_script.js sheets:read '{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"Control_IPM!A1:Z5\"\"}')",
+      "Bash(node api_script.js sheets:read '{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"productos_ipm!A1:Z5\"\"}')",
+      "Bash(node api_script.js sheets:read '{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"tareas!A1:Z5\"\"}')",
+      "Bash(node api_script.js sheets:read '{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"tareas_recurrentes!A1:Z5\"\"}')",
+      "Bash(node api_script.js sheets:read \"{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"Control_IPM!A1:Z5\"\"}\")",
+      "Bash(node api_script.js sheets:read \"{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"productos_ipm!A1:Z10\"\"}\")",
+      "Bash(node api_script.js sheets:read \"{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"tareas!A1:Z5\"\"}\")",
+      "Bash(node api_script.js sheets:read \"{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"tareas_recurrentes!A1:Z5\"\"}\")",
+      "Bash(node api_script.js sheets:read \"{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"Control_IPM!A1:Z3\"\"}\")",
+      "Bash(node api_script.js sheets:read \"{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"productos_ipm!A1:Z5\"\"}\")",
+      "Bash(gh auth:*)",
+      "Bash(brew install:*)",
+      "Read(//opt/homebrew/Cellar/gh/2.89.0/bin/**)",
+      "Read(//usr/local/bin/**)",
+      "Bash(/opt/homebrew/bin/gh auth:*)",
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(/Users/ericcastillo/Proyecto_CuttingsClones/.gitignore:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(/opt/homebrew/bin/gh repo:*)",
+      "Bash(/opt/homebrew/bin/gh api:*)"
+    ]
+  }
+}

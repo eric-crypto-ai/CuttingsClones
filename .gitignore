@@ -2,3 +2,5 @@ node_modules/
 credentials.json
 *.rtf
 clave del bot api script de google
+.DS_Store
+*.png

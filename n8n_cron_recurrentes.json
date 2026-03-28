@@ -80,13 +80,43 @@
     },
     {
       "parameters": {
-        "jsCode": "// Get day of week in Spanish\nconst dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];\nconst hoy = new Date();\nconst diaHoy = dias[hoy.getDay()];\nconst fechaHoy = hoy.toISOString().split('T')[0]; // YYYY-MM-DD\n\n// Get templates from first input (Leer Plantillas)\nconst plantillas = $('Leer Plantillas').all().map(item => item.json);\n\n// Get existing tasks from second input (Leer Tareas Existentes)\nconst tareasExistentes = $('Leer Tareas Existentes').all().map(item => item.json);\n\n// Filter active templates for today's day\nconst plantillasHoy = plantillas.filter(p => {\n  const activa = String(p.activa || '').trim().toLowerCase();\n  const dia = String(p.dia_recurrencia || '').trim().toLowerCase();\n  return activa === 'si' && dia === diaHoy;\n});\n\nif (plantillasHoy.length === 0) {\n  return []; // Nothing to create today\n}\n\n// Check for duplicates: same tarea + zona + fecha = today and not \"hecha\"\nconst nuevas = plantillasHoy.filter(p => {\n  const yaExiste = tareasExistentes.some(t => {\n    return String(t.tarea || '').trim().toLowerCase() === String(p.tarea || '').trim().toLowerCase()\n      && String(t.zona || '').trim().toLowerCase() === String(p.zona || '').trim().toLowerCase()\n      && String(t.fecha || '').trim() === fechaHoy\n      && String(t.estado || '').trim().toLowerCase() !== 'hecha';\n  });\n  return !yaExiste;\n});\n\nif (nuevas.length === 0) {\n  return []; // All already exist\n}\n\n// Generate new task IDs (find max existing id + 1)\nlet maxId = 0;\nfor (const t of tareasExistentes) {\n  const id = parseInt(t.id);\n  if (!isNaN(id) && id > maxId) maxId = id;\n}\n\nreturn nuevas.map((p, i) => ({\n  json: {\n    id: String(maxId + 1 + i),\n    zona: p.zona || '',\n    tarea: p.tarea || '',\n    prioridad: p.prioridad || 'media',\n    estado: 'pendiente',\n    fecha: fechaHoy,\n    recurrente: 'si',\n    dia_recurrencia: p.dia_recurrencia || '',\n    observaciones: p.observaciones || ''\n  }\n}));"
+        "jsCode": "// Usar DateTime (Luxon) para timezone correcto (Europa/Madrid)\nconst ahora = DateTime.now().setZone('Europe/Madrid');\nconst diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];\nconst diaHoy = diasSemana[ahora.weekday % 7]; // Luxon: 1=lunes...7=domingo\nconst fechaHoy = ahora.toFormat('yyyy-MM-dd');\n\n// Luxon weekday: 1=lunes, 2=martes, ..., 7=domingo\n// Nuestro array: 0=domingo, 1=lunes, ..., 6=sabado\nconst diaLuxon = ahora.weekday === 7 ? 'domingo' : diasSemana[ahora.weekday];\n\nconst plantillas = $('Leer Plantillas').all().map(item => item.json);\nconst tareasExistentes = $('Leer Tareas Existentes').all().map(item => item.json);\n\n// Filtrar plantillas activas que aplican hoy\n// Soporta dias multiples: \"lunes,miercoles,viernes\"\nconst plantillasHoy = plantillas.filter(p => {\n  const activa = String(p.activa || '').trim().toLowerCase();\n  if (activa !== 'si') return false;\n  \n  const diasConfig = String(p.dia_recurrencia || '').trim().toLowerCase();\n  // Soportar multiples dias separados por coma\n  const diasArray = diasConfig.split(',').map(d => d.trim());\n  return diasArray.includes(diaLuxon);\n});\n\nif (plantillasHoy.length === 0) {\n  // Retornar item informativo para logging en n8n\n  return [{ json: { _skip: true, mensaje: `Sin plantillas para ${diaLuxon} (${fechaHoy})` } }];\n}\n\n// Verificar duplicados: misma tarea + zona + fecha de hoy\nconst nuevas = plantillasHoy.filter(p => {\n  const yaExiste = tareasExistentes.some(t => {\n    return String(t.tarea || '').trim().toLowerCase() === String(p.tarea || '').trim().toLowerCase()\n      && String(t.zona || '').trim().toLowerCase() === String(p.zona || '').trim().toLowerCase()\n      && String(t.fecha || '').trim() === fechaHoy\n      && String(t.estado || '').trim().toLowerCase() !== 'hecha';\n  });\n  return !yaExiste;\n});\n\nif (nuevas.length === 0) {\n  return [{ json: { _skip: true, mensaje: `Todas las tareas de ${diaLuxon} ya existen para ${fechaHoy}` } }];\n}\n\n// Generar IDs incrementales\nlet maxId = 0;\nfor (const t of tareasExistentes) {\n  const id = parseInt(t.id);\n  if (!isNaN(id) && id > maxId) maxId = id;\n}\n\nreturn nuevas.map((p, i) => ({\n  json: {\n    id: String(maxId + 1 + i),\n    zona: p.zona || '',\n    tarea: p.tarea || '',\n    prioridad: p.prioridad || 'media',\n    estado: 'pendiente',\n    fecha: fechaHoy,\n    recurrente: 'si',\n    dia_recurrencia: p.dia_recurrencia || '',\n    observaciones: p.observaciones || ''\n  }\n}));"
       },
       "id": "a1b2c3d4-4444-4aaa-bbbb-000000000004",
       "name": "Filtrar y Generar",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-skip",
+              "leftValue": "={{ $json._skip }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "notTrue",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-6666-4aaa-bbbb-000000000006",
+      "name": "Hay Tareas Nuevas",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [880, 300]
     },
     {
       "parameters": {
@@ -112,9 +142,9 @@
             "zona": "={{ $json.zona }}",
             "tarea": "={{ $json.tarea }}",
             "prioridad": "={{ $json.prioridad }}",
-            "estado": "pendiente",
+            "estado": "={{ $json.estado }}",
             "fecha": "={{ $json.fecha }}",
-            "recurrente": "si",
+            "recurrente": "={{ $json.recurrente }}",
             "dia_recurrencia": "={{ $json.dia_recurrencia }}",
             "observaciones": "={{ $json.observaciones }}"
           },
@@ -139,7 +169,7 @@
       "name": "Crear Tareas",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
-      "position": [880, 300],
+      "position": [1100, 300],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "U9MmYhXUgVdOQej5",
@@ -186,6 +216,17 @@
       "main": [
         [
           {
+            "node": "Hay Tareas Nuevas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hay Tareas Nuevas": {
+      "main": [
+        [
+          {
             "node": "Crear Tareas",
             "type": "main",
             "index": 0
@@ -198,7 +239,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "1",
+  "versionId": "2",
   "meta": {
     "instanceId": "cuttingsclones"
   },
