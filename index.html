@@ -622,29 +622,33 @@
   </header>
 
   <main>
-    <!-- INFO UTIL -->
+    <!-- TAREAS -->
     <section>
       <div class="section-header">
-        <div class="section-icon">&#8505;</div>
-        <h2>Informaci&oacute;n &uacute;til</h2>
+        <div class="section-icon">&#9745;</div>
+        <h2>Tareas por zona</h2>
       </div>
-      <div class="info-grid">
-        <div class="info-chip">
-          <div class="info-label">&#128336; Horario</div>
-          <div class="info-value" id="horario"><div class="skeleton"></div></div>
-        </div>
-        <div class="info-chip">
-          <div class="info-label">&#128222; Soporte</div>
-          <div class="info-value" id="telefono_soporte"><div class="skeleton"></div></div>
-        </div>
-        <div class="info-chip full-width">
-          <div class="info-label">&#128203; Instrucciones</div>
-          <div class="info-value" id="instrucciones"><div class="skeleton"></div></div>
-        </div>
-        <div class="info-chip aviso">
-          <div class="info-label">&#9888;&#65039; Aviso del d&iacute;a</div>
-          <div class="info-value" id="aviso_del_dia"><div class="skeleton"></div></div>
-        </div>
+      <div id="contenedorTareas" class="cargando">Cargando tareas...</div>
+    </section>
+
+    <!-- TABLA IPM -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#128202;</div>
+        <h2>Control IPM</h2>
+      </div>
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Producto</th>
+            </tr>
+          </thead>
+          <tbody id="tablaIPM">
+            <tr><td colspan="2" class="cargando">Cargando...</td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
@@ -670,27 +674,6 @@
         </div>
       </form>
       <div id="mensaje" class="mensaje"></div>
-    </section>
-
-    <!-- TABLA IPM -->
-    <section>
-      <div class="section-header">
-        <div class="section-icon">&#128202;</div>
-        <h2>Control IPM</h2>
-      </div>
-      <div class="tabla-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Producto</th>
-            </tr>
-          </thead>
-          <tbody id="tablaIPM">
-            <tr><td colspan="2" class="cargando">Cargando...</td></tr>
-          </tbody>
-        </table>
-      </div>
     </section>
 
     <!-- NUEVA TAREA -->
@@ -740,13 +723,30 @@
       </form>
     </section>
 
-    <!-- TAREAS -->
+    <!-- INFO UTIL -->
     <section>
       <div class="section-header">
-        <div class="section-icon">&#9745;</div>
-        <h2>Tareas por zona</h2>
+        <div class="section-icon">&#8505;</div>
+        <h2>Informaci&oacute;n &uacute;til</h2>
       </div>
-      <div id="contenedorTareas" class="cargando">Cargando tareas...</div>
+      <div class="info-grid">
+        <div class="info-chip">
+          <div class="info-label">&#128336; Horario</div>
+          <div class="info-value" id="horario"><div class="skeleton"></div></div>
+        </div>
+        <div class="info-chip">
+          <div class="info-label">&#128222; Soporte</div>
+          <div class="info-value" id="telefono_soporte"><div class="skeleton"></div></div>
+        </div>
+        <div class="info-chip full-width">
+          <div class="info-label">&#128203; Instrucciones</div>
+          <div class="info-value" id="instrucciones"><div class="skeleton"></div></div>
+        </div>
+        <div class="info-chip aviso">
+          <div class="info-label">&#9888;&#65039; Aviso del d&iacute;a</div>
+          <div class="info-value" id="aviso_del_dia"><div class="skeleton"></div></div>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -924,10 +924,14 @@
         var data = await res.json();
         var itemsPorZona = data.items_por_zona || {};
         var zonas = ['madres', 'esquejes', 'floracion', 'limpieza', 'mantenimiento'];
+        var hoy = fechaHoyISO();
         contenedor.className = 'tareas-grid';
         var html = '';
         for (var i = 0; i < zonas.length; i++) {
-          html += renderBloqueZona(zonas[i], itemsPorZona[zonas[i]] || []);
+          var tareasFiltradas = (itemsPorZona[zonas[i]] || []).filter(function(t) {
+            return !t.fecha || t.fecha <= hoy;
+          });
+          html += renderBloqueZona(zonas[i], tareasFiltradas);
         }
         contenedor.innerHTML = html;
       } catch (e) {
