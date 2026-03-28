@@ -548,6 +548,74 @@
       flex-shrink: 0;
     }
 
+    /* ── COMPRAS ── */
+    .compras-add {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .compras-add input {
+      flex: 1;
+    }
+
+    .compras-add .btn {
+      flex-shrink: 0;
+      font-size: 18px;
+      padding: 8px 14px;
+    }
+
+    .compra-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+      margin-bottom: 6px;
+      background: var(--blanco);
+      transition: opacity 0.2s;
+    }
+
+    .compra-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .compra-nombre {
+      flex: 1;
+      font-size: 13px;
+      color: var(--gris-oscuro);
+    }
+
+    .btn-tick {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--verde);
+      background: white;
+      color: var(--verde);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .btn-tick:hover {
+      background: var(--verde);
+      color: white;
+    }
+
+    .compras-vacia {
+      color: var(--gris-texto);
+      font-size: 13px;
+      text-align: center;
+      padding: 12px;
+    }
+
     /* ── CARGANDO ── */
     .cargando, .error, .sin-datos {
       color: var(--gris-texto);
@@ -721,6 +789,19 @@
           <span id="mensajeNuevaTarea" class="mensaje"></span>
         </div>
       </form>
+    </section>
+
+    <!-- COMPRAS -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#128722;</div>
+        <h2>Compras</h2>
+      </div>
+      <div class="compras-add">
+        <input type="text" id="compraInput" placeholder="Ej: Micromite 250ml" maxlength="120" />
+        <button class="btn btn-primary" onclick="agregarCompra()">&#43;</button>
+      </div>
+      <div id="listaCompras" class="cargando">Cargando...</div>
     </section>
 
     <!-- INFO UTIL -->
@@ -1081,6 +1162,80 @@
       }
     });
 
+    // ── COMPRAS ──
+    async function cargarCompras() {
+      var lista = document.getElementById('listaCompras');
+      try {
+        var res = await fetch(base_url + '/compras-lista');
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        var items = data.items || [];
+        if (items.length === 0) {
+          lista.className = '';
+          lista.innerHTML = '<p class="compras-vacia">No hay items pendientes</p>';
+          return;
+        }
+        lista.className = '';
+        var html = '';
+        for (var i = 0; i < items.length; i++) {
+          var it = items[i];
+          html += '<div class="compra-item">';
+          html += '<span class="compra-nombre">' + escapeHtml(it.item || '') + '</span>';
+          html += '<button class="btn-tick" title="Marcar como comprado" onclick="eliminarCompra(\'' + escapeAttr(it.id) + '\')">&#10003;</button>';
+          html += '</div>';
+        }
+        lista.innerHTML = html;
+      } catch (e) {
+        lista.className = 'error';
+        lista.textContent = 'Error al cargar';
+      }
+    }
+
+    async function agregarCompra() {
+      var input = document.getElementById('compraInput');
+      var item = input.value.trim();
+      if (!item) { input.focus(); return; }
+      input.disabled = true;
+      try {
+        var res = await fetch(base_url + '/compras-agregar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item: item })
+        });
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        if (!data.ok) throw new Error('no ok');
+        input.value = '';
+        await cargarCompras();
+      } catch (e) {
+        alert('No se pudo agregar el item');
+      } finally {
+        input.disabled = false;
+        input.focus();
+      }
+    }
+
+    async function eliminarCompra(id) {
+      try {
+        var res = await fetch(base_url + '/compras-eliminar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id })
+        });
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        if (!data.ok) throw new Error('no ok');
+        await cargarCompras();
+      } catch (e) {
+        alert('No se pudo eliminar el item');
+      }
+    }
+
+    // Enviar con Enter en el input de compras
+    document.getElementById('compraInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); agregarCompra(); }
+    });
+
     // ── INIT ──
     ponerFechaHoy();
     document.getElementById('ntFecha').value = fechaHoyISO();
@@ -1088,6 +1243,7 @@
     cargarProductosIPM();
     cargarTablaIPM();
     cargarTareas();
+    cargarCompras();
   </script>
 </body>
 </html>
