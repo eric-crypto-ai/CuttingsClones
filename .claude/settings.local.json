@@ -33,7 +33,20 @@
       "Bash(git pull:*)",
       "Bash(git stash:*)",
       "Bash(git fetch:*)",
-      "Bash(git rebase:*)"
+      "Bash(git rebase:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(curl -s https://raw.githubusercontent.com/eric-crypto-ai/CuttingsClones/gh-pages/index.html)",
+      "Bash(curl -s \"https://eric-crypto-ai.github.io/CuttingsClones/\")",
+      "Bash(curl -sI \"https://eric-crypto-ai.github.io/CuttingsClones/\")",
+      "Bash(node /Users/ericcastillo/Proyecto_CuttingsClones/api_script.js sheets:read '{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"tareas!A1:Z1\"\"}')",
+      "Bash(node /Users/ericcastillo/Proyecto_CuttingsClones/api_script.js sheets:read \"{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"tareas!A1:Z2\"\"}\")",
+      "Bash(node /Users/ericcastillo/Proyecto_CuttingsClones/api_script.js sheets:list-sheets \"{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\"}\")",
+      "Bash(node /Users/ericcastillo/Proyecto_CuttingsClones/api_script.js sheets:add-sheet \"{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"title\"\":\"\"compras\"\"}\")",
+      "Bash(node /Users/ericcastillo/Proyecto_CuttingsClones/api_script.js sheets:write \"{\"\"spreadsheetId\"\":\"\"17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI\"\",\"\"range\"\":\"\"compras!A1:C1\"\",\"\"values\"\":[[\"\"id\"\",\"\"item\"\",\"\"estado\"\"]]}\")",
+      "Bash(curl -s -X POST \"https://primary-production-2cf7.up.railway.app/webhook/tareas-posponer\" -H \"Content-Type: application/json\" -d '{\"\"id\"\":\"\"T1774724371145\"\",\"\"nueva_fecha\"\":\"\"2026-04-01\"\"}')",
+      "Bash(ls /Users/ericcastillo/Proyecto_CuttingsClones/*.code-workspace)"
     ]
   }
 }
