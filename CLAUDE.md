@@ -214,7 +214,8 @@ Ejecutar inmediatamente después de:
 4. Actualizar `roadmap_general.md` y archivar en `99 Archivo/` si una fase se cerró.
 5. Si se creó/movió/eliminó una nota estructural, actualizar `02. Mapa_documental_cuttingclones.md`.
 6. Si se aprendió una regla aplicable siempre, guardarla en memoria Claude (`feedback_*.md`) o en `principios_de_diseno_y_reglas`.
-7. **Reportar al usuario:** qué notas se actualizaron y qué queda pendiente. No decir "listo" sin esta lista.
+7. **Commit + push a GitHub** si hubo cambios en el repo local (código, CLAUDE.md, workflows, workspace). Propón el commit con mensaje claro y espera confirmación de Eric antes de pushear. Regla: **ninguna sesión termina con trabajo sin pushear** — GitHub es el backup real ante rotura del Mac.
+8. **Reportar al usuario:** qué notas se actualizaron, qué se commiteó/pusheó y qué queda pendiente. No decir "listo" sin esta lista.
 
 ### Principio
 
