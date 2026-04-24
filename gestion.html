@@ -430,15 +430,8 @@
         <h3>➕ Nuevo cliente</h3>
         <label>Nombre</label>
         <input id="cli-nombre" placeholder="p. ej. Grow Shop La Indica" />
-        <label>Contacto (opcional)</label>
-        <input id="cli-contacto" placeholder="teléfono o email" />
-        <label>Tipo</label>
-        <select id="cli-tipo">
-          <option value="B2B">B2B</option>
-          <option value="particular">Particular</option>
-        </select>
-        <label>Notas (opcional)</label>
-        <input id="cli-notas" placeholder="…" />
+        <label>Anotaciones (opcional)</label>
+        <input id="cli-notas" placeholder="p. ej. pide los lunes, paga al contado" />
         <button class="btn" onclick="crearCliente()">Crear cliente</button>
       </div>
       <div class="card">
@@ -571,7 +564,7 @@
       el.innerHTML = filtered.map(c => `
         <div class="list-item">
           <h4>${c.nombre} <span class="pill ${c.activo === 'si' ? 'entregado' : 'cancelado'}">${c.activo === 'si' ? 'activo' : 'inactivo'}</span></h4>
-          <div class="meta">${c.tipo} · ${c.contacto || 'sin contacto'}</div>
+          ${c.contacto ? `<div class="meta">${c.contacto}</div>` : ""}
           ${c.notas ? `<div class="meta" style="margin-top: 4px;"><em>${c.notas}</em></div>` : ""}
         </div>
       `).join("");
@@ -582,14 +575,12 @@
       if (!nombre) { toast("Nombre requerido", true); return; }
       const body = {
         nombre,
-        contacto: document.getElementById("cli-contacto").value.trim(),
-        tipo: document.getElementById("cli-tipo").value,
         notas: document.getElementById("cli-notas").value.trim(),
       };
       const r = await api("/clientes-crear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (r.success) {
         toast("Cliente creado ✓");
-        ["cli-nombre","cli-contacto","cli-notas"].forEach(id => document.getElementById(id).value = "");
+        ["cli-nombre","cli-notas"].forEach(id => document.getElementById(id).value = "");
         await cargarClientes();
         renderClientes();
       } else { toast("Error: " + (r.error || "desconocido"), true); }
