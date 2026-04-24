@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta name="version" content="1.0" />
+  <title>CuttingsClones — Gestión</title>
+  <style>
+    :root {
+      --verde: #2d7a2d;
+      --verde-claro: #e8f5e8;
+      --verde-hover: #236b23;
+      --dorado: #b8960c;
+      --dorado-claro: #faf4e0;
+      --gris-oscuro: #3a3a3a;
+      --gris-texto: #555;
+      --gris-claro: #888;
+      --gris-borde: #e2e8f0;
+      --fondo: #f5f7f2;
+      --blanco: #ffffff;
+      --rojo: #dc2626;
+      --rojo-claro: #fef2f2;
+      --azul: #1d4ed8;
+      --azul-claro: #dbeafe;
+      --naranja: #ea580c;
+      --radius: 10px;
+      --sombra: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--fondo);
+      color: var(--gris-oscuro);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 80px;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--verde) 0%, #1a5c1a 100%);
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header .back {
+      color: white;
+      text-decoration: none;
+      font-size: 20px;
+      padding: 4px 8px;
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .subtitle {
+      font-size: 11px;
+      opacity: 0.85;
+    }
+
+    nav.tabs {
+      background: white;
+      display: flex;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--gris-borde);
+      position: sticky;
+      top: 56px;
+      z-index: 99;
+      scrollbar-width: none;
+    }
+    nav.tabs::-webkit-scrollbar { display: none; }
+
+    nav.tabs button {
+      border: none;
+      background: none;
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gris-texto);
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+    }
+
+    nav.tabs button.active {
+      color: var(--verde);
+      border-bottom-color: var(--verde);
+    }
+
+    main { padding: 14px; }
+
+    .card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: var(--sombra);
+    }
+
+    .card h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--gris-oscuro); }
+
+    label { display: block; font-size: 12px; color: var(--gris-texto); margin-bottom: 4px; font-weight: 500; }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      background: white;
+      margin-bottom: 10px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--verde);
+      outline-offset: -1px;
+    }
+
+    button.btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--verde);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.btn.ghost { background: white; color: var(--verde); border: 1px solid var(--verde); }
+    button.btn.danger { background: var(--rojo); }
+    button.btn.dorado { background: var(--dorado); }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .row input, .row select { margin-bottom: 0; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .list-item {
+      padding: 12px;
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: white;
+    }
+    .list-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .list-item .meta { font-size: 12px; color: var(--gris-texto); }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .pill.pendiente { background: var(--dorado-claro); color: var(--dorado); }
+    .pill.entregado { background: var(--verde-claro); color: var(--verde); }
+    .pill.cancelado { background: var(--rojo-claro); color: var(--rojo); }
+    .pill.no_aplica { background: #f3f4f6; color: #6b7280; }
+    .pill.pendiente_entregar { background: var(--azul-claro); color: var(--azul); }
+
+    .saldo-big {
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--verde);
+      text-align: center;
+      margin: 8px 0 4px;
+    }
+    .saldo-big.rojo { color: var(--rojo); }
+    .saldo-label { font-size: 13px; color: var(--gris-texto); text-align: center; margin-bottom: 12px; }
+
+    .mov-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--gris-borde);
+      font-size: 13px;
+    }
+    .mov-row:last-child { border-bottom: none; }
+    .mov-row .concepto { color: var(--gris-texto); font-size: 12px; }
+    .mov-row .importe.pos { color: var(--verde); font-weight: 600; }
+    .mov-row .importe.neg { color: var(--rojo); font-weight: 600; }
+
+    .filters {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+    .filters button {
+      border: 1px solid var(--gris-borde);
+      background: white;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .filters button.active {
+      background: var(--verde);
+      color: white;
+      border-color: var(--verde);
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--gris-claro);
+      padding: 24px;
+      font-size: 13px;
+    }
+
+    .loading {
+      text-align: center;
+      color: var(--gris-claro);
+      padding: 20px;
+      font-size: 13px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .action-row button { flex: 1; padding: 8px; font-size: 13px; }
+
+    .socio-col {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+    }
+    .socio-col h4 {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    dialog {
+      border: none;
+      border-radius: 14px;
+      padding: 0;
+      max-width: 90%;
+      width: 400px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    dialog::backdrop { background: rgba(0,0,0,0.4); }
+    .dialog-body { padding: 18px; }
+    .dialog-body h3 { margin-bottom: 12px; font-size: 16px; }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gris-oscuro);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .toast.show { opacity: 1; }
+    .toast.err { background: var(--rojo); }
+
+    hr.sep { border: none; border-top: 1px solid var(--gris-borde); margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="back" title="Portal operario">←</a>
+    <div class="title">
+      💰 Gestión económica
+      <div class="subtitle">CuttingsClones</div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="pedidos" class="active">🛒 Pedidos</button>
+    <button data-tab="bote">💰 Bote</button>
+    <button data-tab="repartos">✅ Repartos</button>
+    <button data-tab="gastos">💸 Gastos</button>
+    <button data-tab="cobros">📋 Cobros</button>
+    <button data-tab="clientes">👥 Clientes</button>
+  </nav>
+
+  <main>
+    <!-- ========= PEDIDOS ========= -->
+    <section id="tab-pedidos" class="tab-content">
+      <div class="card">
+        <h3>➕ Nuevo pedido</h3>
+        <label>Cliente</label>
+        <select id="pedido-cliente"><option value="">Selecciona cliente…</option></select>
+        <label>Genética</label>
+        <input id="pedido-genetica" placeholder="p. ej. Gelato 33" />
+        <div class="grid2">
+          <div>
+            <label>Cantidad</label>
+            <input id="pedido-cantidad" type="number" min="1" placeholder="50" />
+          </div>
+          <div>
+            <label>Precio unitario €</label>
+            <input id="pedido-precio" type="number" step="0.1" min="0" placeholder="3.0" />
+          </div>
+        </div>
+        <label>Fecha entrega prometida</label>
+        <input id="pedido-fecha" type="date" />
+        <label>Notas (opcional)</label>
+        <input id="pedido-notas" placeholder="p. ej. de la misma madre" />
+        <button class="btn" onclick="crearPedido()">Crear pedido</button>
+      </div>
+
+      <div class="card">
+        <h3>Pedidos</h3>
+        <div class="filters">
+          <button data-filter="pendiente" class="active" onclick="filtrarPedidos('pendiente')">Pendientes</button>
+          <button data-filter="entregado" onclick="filtrarPedidos('entregado')">Entregados</button>
+          <button data-filter="" onclick="filtrarPedidos('')">Todos</button>
+        </div>
+        <div id="lista-pedidos" class="loading">Cargando…</div>
+      </div>
+    </section>
+
+    <!-- ========= BOTE ========= -->
+    <section id="tab-bote" class="tab-content" hidden>
+      <div class="card">
+        <div class="saldo-label">Saldo del bote</div>
+        <div id="saldo-bote" class="saldo-big">—</div>
+        <hr class="sep">
+        <h3>Últimos movimientos</h3>
+        <div id="lista-movs" class="loading">Cargando…</div>
+      </div>
+
+      <div class="card">
+        <h3>💵 Aportar al bote</h3>
+        <label>Socio</label>
+        <select id="aporta-socio">
+          <option>Eric</option>
+          <option>Noel</option>
+        </select>
+        <label>Importe €</label>
+        <input id="aporta-importe" type="number" step="1" min="0" placeholder="100" />
+        <label>Concepto (opcional)</label>
+        <input id="aporta-concepto" placeholder="p. ej. Aportación para compra urgente" />
+        <button class="btn dorado" onclick="aportarBote()">Aportar</button>
+      </div>
+    </section>
+
+    <!-- ========= REPARTOS ========= -->
+    <section id="tab-repartos" class="tab-content" hidden>
+      <div class="card">
+        <h3>Repartos pendientes</h3>
+        <div class="row" style="align-items: flex-start; gap: 10px;">
+          <div class="socio-col">
+            <h4 style="color: var(--verde);">Eric</h4>
+            <div id="reps-eric" class="loading">Cargando…</div>
+          </div>
+          <div class="socio-col">
+            <h4 style="color: var(--dorado);">Noel</h4>
+            <div id="reps-noel" class="loading">Cargando…</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= GASTOS ========= -->
+    <section id="tab-gastos" class="tab-content" hidden>
+      <div class="card">
+        <h3>➕ Registrar gasto</h3>
+        <label>Concepto</label>
+        <input id="gasto-concepto" placeholder="p. ej. Sustrato Gold Label 50L" />
+        <div class="grid2">
+          <div>
+            <label>Importe €</label>
+            <input id="gasto-importe" type="number" step="0.01" min="0" />
+          </div>
+          <div>
+            <label>Quién lo gestionó</label>
+            <select id="gasto-quien">
+              <option>Eric</option>
+              <option>Noel</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn danger" onclick="registrarGasto()">Registrar gasto</button>
+      </div>
+      <div class="card">
+        <h3>Últimos gastos registrados</h3>
+        <div id="lista-gastos" class="loading">Cargando…</div>
+      </div>
+    </section>
+
+    <!-- ========= COBROS ========= -->
+    <section id="tab-cobros" class="tab-content" hidden>
+      <div class="card">
+        <h3>Histórico de cobros</h3>
+        <div id="lista-cobros" class="loading">Cargando…</div>
+      </div>
+    </section>
+
+    <!-- ========= CLIENTES ========= -->
+    <section id="tab-clientes" class="tab-content" hidden>
+      <div class="card">
+        <h3>➕ Nuevo cliente</h3>
+        <label>Nombre</label>
+        <input id="cli-nombre" placeholder="p. ej. Grow Shop La Indica" />
+        <label>Contacto (opcional)</label>
+        <input id="cli-contacto" placeholder="teléfono o email" />
+        <label>Tipo</label>
+        <select id="cli-tipo">
+          <option value="B2B">B2B</option>
+          <option value="particular">Particular</option>
+        </select>
+        <label>Notas (opcional)</label>
+        <input id="cli-notas" placeholder="…" />
+        <button class="btn" onclick="crearCliente()">Crear cliente</button>
+      </div>
+      <div class="card">
+        <h3>Cartera</h3>
+        <input id="cli-busqueda" placeholder="Buscar por nombre…" oninput="renderClientes()" style="margin-bottom: 10px;" />
+        <div id="lista-clientes" class="loading">Cargando…</div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="dialog-entregar">
+    <div class="dialog-body">
+      <h3>Entregar pedido</h3>
+      <div id="entregar-info" class="meta" style="margin-bottom: 10px;"></div>
+      <label>Importe cobrado €</label>
+      <input id="ent-importe" type="number" step="1" min="0" oninput="recalcularReparto()" />
+      <label>Método</label>
+      <select id="ent-metodo">
+        <option value="efectivo">Efectivo</option>
+        <option value="bizum">Bizum</option>
+        <option value="transferencia">Transferencia</option>
+      </select>
+      <div id="reparto-preview" style="background: var(--verde-claro); padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px;"></div>
+      <button class="btn ghost" id="btn-personalizar" onclick="togglePersonalizar()">✏️ Personalizar reparto</button>
+      <div id="ent-personalizado" hidden>
+        <hr class="sep">
+        <div class="grid2">
+          <div>
+            <label>Al bote €</label>
+            <input id="ent-bote" type="number" step="1" min="0" oninput="validarPersonalizado()" />
+          </div>
+          <div>
+            <label>A repartir €</label>
+            <input id="ent-reparto" type="number" step="1" min="0" oninput="validarPersonalizado()" />
+          </div>
+        </div>
+        <label>Nota del reparto</label>
+        <input id="ent-nota" placeholder="p. ej. todo al bote para compra urgente" />
+        <div id="validacion-personalizado" style="font-size: 12px; margin-top: 4px;"></div>
+      </div>
+      <div class="action-row">
+        <button class="btn ghost" onclick="cerrarEntregar()">Cancelar</button>
+        <button class="btn" id="btn-confirmar-entrega" onclick="confirmarEntrega()">Confirmar entrega</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const BASE = "https://primary-production-2cf7.up.railway.app/webhook";
+
+    // ========== State ==========
+    let state = {
+      pedidos: [],
+      pedidosFiltro: "pendiente",
+      clientes: [],
+      estadoBote: null,
+      gastos: [],
+      cobros: [],
+      entregarPedido: null,
+      personalizado: false,
+    };
+
+    // ========== Utils ==========
+    function fmtEuro(n) {
+      if (n === null || n === undefined || n === "") return "—";
+      return Number(n).toLocaleString("es-ES", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " €";
+    }
+    function toast(msg, err) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.toggle("err", !!err);
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2400);
+    }
+    function nombreCliente(id) {
+      const c = state.clientes.find(x => x.id_cliente === id);
+      return c ? c.nombre : (id || "—");
+    }
+    async function api(path, opts) {
+      const url = BASE + path;
+      try {
+        const res = await fetch(url, opts);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const txt = await res.text();
+        if (!txt) return { success: false, error: "respuesta vacía del servidor" };
+        return JSON.parse(txt);
+      } catch (e) {
+        return { success: false, error: e.message || String(e) };
+      }
+    }
+
+    // ========== Tabs ==========
+    document.querySelectorAll("nav.tabs button").forEach(b => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll("nav.tabs button").forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        const tab = b.dataset.tab;
+        document.querySelectorAll(".tab-content").forEach(s => s.hidden = true);
+        document.getElementById("tab-" + tab).hidden = false;
+        cargarTab(tab);
+      });
+    });
+
+    async function cargarTab(tab) {
+      if (tab === "pedidos") { await cargarClientes(); await cargarPedidos(); }
+      else if (tab === "bote") { await cargarEstadoBote(); }
+      else if (tab === "repartos") { await cargarEstadoBote(); renderRepartos(); }
+      else if (tab === "gastos") { await cargarEstadoBote(); renderGastosFromMovs(); }
+      else if (tab === "cobros") { await cargarEstadoBote(); renderCobrosFromMovs(); }
+      else if (tab === "clientes") { await cargarClientes(); renderClientes(); }
+    }
+
+    // ========== CLIENTES ==========
+    async function cargarClientes() {
+      const r = await api("/clientes-lista");
+      if (r && r.success) state.clientes = r.data.clientes || [];
+      const sel = document.getElementById("pedido-cliente");
+      sel.innerHTML = '<option value="">Selecciona cliente…</option>' +
+        state.clientes.filter(c => c.activo === "si").map(c =>
+          `<option value="${c.id_cliente}">${c.nombre}</option>`).join("");
+    }
+
+    function renderClientes() {
+      const q = (document.getElementById("cli-busqueda")?.value || "").toLowerCase();
+      const filtered = state.clientes.filter(c => !q || (c.nombre || "").toLowerCase().includes(q));
+      const el = document.getElementById("lista-clientes");
+      if (filtered.length === 0) { el.innerHTML = '<div class="empty">Sin clientes</div>'; return; }
+      el.innerHTML = filtered.map(c => `
+        <div class="list-item">
+          <h4>${c.nombre} <span class="pill ${c.activo === 'si' ? 'entregado' : 'cancelado'}">${c.activo === 'si' ? 'activo' : 'inactivo'}</span></h4>
+          <div class="meta">${c.tipo} · ${c.contacto || 'sin contacto'}</div>
+          ${c.notas ? `<div class="meta" style="margin-top: 4px;"><em>${c.notas}</em></div>` : ""}
+        </div>
+      `).join("");
+    }
+
+    async function crearCliente() {
+      const nombre = document.getElementById("cli-nombre").value.trim();
+      if (!nombre) { toast("Nombre requerido", true); return; }
+      const body = {
+        nombre,
+        contacto: document.getElementById("cli-contacto").value.trim(),
+        tipo: document.getElementById("cli-tipo").value,
+        notas: document.getElementById("cli-notas").value.trim(),
+      };
+      const r = await api("/clientes-crear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (r.success) {
+        toast("Cliente creado ✓");
+        ["cli-nombre","cli-contacto","cli-notas"].forEach(id => document.getElementById(id).value = "");
+        await cargarClientes();
+        renderClientes();
+      } else { toast("Error: " + (r.error || "desconocido"), true); }
+    }
+
+    // ========== PEDIDOS ==========
+    async function cargarPedidos() {
+      const q = state.pedidosFiltro ? "?estado=" + state.pedidosFiltro : "";
+      const r = await api("/pedidos-lista" + q);
+      if (r && r.success) state.pedidos = r.data.pedidos || [];
+      renderPedidos();
+    }
+
+    function filtrarPedidos(estado) {
+      state.pedidosFiltro = estado;
+      document.querySelectorAll('.filters button[data-filter]').forEach(b =>
+        b.classList.toggle("active", b.dataset.filter === estado));
+      cargarPedidos();
+    }
+
+    function renderPedidos() {
+      const el = document.getElementById("lista-pedidos");
+      if (state.pedidos.length === 0) { el.innerHTML = '<div class="empty">Sin pedidos</div>'; return; }
+      el.innerHTML = state.pedidos.map(p => `
+        <div class="list-item">
+          <h4>${p.genetica} × ${p.cantidad} <span class="pill ${p.estado}">${p.estado}</span></h4>
+          <div class="meta">${nombreCliente(p.id_cliente)}</div>
+          <div class="meta">${fmtEuro(p.total)} · entrega ${p.fecha_entrega_prometida || "—"}${p.fecha_entrega_real ? ' · real ' + p.fecha_entrega_real : ''}</div>
+          ${p.notas ? `<div class="meta" style="margin-top: 4px;"><em>${p.notas}</em></div>` : ""}
+          ${p.estado === "pendiente" ? `<div class="action-row"><button class="btn" onclick='abrirEntregar(${JSON.stringify(p)})'>Entregar y cobrar</button></div>` : ""}
+        </div>
+      `).join("");
+    }
+
+    async function crearPedido() {
+      const body = {
+        id_cliente: document.getElementById("pedido-cliente").value,
+        genetica: document.getElementById("pedido-genetica").value.trim(),
+        cantidad: Number(document.getElementById("pedido-cantidad").value),
+        precio_unitario: Number(document.getElementById("pedido-precio").value),
+        fecha_entrega_prometida: document.getElementById("pedido-fecha").value,
+        notas: document.getElementById("pedido-notas").value.trim(),
+      };
+      if (!body.id_cliente) { toast("Cliente requerido", true); return; }
+      if (!body.genetica) { toast("Genética requerida", true); return; }
+      if (!body.cantidad || body.cantidad <= 0) { toast("Cantidad inválida", true); return; }
+      if (!body.precio_unitario || body.precio_unitario <= 0) { toast("Precio inválido", true); return; }
+      const r = await api("/pedidos-crear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (r.success) {
+        toast("Pedido creado ✓ total " + fmtEuro(r.data.total));
+        ["pedido-genetica","pedido-cantidad","pedido-precio","pedido-fecha","pedido-notas"].forEach(id => document.getElementById(id).value = "");
+        cargarPedidos();
+      } else { toast("Error: " + (r.error || "desconocido"), true); }
+    }
+
+    // ========== ENTREGAR PEDIDO ==========
+    function abrirEntregar(pedido) {
+      state.entregarPedido = pedido;
+      state.personalizado = false;
+      document.getElementById("entregar-info").innerHTML =
+        `<b>${pedido.genetica} × ${pedido.cantidad}</b><br>${nombreCliente(pedido.id_cliente)} · total previsto ${fmtEuro(pedido.total)}`;
+      document.getElementById("ent-importe").value = pedido.total;
+      document.getElementById("ent-personalizado").hidden = true;
+      document.getElementById("btn-personalizar").textContent = "✏️ Personalizar reparto";
+      document.getElementById("btn-confirmar-entrega").disabled = false;
+      recalcularReparto();
+      document.getElementById("dialog-entregar").showModal();
+    }
+    function cerrarEntregar() { document.getElementById("dialog-entregar").close(); }
+
+    function calcularReparto(importe) {
+      const por_socio = Math.floor(importe * 2 / 5 / 20) * 20;
+      const reparto = por_socio * 2;
+      const bote = importe - reparto;
+      return { por_socio, reparto, bote };
+    }
+
+    function recalcularReparto() {
+      const imp = Number(document.getElementById("ent-importe").value || 0);
+      const { por_socio, reparto, bote } = calcularReparto(imp);
+      document.getElementById("reparto-preview").innerHTML =
+        `<b>Regla por defecto:</b> 🪙 Bote ${fmtEuro(bote)} · 👥 Reparto ${fmtEuro(reparto)} (${fmtEuro(por_socio)}/socio)`;
+      // pre-rellenar campos personalizados con regla por si activa el toggle
+      document.getElementById("ent-bote").value = bote;
+      document.getElementById("ent-reparto").value = reparto;
+    }
+
+    function togglePersonalizar() {
+      state.personalizado = !state.personalizado;
+      document.getElementById("ent-personalizado").hidden = !state.personalizado;
+      document.getElementById("btn-personalizar").textContent = state.personalizado
+        ? "↩️ Volver a la regla por defecto"
+        : "✏️ Personalizar reparto";
+      if (state.personalizado) validarPersonalizado();
+    }
+
+    function validarPersonalizado() {
+      const imp = Number(document.getElementById("ent-importe").value || 0);
+      const b = Number(document.getElementById("ent-bote").value || 0);
+      const r = Number(document.getElementById("ent-reparto").value || 0);
+      const ok = Math.abs(b + r - imp) < 0.01;
+      const v = document.getElementById("validacion-personalizado");
+      if (ok) {
+        v.innerHTML = `<span style="color: var(--verde);">✓ Suma OK · ${fmtEuro(r/2)} por socio</span>`;
+        document.getElementById("btn-confirmar-entrega").disabled = false;
+      } else {
+        v.innerHTML = `<span style="color: var(--rojo);">⚠ bote + reparto = ${fmtEuro(b+r)} ≠ importe ${fmtEuro(imp)}</span>`;
+        document.getElementById("btn-confirmar-entrega").disabled = true;
+      }
+    }
+
+    async function confirmarEntrega() {
+      const imp = Number(document.getElementById("ent-importe").value || 0);
+      if (!imp || imp <= 0) { toast("Importe inválido", true); return; }
+      const body = {
+        id_pedido: state.entregarPedido.id_pedido,
+        importe: imp,
+        metodo: document.getElementById("ent-metodo").value,
+      };
+      if (state.personalizado) {
+        body.modo_reparto = "personalizado";
+        body.bote_personalizado = Number(document.getElementById("ent-bote").value || 0);
+        body.reparto_personalizado = Number(document.getElementById("ent-reparto").value || 0);
+        body.nota_reparto = document.getElementById("ent-nota").value.trim();
+      }
+      document.getElementById("btn-confirmar-entrega").disabled = true;
+      const r = await api("/pedidos-entregar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      document.getElementById("btn-confirmar-entrega").disabled = false;
+      if (r.success) {
+        toast(`Entregado · bote ${fmtEuro(r.data.bote)} · por socio ${fmtEuro(r.data.por_socio)}`);
+        cerrarEntregar();
+        await cargarPedidos();
+      } else {
+        toast("Error: " + (r.error || "desconocido"), true);
+      }
+    }
+
+    // ========== BOTE / MOVIMIENTOS ==========
+    async function cargarEstadoBote() {
+      const r = await api("/estado-bote");
+      if (r && r.success) state.estadoBote = r.data;
+      renderBote();
+    }
+
+    function renderBote() {
+      const el = document.getElementById("saldo-bote");
+      if (!el) return;
+      const s = state.estadoBote?.saldo ?? 0;
+      el.textContent = fmtEuro(s);
+      el.classList.toggle("rojo", s < 0);
+      const movs = state.estadoBote?.ultimos_movimientos || [];
+      const lista = document.getElementById("lista-movs");
+      if (movs.length === 0) lista.innerHTML = '<div class="empty">Sin movimientos</div>';
+      else lista.innerHTML = movs.map(m => `
+        <div class="mov-row">
+          <div>
+            <div>${m.fecha} · <span class="pill ${m.tipo === 'cobro' ? 'entregado' : m.tipo === 'gasto' ? 'cancelado' : 'pendiente'}">${m.tipo}</span></div>
+            <div class="concepto">${m.concepto || ''}${m.socio ? ' · ' + m.socio : ''}</div>
+          </div>
+          <div style="text-align: right;">
+            <div class="importe ${Number(m.importe) >= 0 ? 'pos' : 'neg'}">${Number(m.importe) >= 0 ? '+' : ''}${fmtEuro(m.importe)}</div>
+            <div class="concepto">saldo ${fmtEuro(m.saldo_despues)}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function aportarBote() {
+      const body = {
+        socio: document.getElementById("aporta-socio").value,
+        importe: Number(document.getElementById("aporta-importe").value || 0),
+        concepto: document.getElementById("aporta-concepto").value.trim(),
+      };
+      if (!body.importe || body.importe <= 0) { toast("Importe inválido", true); return; }
+      const r = await api("/aportacion-bote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (r.success) {
+        toast("Aportado · saldo " + fmtEuro(r.data.saldo_bote));
+        document.getElementById("aporta-importe").value = "";
+        document.getElementById("aporta-concepto").value = "";
+        cargarEstadoBote();
+      } else { toast("Error: " + (r.error || "desconocido"), true); }
+    }
+
+    // ========== GASTOS ==========
+    async function registrarGasto() {
+      const body = {
+        concepto: document.getElementById("gasto-concepto").value.trim(),
+        importe: Number(document.getElementById("gasto-importe").value || 0),
+        quien_lo_gestiono: document.getElementById("gasto-quien").value,
+      };
+      if (!body.concepto) { toast("Concepto requerido", true); return; }
+      if (!body.importe || body.importe <= 0) { toast("Importe inválido", true); return; }
+      const r = await api("/gastos-registrar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (r.success) {
+        let msg = "Gasto · saldo " + fmtEuro(r.data.saldo_bote);
+        if (r.data.warning) msg += " ⚠ " + r.data.warning;
+        toast(msg, !!r.data.warning);
+        document.getElementById("gasto-concepto").value = "";
+        document.getElementById("gasto-importe").value = "";
+        cargarEstadoBote();
+      } else { toast("Error: " + (r.error || "desconocido"), true); }
+    }
+
+    function renderGastosFromMovs() {
+      const el = document.getElementById("lista-gastos");
+      const gastos = (state.estadoBote?.ultimos_movimientos || []).filter(m => m.tipo === "gasto");
+      if (gastos.length === 0) { el.innerHTML = '<div class="empty">Sin gastos recientes</div>'; return; }
+      el.innerHTML = gastos.map(g => `
+        <div class="mov-row">
+          <div>
+            <div>${g.fecha}</div>
+            <div class="concepto">${(g.concepto || "").replace(/^Gasto:\s*/, "")}</div>
+          </div>
+          <div class="importe neg">${fmtEuro(g.importe)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderCobrosFromMovs() {
+      const el = document.getElementById("lista-cobros");
+      const cobros = (state.estadoBote?.ultimos_movimientos || []).filter(m => m.tipo === "cobro");
+      if (cobros.length === 0) { el.innerHTML = '<div class="empty">Sin cobros recientes</div>'; return; }
+      el.innerHTML = cobros.map(c => `
+        <div class="list-item">
+          <h4>${fmtEuro(c.importe)} <span class="pill entregado">al bote</span></h4>
+          <div class="meta">${c.fecha} · ${c.concepto}</div>
+          <div class="meta">saldo tras cobro: ${fmtEuro(c.saldo_despues)}</div>
+        </div>
+      `).join("");
+    }
+
+    // ========== REPARTOS ==========
+    function renderRepartos() {
+      ["Eric", "Noel"].forEach(socio => {
+        const el = document.getElementById("reps-" + socio.toLowerCase());
+        const reps = state.estadoBote?.repartos_pendientes?.[socio] || [];
+        if (reps.length === 0) { el.innerHTML = '<div class="empty">Ninguno</div>'; return; }
+        el.innerHTML = reps.map(r => `
+          <div class="list-item" style="padding: 8px;">
+            <h4 style="font-size: 16px;">${fmtEuro(r.importe)}</h4>
+            <div class="meta">${r.fecha}</div>
+            <button class="btn ghost" style="font-size: 12px; padding: 6px; margin-top: 6px;" onclick="marcarEntregado('${r.id_reparto}')">✓ Entregado</button>
+          </div>
+        `).join("");
+      });
+    }
+
+    async function marcarEntregado(id_reparto) {
+      const r = await api("/repartos-marcar-entregado", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id_reparto })
+      });
+      if (r.success) { toast("Marcado ✓"); cargarEstadoBote().then(renderRepartos); }
+      else { toast("Error: " + (r.error || "desconocido"), true); }
+    }
+
+    // ========== INIT ==========
+    (async function init() {
+      const hoy = new Date().toISOString().slice(0, 10);
+      document.getElementById("pedido-fecha").value = hoy;
+      await cargarClientes();
+      await cargarPedidos();
+    })();
+  </script>
+</body>
+</html>
