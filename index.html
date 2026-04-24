@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta name="version" content="1.1" />
+  <meta name="version" content="1.2" />
   <title>CuttingsClones — Portal del Trabajador</title>
   <style>
     :root {
@@ -253,6 +253,22 @@
 
     .btn:active {
       transform: scale(0.97);
+    }
+
+    /* ── ESTADO DESHABILITADO (anti-doble-click) ── */
+    .btn:disabled,
+    .btn-tick:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .tarea-card.busy,
+    .compra-item.busy,
+    section.busy form {
+      opacity: 0.6;
+      pointer-events: none;
+      transition: opacity 0.15s;
     }
 
     .btn-primary {
@@ -799,7 +815,7 @@
       </div>
       <div class="compras-add">
         <input type="text" id="compraInput" placeholder="Ej: Micromite 250ml" maxlength="120" />
-        <button class="btn btn-primary" onclick="agregarCompra()">&#43;</button>
+        <button class="btn btn-primary" onclick="agregarCompra(this)">&#43;</button>
       </div>
       <div id="listaCompras" class="cargando">Cargando...</div>
     </section>
@@ -847,6 +863,35 @@
     function fechaHoyISO() {
       const h = new Date();
       return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0');
+    }
+
+    // ── ANTI-DOBLE-CLICK: feedback inmediato + bloqueo hasta respuesta ──
+    // Patrón de uso: al pulsar un botón que dispara backend, llamar lockBtn(btn, 'Procesando…').
+    // En el success path no hace falta unlockBtn si la UI se recarga (la tarjeta se reemplaza).
+    // En el catch, SIEMPRE llamar unlockBtn para restaurar por si el operario quiere reintentar.
+    function haptic() {
+      if (navigator.vibrate) navigator.vibrate(30);
+    }
+
+    function lockBtn(btn, busyText) {
+      if (!btn) return null;
+      haptic();
+      btn.disabled = true;
+      btn.dataset.originalText = btn.textContent;
+      btn.textContent = busyText || 'Procesando…';
+      var busyEl = btn.closest('.tarea-card, .compra-item, section');
+      if (busyEl) busyEl.classList.add('busy');
+      return busyEl;
+    }
+
+    function unlockBtn(btn, busyEl) {
+      if (!btn) return;
+      btn.disabled = false;
+      if (btn.dataset.originalText != null) {
+        btn.textContent = btn.dataset.originalText;
+        delete btn.dataset.originalText;
+      }
+      if (busyEl) busyEl.classList.remove('busy');
     }
 
     function ponerFechaHoy() {
@@ -961,7 +1006,7 @@
           if (t.observaciones) body += '<div class="tarea-obs">' + escapeHtml(t.observaciones) + '</div>';
 
           body += '<div class="tarea-actions">';
-          body += '<button class="btn btn-done btn-sm" onclick="marcarTareaHecha(\'' + safeId + '\')">Hecha \u2713</button>';
+          body += '<button class="btn btn-done btn-sm" onclick="marcarTareaHecha(this, \'' + safeId + '\')">Hecha \u2713</button>';
           body += '<button class="btn btn-postpone btn-sm" onclick="togglePosponer(\'' + safeId + '\')">Posponer \u23F0</button>';
           body += '</div>';
 
@@ -969,11 +1014,11 @@
           body += '<div class="posponer-panel" id="' + panelId + '">';
           body += '<div class="posponer-panel-label">Posponer tarea</div>';
           body += '<div class="posponer-quick">';
-          body += '<button class="btn btn-postpone btn-sm" onclick="posponerManana(\'' + safeId + '\')">Ma\u00f1ana</button>';
+          body += '<button class="btn btn-postpone btn-sm" onclick="posponerManana(this, \'' + safeId + '\')">Ma\u00f1ana</button>';
           body += '</div>';
           body += '<div class="posponer-custom">';
           body += '<input type="date" id="fecha-' + safeId + '" min="' + mananaDate + '" />';
-          body += '<button class="btn btn-primary btn-sm" onclick="posponerConFecha(\'' + safeId + '\')">Confirmar</button>';
+          body += '<button class="btn btn-primary btn-sm" onclick="posponerConFecha(this, \'' + safeId + '\')">Confirmar</button>';
           body += '</div>';
           body += '</div>';
 
@@ -1022,8 +1067,9 @@
     }
 
     // ── MARCAR HECHA ──
-    async function marcarTareaHecha(id) {
+    async function marcarTareaHecha(btn, id) {
       if (!confirm('\u00bfMarcar esta tarea como hecha?')) return;
+      var busyEl = lockBtn(btn, 'Marcando\u2026');
       try {
         var res = await fetch(base_url + '/tareas-eliminar', {
           method: 'POST',
@@ -1034,8 +1080,10 @@
         var data = await res.json();
         if (!data.ok) throw new Error('no ok');
         await cargarTareas();
+        // La tarjeta desaparece con la recarga - no hace falta unlockBtn.
       } catch (e) {
         alert('No se pudo marcar como hecha');
+        unlockBtn(btn, busyEl);
       }
     }
 
@@ -1047,6 +1095,7 @@
     }
 
     function togglePosponer(id) {
+      haptic();
       var panel = document.getElementById('posponer-' + id);
       if (!panel) return;
       // Close all other panels first
@@ -1059,7 +1108,8 @@
       panel.classList.toggle('visible');
     }
 
-    async function posponerTarea(id, fecha) {
+    async function posponerTarea(btn, id, fecha) {
+      var busyEl = lockBtn(btn, 'Posponiendo…');
       try {
         var res = await fetch(base_url + '/tareas-posponer', {
           method: 'POST',
@@ -1072,31 +1122,34 @@
         await cargarTareas();
       } catch (e) {
         alert('No se pudo posponer la tarea');
+        unlockBtn(btn, busyEl);
       }
     }
 
-    function posponerManana(id) {
+    function posponerManana(btn, id) {
       var fecha = calcManana();
-      posponerTarea(id, fecha);
+      posponerTarea(btn, id, fecha);
     }
 
-    function posponerConFecha(id) {
+    function posponerConFecha(btn, id) {
       var input = document.getElementById('fecha-' + id);
       if (!input || !input.value) {
         alert('Selecciona una fecha');
         return;
       }
-      posponerTarea(id, input.value);
+      posponerTarea(btn, id, input.value);
     }
 
     // ── FORM IPM ──
     document.getElementById('formIPM').addEventListener('submit', async function(e) {
       e.preventDefault();
+      var btn = e.submitter || this.querySelector('button[type="submit"]');
       var fecha = document.getElementById('fecha').value;
       var producto = document.getElementById('producto').value;
       var mensaje = document.getElementById('mensaje');
       mensaje.textContent = '';
 
+      var busyEl = lockBtn(btn, 'Guardando…');
       try {
         var res = await fetch(base_url + '/ipm-guardar', {
           method: 'POST',
@@ -1111,6 +1164,8 @@
         await cargarTablaIPM();
       } catch (e) {
         mensaje.textContent = 'Error al guardar';
+      } finally {
+        unlockBtn(btn, busyEl);
       }
     });
 
@@ -1181,7 +1236,7 @@
           var it = items[i];
           html += '<div class="compra-item">';
           html += '<span class="compra-nombre">' + escapeHtml(it.item || '') + '</span>';
-          html += '<button class="btn-tick" title="Marcar como comprado" onclick="eliminarCompra(\'' + escapeAttr(it.id) + '\')">&#10003;</button>';
+          html += '<button class="btn-tick" title="Marcar como comprado" onclick="eliminarCompra(this, \'' + escapeAttr(it.id) + '\')">&#10003;</button>';
           html += '</div>';
         }
         lista.innerHTML = html;
@@ -1191,10 +1246,11 @@
       }
     }
 
-    async function agregarCompra() {
+    async function agregarCompra(btn) {
       var input = document.getElementById('compraInput');
       var item = input.value.trim();
       if (!item) { input.focus(); return; }
+      var busyEl = lockBtn(btn, '…');
       input.disabled = true;
       try {
         var res = await fetch(base_url + '/compras-agregar', {
@@ -1212,10 +1268,12 @@
       } finally {
         input.disabled = false;
         input.focus();
+        unlockBtn(btn, busyEl);
       }
     }
 
-    async function eliminarCompra(id) {
+    async function eliminarCompra(btn, id) {
+      var busyEl = lockBtn(btn, '…');
       try {
         var res = await fetch(base_url + '/compras-eliminar', {
           method: 'POST',
@@ -1226,14 +1284,20 @@
         var data = await res.json();
         if (!data.ok) throw new Error('no ok');
         await cargarCompras();
+        // El ítem desaparece con la recarga.
       } catch (e) {
         alert('No se pudo eliminar el item');
+        unlockBtn(btn, busyEl);
       }
     }
 
     // Enviar con Enter en el input de compras
     document.getElementById('compraInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') { e.preventDefault(); agregarCompra(); }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        var addBtn = document.querySelector('.compras-add .btn-primary');
+        agregarCompra(addBtn);
+      }
     });
 
     // ── INIT ──
