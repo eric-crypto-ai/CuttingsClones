@@ -142,7 +142,12 @@
       margin-top: 4px;
     }
 
-    button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.btn:disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+    .card.busy, .list-item.busy {
+      opacity: 0.6;
+      pointer-events: none;
+      transition: opacity 0.15s;
+    }
     button.btn.ghost { background: white; color: var(--verde); border: 1px solid var(--verde); }
     button.btn.danger { background: var(--rojo); }
     button.btn.dorado { background: var(--dorado); }
@@ -333,7 +338,7 @@
         <input id="pedido-fecha" type="date" />
         <label>Notas (opcional)</label>
         <input id="pedido-notas" placeholder="p. ej. de la misma madre" />
-        <button class="btn" onclick="crearPedido()">Crear pedido</button>
+        <button class="btn" onclick="crearPedido(this)">Crear pedido</button>
       </div>
 
       <div class="card">
@@ -368,7 +373,7 @@
         <input id="aporta-importe" type="number" step="1" min="0" placeholder="100" />
         <label>Concepto (opcional)</label>
         <input id="aporta-concepto" placeholder="p. ej. Aportación para compra urgente" />
-        <button class="btn dorado" onclick="aportarBote()">Aportar</button>
+        <button class="btn dorado" onclick="aportarBote(this)">Aportar</button>
       </div>
     </section>
 
@@ -408,7 +413,7 @@
             </select>
           </div>
         </div>
-        <button class="btn danger" onclick="registrarGasto()">Registrar gasto</button>
+        <button class="btn danger" onclick="registrarGasto(this)">Registrar gasto</button>
       </div>
       <div class="card">
         <h3>Últimos gastos registrados</h3>
@@ -432,7 +437,7 @@
         <input id="cli-nombre" placeholder="p. ej. Grow Shop La Indica" />
         <label>Anotaciones (opcional)</label>
         <input id="cli-notas" placeholder="p. ej. pide los lunes, paga al contado" />
-        <button class="btn" onclick="crearCliente()">Crear cliente</button>
+        <button class="btn" onclick="crearCliente(this)">Crear cliente</button>
       </div>
       <div class="card">
         <h3>Cartera</h3>
@@ -483,6 +488,28 @@
 
   <script>
     const BASE = "https://primary-production-2cf7.up.railway.app/webhook";
+
+    // ========== Anti-doble-click (ver 03 Stack/Frontend/Patrones_UI.md §1) ==========
+    function haptic() { if (navigator.vibrate) navigator.vibrate(30); }
+    function lockBtn(btn, busyText) {
+      if (!btn) return null;
+      haptic();
+      btn.disabled = true;
+      btn.dataset.originalText = btn.textContent;
+      btn.textContent = busyText || "Procesando…";
+      var busyEl = btn.closest(".card, .list-item");
+      if (busyEl) busyEl.classList.add("busy");
+      return busyEl;
+    }
+    function unlockBtn(btn, busyEl) {
+      if (!btn) return;
+      btn.disabled = false;
+      if (btn.dataset.originalText != null) {
+        btn.textContent = btn.dataset.originalText;
+        delete btn.dataset.originalText;
+      }
+      if (busyEl) busyEl.classList.remove("busy");
+    }
 
     // ========== State ==========
     let state = {
@@ -570,20 +597,23 @@
       `).join("");
     }
 
-    async function crearCliente() {
+    async function crearCliente(btn) {
       const nombre = document.getElementById("cli-nombre").value.trim();
       if (!nombre) { toast("Nombre requerido", true); return; }
       const body = {
         nombre,
         notas: document.getElementById("cli-notas").value.trim(),
       };
-      const r = await api("/clientes-crear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      if (r.success) {
-        toast("Cliente creado ✓");
-        ["cli-nombre","cli-notas"].forEach(id => document.getElementById(id).value = "");
-        await cargarClientes();
-        renderClientes();
-      } else { toast("Error: " + (r.error || "desconocido"), true); }
+      const busy = lockBtn(btn, "Creando…");
+      try {
+        const r = await api("/clientes-crear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (r.success) {
+          toast("Cliente creado ✓");
+          ["cli-nombre","cli-notas"].forEach(id => document.getElementById(id).value = "");
+          await cargarClientes();
+          renderClientes();
+        } else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
     }
 
     // ========== PEDIDOS ==========
@@ -615,7 +645,7 @@
       `).join("");
     }
 
-    async function crearPedido() {
+    async function crearPedido(btn) {
       const body = {
         id_cliente: document.getElementById("pedido-cliente").value,
         genetica: document.getElementById("pedido-genetica").value.trim(),
@@ -628,12 +658,15 @@
       if (!body.genetica) { toast("Genética requerida", true); return; }
       if (!body.cantidad || body.cantidad <= 0) { toast("Cantidad inválida", true); return; }
       if (!body.precio_unitario || body.precio_unitario <= 0) { toast("Precio inválido", true); return; }
-      const r = await api("/pedidos-crear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      if (r.success) {
-        toast("Pedido creado ✓ total " + fmtEuro(r.data.total));
-        ["pedido-genetica","pedido-cantidad","pedido-precio","pedido-fecha","pedido-notas"].forEach(id => document.getElementById(id).value = "");
-        cargarPedidos();
-      } else { toast("Error: " + (r.error || "desconocido"), true); }
+      const busy = lockBtn(btn, "Creando…");
+      try {
+        const r = await api("/pedidos-crear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (r.success) {
+          toast("Pedido creado ✓ total " + fmtEuro(r.data.total));
+          ["pedido-genetica","pedido-cantidad","pedido-precio","pedido-fecha","pedido-notas"].forEach(id => document.getElementById(id).value = "");
+          cargarPedidos();
+        } else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
     }
 
     // ========== ENTREGAR PEDIDO ==========
@@ -748,24 +781,27 @@
       `).join("");
     }
 
-    async function aportarBote() {
+    async function aportarBote(btn) {
       const body = {
         socio: document.getElementById("aporta-socio").value,
         importe: Number(document.getElementById("aporta-importe").value || 0),
         concepto: document.getElementById("aporta-concepto").value.trim(),
       };
       if (!body.importe || body.importe <= 0) { toast("Importe inválido", true); return; }
-      const r = await api("/aportacion-bote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      if (r.success) {
-        toast("Aportado · saldo " + fmtEuro(r.data.saldo_bote));
-        document.getElementById("aporta-importe").value = "";
-        document.getElementById("aporta-concepto").value = "";
-        cargarEstadoBote();
-      } else { toast("Error: " + (r.error || "desconocido"), true); }
+      const busy = lockBtn(btn, "Aportando…");
+      try {
+        const r = await api("/aportacion-bote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (r.success) {
+          toast("Aportado · saldo " + fmtEuro(r.data.saldo_bote));
+          document.getElementById("aporta-importe").value = "";
+          document.getElementById("aporta-concepto").value = "";
+          cargarEstadoBote();
+        } else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
     }
 
     // ========== GASTOS ==========
-    async function registrarGasto() {
+    async function registrarGasto(btn) {
       const body = {
         concepto: document.getElementById("gasto-concepto").value.trim(),
         importe: Number(document.getElementById("gasto-importe").value || 0),
@@ -773,15 +809,18 @@
       };
       if (!body.concepto) { toast("Concepto requerido", true); return; }
       if (!body.importe || body.importe <= 0) { toast("Importe inválido", true); return; }
-      const r = await api("/gastos-registrar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      if (r.success) {
-        let msg = "Gasto · saldo " + fmtEuro(r.data.saldo_bote);
-        if (r.data.warning) msg += " ⚠ " + r.data.warning;
-        toast(msg, !!r.data.warning);
-        document.getElementById("gasto-concepto").value = "";
-        document.getElementById("gasto-importe").value = "";
-        cargarEstadoBote();
-      } else { toast("Error: " + (r.error || "desconocido"), true); }
+      const busy = lockBtn(btn, "Registrando…");
+      try {
+        const r = await api("/gastos-registrar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (r.success) {
+          let msg = "Gasto · saldo " + fmtEuro(r.data.saldo_bote);
+          if (r.data.warning) msg += " ⚠ " + r.data.warning;
+          toast(msg, !!r.data.warning);
+          document.getElementById("gasto-concepto").value = "";
+          document.getElementById("gasto-importe").value = "";
+          cargarEstadoBote();
+        } else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
     }
 
     function renderGastosFromMovs() {
@@ -822,18 +861,21 @@
           <div class="list-item" style="padding: 8px;">
             <h4 style="font-size: 16px;">${fmtEuro(r.importe)}</h4>
             <div class="meta">${r.fecha}</div>
-            <button class="btn ghost" style="font-size: 12px; padding: 6px; margin-top: 6px;" onclick="marcarEntregado('${r.id_reparto}')">✓ Entregado</button>
+            <button class="btn ghost" style="font-size: 12px; padding: 6px; margin-top: 6px;" onclick="marcarEntregado(this, '${r.id_reparto}')">✓ Entregado</button>
           </div>
         `).join("");
       });
     }
 
-    async function marcarEntregado(id_reparto) {
-      const r = await api("/repartos-marcar-entregado", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id_reparto })
-      });
-      if (r.success) { toast("Marcado ✓"); cargarEstadoBote().then(renderRepartos); }
-      else { toast("Error: " + (r.error || "desconocido"), true); }
+    async function marcarEntregado(btn, id_reparto) {
+      const busy = lockBtn(btn, "…");
+      try {
+        const r = await api("/repartos-marcar-entregado", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id_reparto })
+        });
+        if (r.success) { toast("Marcado ✓"); await cargarEstadoBote(); renderRepartos(); }
+        else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
     }
 
     // ========== INIT ==========
