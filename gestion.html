@@ -252,16 +252,25 @@
     .action-row button { flex: 1; padding: 8px; font-size: 13px; }
 
     .socio-col {
-      flex: 1;
-      padding: 10px;
+      padding: 8px;
       border: 1px solid var(--gris-borde);
       border-radius: 8px;
+      min-width: 0;
     }
     .socio-col h4 {
       font-size: 13px;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       text-align: center;
+    }
+    .socio-cols-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      align-items: flex-start;
+    }
+    @media (max-width: 500px) {
+      .socio-cols-3 { grid-template-columns: 1fr; }
     }
 
     dialog {
@@ -357,8 +366,18 @@
       <div class="card">
         <div class="saldo-label">Saldo del bote</div>
         <div id="saldo-bote" class="saldo-big">—</div>
-        <hr class="sep">
+        <div id="bote-pendiente-ingreso" class="saldo-label" style="color: var(--naranja);"></div>
+      </div>
+
+      <div class="card">
         <h3>Últimos movimientos</h3>
+        <div class="filters">
+          <button data-movfilter="" class="active" onclick="filtrarMovs('')">Todos</button>
+          <button data-movfilter="cobro" onclick="filtrarMovs('cobro')">Cobros</button>
+          <button data-movfilter="gasto" onclick="filtrarMovs('gasto')">Gastos</button>
+          <button data-movfilter="aportacion" onclick="filtrarMovs('aportacion')">Aportaciones</button>
+          <button data-movfilter="reparto_bote" onclick="filtrarMovs('reparto_bote')">Repartos bote</button>
+        </div>
         <div id="lista-movs" class="loading">Cargando…</div>
       </div>
 
@@ -375,22 +394,50 @@
         <input id="aporta-concepto" placeholder="p. ej. Aportación para compra urgente" />
         <button class="btn dorado" onclick="aportarBote(this)">Aportar</button>
       </div>
+
+      <div class="card">
+        <h3>🎁 Repartir bote</h3>
+        <label>Importe a repartir €</label>
+        <input id="rep-bote-importe" type="number" step="1" min="0" placeholder="200" oninput="previewRepartirBote()" />
+        <div id="rep-bote-preview" style="background: var(--dorado-claro); padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px; min-height: 20px;"></div>
+        <label>Concepto (opcional)</label>
+        <input id="rep-bote-concepto" placeholder="p. ej. Reparto fin de mes" />
+        <button class="btn dorado" onclick="repartirBote(this)">Confirmar reparto</button>
+      </div>
     </section>
 
     <!-- ========= REPARTOS ========= -->
     <section id="tab-repartos" class="tab-content" hidden>
       <div class="card">
         <h3>Repartos pendientes</h3>
-        <div class="row" style="align-items: flex-start; gap: 10px;">
+        <div class="socio-cols-3">
           <div class="socio-col">
             <h4 style="color: var(--verde);">Eric</h4>
+            <div id="reps-eric-total" class="meta" style="text-align: center; margin-bottom: 6px;"></div>
             <div id="reps-eric" class="loading">Cargando…</div>
+            <button id="btn-todos-eric" class="btn ghost" style="font-size: 12px; padding: 6px; margin-top: 8px; display: none;" onclick="marcarTodosSocio(this, 'Eric')">✓ Marcar todos</button>
           </div>
           <div class="socio-col">
             <h4 style="color: var(--dorado);">Noel</h4>
+            <div id="reps-noel-total" class="meta" style="text-align: center; margin-bottom: 6px;"></div>
             <div id="reps-noel" class="loading">Cargando…</div>
+            <button id="btn-todos-noel" class="btn ghost" style="font-size: 12px; padding: 6px; margin-top: 8px; display: none;" onclick="marcarTodosSocio(this, 'Noel')">✓ Marcar todos</button>
+          </div>
+          <div class="socio-col">
+            <h4 style="color: var(--naranja);">Bote</h4>
+            <div id="reps-bote-total" class="meta" style="text-align: center; margin-bottom: 6px;"></div>
+            <div id="reps-bote" class="loading">Cargando…</div>
+            <button id="btn-todos-bote" class="btn ghost" style="font-size: 12px; padding: 6px; margin-top: 8px; display: none;" onclick="marcarTodosSocio(this, 'bote')">✓ Ingresar todos</button>
           </div>
         </div>
+      </div>
+
+      <div class="card">
+        <h3 style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Historial de entregados</span>
+          <button class="btn ghost" style="font-size: 11px; padding: 4px 10px; width: auto;" onclick="toggleHistorial(this)">Mostrar</button>
+        </h3>
+        <div id="lista-historial" hidden></div>
       </div>
     </section>
 
@@ -453,12 +500,23 @@
       <div id="entregar-info" class="meta" style="margin-bottom: 10px;"></div>
       <label>Importe cobrado €</label>
       <input id="ent-importe" type="number" step="1" min="0" oninput="recalcularReparto()" />
-      <label>Método</label>
-      <select id="ent-metodo">
-        <option value="efectivo">Efectivo</option>
-        <option value="bizum">Bizum</option>
-        <option value="transferencia">Transferencia</option>
-      </select>
+      <div class="grid2">
+        <div>
+          <label>Método</label>
+          <select id="ent-metodo">
+            <option value="efectivo">Efectivo</option>
+            <option value="bizum">Bizum</option>
+            <option value="transferencia">Transferencia</option>
+          </select>
+        </div>
+        <div>
+          <label>¿Quién cobra?</label>
+          <select id="ent-quien-cobro">
+            <option value="Noel" selected>Noel</option>
+            <option value="Eric">Eric</option>
+          </select>
+        </div>
+      </div>
       <div id="reparto-preview" style="background: var(--verde-claro); padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px;"></div>
       <button class="btn ghost" id="btn-personalizar" onclick="togglePersonalizar()">✏️ Personalizar reparto</button>
       <div id="ent-personalizado" hidden>
@@ -521,6 +579,7 @@
       cobros: [],
       entregarPedido: null,
       personalizado: false,
+      movFiltro: "",
     };
 
     // ========== Utils ==========
@@ -732,6 +791,7 @@
         id_pedido: state.entregarPedido.id_pedido,
         importe: imp,
         metodo: document.getElementById("ent-metodo").value,
+        quien_cobro: document.getElementById("ent-quien-cobro").value,
       };
       if (state.personalizado) {
         body.modo_reparto = "personalizado";
@@ -743,7 +803,7 @@
       const r = await api("/pedidos-entregar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       document.getElementById("btn-confirmar-entrega").disabled = false;
       if (r.success) {
-        toast(`Entregado · bote ${fmtEuro(r.data.bote)} · por socio ${fmtEuro(r.data.por_socio)}`);
+        toast(`Entregado · cobró ${r.data.quien_cobro} · bote ${fmtEuro(r.data.bote)} · por socio ${fmtEuro(r.data.por_socio)}`);
         cerrarEntregar();
         await cargarPedidos();
       } else {
@@ -764,21 +824,81 @@
       const s = state.estadoBote?.saldo ?? 0;
       el.textContent = fmtEuro(s);
       el.classList.toggle("rojo", s < 0);
+
+      // Pendientes de ingresar al bote (sumatorio)
+      const pendIng = state.estadoBote?.bote_pendiente || [];
+      const totalPend = pendIng.reduce((a, b) => a + Number(b.importe || 0), 0);
+      const elPend = document.getElementById("bote-pendiente-ingreso");
+      if (elPend) {
+        elPend.textContent = totalPend > 0
+          ? `+ ${fmtEuro(totalPend)} pendientes de ingresar (${pendIng.length} cobro${pendIng.length > 1 ? 's' : ''})`
+          : "";
+      }
+
+      renderMovs();
+    }
+
+    function renderMovs() {
       const movs = state.estadoBote?.ultimos_movimientos || [];
+      const filtered = state.movFiltro ? movs.filter(m => m.tipo === state.movFiltro) : movs;
       const lista = document.getElementById("lista-movs");
-      if (movs.length === 0) lista.innerHTML = '<div class="empty">Sin movimientos</div>';
-      else lista.innerHTML = movs.map(m => `
-        <div class="mov-row">
-          <div>
-            <div>${m.fecha} · <span class="pill ${m.tipo === 'cobro' ? 'entregado' : m.tipo === 'gasto' ? 'cancelado' : 'pendiente'}">${m.tipo}</span></div>
-            <div class="concepto">${m.concepto || ''}${m.socio ? ' · ' + m.socio : ''}</div>
+      if (!lista) return;
+      if (filtered.length === 0) { lista.innerHTML = '<div class="empty">Sin movimientos</div>'; return; }
+      lista.innerHTML = filtered.map(m => {
+        const pillClass = { cobro: 'entregado', gasto: 'cancelado', aportacion: 'pendiente', reparto_bote: 'no_aplica' }[m.tipo] || 'no_aplica';
+        return `
+          <div class="mov-row">
+            <div>
+              <div>${m.fecha} · <span class="pill ${pillClass}">${m.tipo}</span></div>
+              <div class="concepto">${m.concepto || ''}${m.socio ? ' · ' + m.socio : ''}</div>
+            </div>
+            <div style="text-align: right;">
+              <div class="importe ${Number(m.importe) >= 0 ? 'pos' : 'neg'}">${Number(m.importe) >= 0 ? '+' : ''}${fmtEuro(m.importe)}</div>
+              <div class="concepto">saldo ${fmtEuro(m.saldo_despues)}</div>
+            </div>
           </div>
-          <div style="text-align: right;">
-            <div class="importe ${Number(m.importe) >= 0 ? 'pos' : 'neg'}">${Number(m.importe) >= 0 ? '+' : ''}${fmtEuro(m.importe)}</div>
-            <div class="concepto">saldo ${fmtEuro(m.saldo_despues)}</div>
-          </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
+    }
+
+    function filtrarMovs(tipo) {
+      state.movFiltro = tipo;
+      document.querySelectorAll('.filters button[data-movfilter]').forEach(b =>
+        b.classList.toggle("active", b.dataset.movfilter === tipo));
+      renderMovs();
+    }
+
+    function previewRepartirBote() {
+      const imp = Number(document.getElementById("rep-bote-importe").value || 0);
+      const saldo = state.estadoBote?.saldo ?? 0;
+      const el = document.getElementById("rep-bote-preview");
+      if (imp <= 0) { el.textContent = ""; return; }
+      if (imp > saldo) {
+        el.innerHTML = `<span style="color: var(--rojo);">⚠ ${fmtEuro(imp)} &gt; saldo actual ${fmtEuro(saldo)}</span>`;
+        return;
+      }
+      const pe = Math.floor(imp / 2);
+      const pn = imp - pe;
+      el.innerHTML = `50/50 → <b>Eric ${fmtEuro(pe)}</b> · <b>Noel ${fmtEuro(pn)}</b> · bote queda en ${fmtEuro(saldo - imp)}`;
+    }
+
+    async function repartirBote(btn) {
+      const imp = Number(document.getElementById("rep-bote-importe").value || 0);
+      if (!imp || imp <= 0) { toast("Importe inválido", true); return; }
+      const saldo = state.estadoBote?.saldo ?? 0;
+      if (imp > saldo) { toast("Importe > saldo del bote", true); return; }
+      const body = { importe: imp, concepto: document.getElementById("rep-bote-concepto").value.trim() };
+      const busy = lockBtn(btn, "Repartiendo…");
+      try {
+        const r = await api("/bote-repartir", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (r.success) {
+          toast(`Repartidos ${fmtEuro(r.data.importe)} · Eric ${fmtEuro(r.data.parte_eric)} · Noel ${fmtEuro(r.data.parte_noel)}`);
+          document.getElementById("rep-bote-importe").value = "";
+          document.getElementById("rep-bote-concepto").value = "";
+          document.getElementById("rep-bote-preview").innerHTML = "";
+          await cargarEstadoBote();
+        } else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
     }
 
     async function aportarBote(btn) {
@@ -853,15 +973,27 @@
 
     // ========== REPARTOS ==========
     function renderRepartos() {
-      ["Eric", "Noel"].forEach(socio => {
-        const el = document.getElementById("reps-" + socio.toLowerCase());
-        const reps = state.estadoBote?.repartos_pendientes?.[socio] || [];
-        if (reps.length === 0) { el.innerHTML = '<div class="empty">Ninguno</div>'; return; }
-        el.innerHTML = reps.map(r => `
+      // 3 columnas: Eric (repartos_pendientes.Eric), Noel (repartos_pendientes.Noel), Bote (bote_pendiente)
+      const grupos = [
+        { key: "Eric", data: state.estadoBote?.repartos_pendientes?.Eric || [], btnId: "btn-todos-eric", listId: "reps-eric", totalId: "reps-eric-total", btnLabel: "✓ Marcar todos" },
+        { key: "Noel", data: state.estadoBote?.repartos_pendientes?.Noel || [], btnId: "btn-todos-noel", listId: "reps-noel", totalId: "reps-noel-total", btnLabel: "✓ Marcar todos" },
+        { key: "bote", data: state.estadoBote?.bote_pendiente || [], btnId: "btn-todos-bote", listId: "reps-bote", totalId: "reps-bote-total", btnLabel: "✓ Ingresar todos" },
+      ];
+      grupos.forEach(g => {
+        const el = document.getElementById(g.listId);
+        const total = g.data.reduce((a, b) => a + Number(b.importe || 0), 0);
+        const elT = document.getElementById(g.totalId);
+        if (elT) elT.textContent = total > 0 ? `${fmtEuro(total)} en ${g.data.length}` : "";
+        const btn = document.getElementById(g.btnId);
+        if (btn) btn.style.display = g.data.length > 1 ? "block" : "none";
+        if (btn) btn.textContent = `${g.btnLabel} (${fmtEuro(total)})`;
+
+        if (g.data.length === 0) { el.innerHTML = '<div class="empty">Ninguno</div>'; return; }
+        el.innerHTML = g.data.map(r => `
           <div class="list-item" style="padding: 8px;">
-            <h4 style="font-size: 16px;">${fmtEuro(r.importe)}</h4>
-            <div class="meta">${r.fecha}</div>
-            <button class="btn ghost" style="font-size: 12px; padding: 6px; margin-top: 6px;" onclick="marcarEntregado(this, '${r.id_reparto}')">✓ Entregado</button>
+            <h4 style="font-size: 15px;">${fmtEuro(r.importe)}</h4>
+            <div class="meta">${r.fecha}${r.quien_cobro ? ' · cobró <b>' + r.quien_cobro + '</b>' : (g.key === 'bote' && !r.quien_cobro ? '' : '')}</div>
+            <button class="btn ghost" style="font-size: 11px; padding: 6px; margin-top: 6px;" onclick="marcarEntregado(this, '${r.id_reparto}')">${g.key === 'bote' ? '✓ Ingresado' : '✓ Entregado'}</button>
           </div>
         `).join("");
       });
@@ -876,6 +1008,57 @@
         if (r.success) { toast("Marcado ✓"); await cargarEstadoBote(); renderRepartos(); }
         else { toast("Error: " + (r.error || "desconocido"), true); }
       } finally { unlockBtn(btn, busy); }
+    }
+
+    async function marcarTodosSocio(btn, socio) {
+      const key = socio === "bote" ? "bote_pendiente" : null;
+      const reps = socio === "bote"
+        ? (state.estadoBote?.bote_pendiente || [])
+        : (state.estadoBote?.repartos_pendientes?.[socio] || []);
+      if (reps.length === 0) return;
+      if (!confirm(`¿Marcar ${reps.length} ${socio === "bote" ? "ingreso(s) al bote" : "reparto(s) a " + socio} como entregado(s)?`)) return;
+      const busy = lockBtn(btn, `… (0/${reps.length})`);
+      try {
+        // Secuencial para evitar race conditions en el saldo del bote cuando socio=bote
+        let ok = 0, err = 0;
+        for (const r of reps) {
+          const res = await api("/repartos-marcar-entregado", {
+            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id_reparto: r.id_reparto })
+          });
+          if (res.success) ok++;
+          else err++;
+          btn.textContent = `… (${ok + err}/${reps.length})`;
+        }
+        toast(`${ok} marcado${ok !== 1 ? 's' : ''}${err > 0 ? ' · ' + err + ' error' + (err !== 1 ? 'es' : '') : ''}`, err > 0);
+        await cargarEstadoBote();
+        renderRepartos();
+      } finally { unlockBtn(btn, busy); }
+    }
+
+    function toggleHistorial(btn) {
+      const el = document.getElementById("lista-historial");
+      const open = !el.hidden;
+      el.hidden = open;
+      btn.textContent = open ? "Mostrar" : "Ocultar";
+      if (!open) renderHistorial();
+    }
+
+    function renderHistorial() {
+      const el = document.getElementById("lista-historial");
+      if (!el) return;
+      const entregados = state.estadoBote?.entregados || [];
+      if (entregados.length === 0) { el.innerHTML = '<div class="empty">Sin historial</div>'; return; }
+      el.innerHTML = entregados.map(e => {
+        const pillClass = e.socio === "bote" ? "no_aplica" : (e.socio === "Eric" ? "entregado" : "pendiente");
+        return `
+          <div class="mov-row">
+            <div>
+              <div><span class="pill ${pillClass}">${e.socio}</span> ${fmtEuro(e.importe)}</div>
+              <div class="concepto">entregado ${e.fecha_entregado || e.fecha}${e.quien_cobro ? ' · cobró ' + e.quien_cobro : ''}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
     // ========== INIT ==========
