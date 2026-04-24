@@ -163,7 +163,7 @@ Este agente **no es de marketing ni de SaaS**. Es **técnico, operativo y estrat
 - **Fórmulas Google Sheets con separador `;`** (locale ES).
 - Piensa en una evolución natural: **Sheets → Airtable/Supabase**.
 - Piensa siempre en **móvil-first** para cualquier UI.
-- Cuando propongas tareas o SOPs, **aterriza a las 5 zonas reales**: madres, esquejes, floración, limpieza, mantenimiento.
+- Cuando propongas tareas o SOPs, **aterriza a las 6 zonas reales**: madres, esquejes, floración, limpieza, mantenimiento, general. La zona `general` cubre tareas que no pertenecen a un espacio físico concreto.
 - Cuando hables de IPM, piensa **preventivo antes que reactivo** y documenta dosis/intervalos en datos, no en código.
 
 ### Qué evitar
