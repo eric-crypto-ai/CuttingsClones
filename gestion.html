@@ -1282,7 +1282,18 @@
       const el = document.getElementById("lista-cobros");
       const cobros = state.estadoBote?.cobros || [];
       if (cobros.length === 0) { el.innerHTML = '<div class="empty">Sin cobros recientes</div>'; return; }
-      el.innerHTML = cobros.map(c => {
+      const totals = cobros.reduce((a, c) => {
+        a.total += c.importe;
+        if (c.quien_cobro === "Eric") a.eric += c.importe;
+        else if (c.quien_cobro === "Noel") a.noel += c.importe;
+        return a;
+      }, { total: 0, eric: 0, noel: 0 });
+      const header = `
+        <div class="list-item" style="background: var(--dorado-claro);">
+          <h4>Total · ${fmtEuro(totals.total)} en ${cobros.length} cobro${cobros.length !== 1 ? 's' : ''}</h4>
+          <div class="meta">cobró Eric ${fmtEuro(totals.eric)} · cobró Noel ${fmtEuro(totals.noel)}</div>
+        </div>`;
+      const lista = cobros.map(c => {
         const partes = [];
         if (c.bote > 0) partes.push(`${fmtEuro(c.bote)} al bote`);
         if (c.reparto > 0) partes.push(`${fmtEuro(c.reparto)} reparto (${fmtEuro(c.por_socio)}/socio)`);
@@ -1293,6 +1304,7 @@
           <div class="meta">${partes.join(' · ') || 'sin desglose'}</div>
         </div>`;
       }).join("");
+      el.innerHTML = header + lista;
     }
 
     // ========== REPARTOS ==========
