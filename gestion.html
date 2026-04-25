@@ -1130,6 +1130,12 @@
       const r = await api("/estado-bote");
       if (r && r.success) state.estadoBote = r.data;
       renderBote();
+      // Refrescar todas las vistas que dependen del state actual
+      if (document.getElementById("reps-eric")) renderRepartos();
+      const histEl = document.getElementById("lista-historial");
+      if (histEl && !histEl.hidden) renderHistorial();
+      if (document.getElementById("lista-cobros")) renderCobrosFromMovs();
+      if (document.getElementById("lista-gastos")) renderGastosFromMovs();
     }
 
     function renderBote() {
