@@ -912,6 +912,52 @@
       <div id="mensaje" class="mensaje"></div>
     </section>
 
+    <!-- REGISTRAR CORTE -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#9986;&#65039;</div>
+        <h2>Registrar corte</h2>
+      </div>
+      <form id="formCorte">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cortGenetica">Gen&eacute;tica *</label>
+            <select id="cortGenetica" required>
+              <option value="">Selecciona</option>
+              <option value="Amnesia">Amnesia (28 madres)</option>
+              <option value="Hokuzai">Hokuzai (2 madres)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cortNumEsquejes">N&ordm; esquejes *</label>
+            <input type="number" id="cortNumEsquejes" min="1" placeholder="Ej: 48" required />
+          </div>
+        </div>
+        <div class="form-row" style="margin-top: 8px;">
+          <div class="form-group">
+            <label for="cortFecha">Fecha corte *</label>
+            <input type="date" id="cortFecha" required />
+          </div>
+          <div class="form-group">
+            <label for="cortIntervalo">Intervalo d&iacute;as</label>
+            <input type="number" id="cortIntervalo" min="1" max="60" value="14" />
+          </div>
+          <div class="form-group">
+            <label for="cortOperario">Operario</label>
+            <input type="text" id="cortOperario" placeholder="Eric" />
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 8px;">
+          <label for="cortObs">Observaciones (opcional)</label>
+          <textarea id="cortObs" placeholder="Vigor de las madres, particularidades..."></textarea>
+        </div>
+        <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <button type="submit" class="btn btn-primary">Registrar corte</button>
+          <span id="mensajeCorte" class="mensaje"></span>
+        </div>
+      </form>
+    </section>
+
     <!-- NUEVA TAREA -->
     <section>
       <div class="section-header">
@@ -1332,6 +1378,65 @@
       }
     });
 
+    // ── REGISTRAR CORTE ──
+    function getOperarioGuardado() {
+      try { return localStorage.getItem('cc_operario') || ''; } catch (e) { return ''; }
+    }
+    function setOperarioGuardado(v) {
+      try { if (v) localStorage.setItem('cc_operario', v); } catch (e) {}
+    }
+
+    document.getElementById('formCorte').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btnSubmit = this.querySelector('button[type="submit"]');
+      var mensaje = document.getElementById('mensajeCorte');
+      mensaje.textContent = '';
+      mensaje.className = 'mensaje';
+
+      var genetica = document.getElementById('cortGenetica').value;
+      var num_esquejes = parseInt(document.getElementById('cortNumEsquejes').value, 10);
+      var fecha_corte = document.getElementById('cortFecha').value;
+      var intervalo_dias = parseInt(document.getElementById('cortIntervalo').value, 10) || 14;
+      var operario = document.getElementById('cortOperario').value.trim();
+      var observaciones = document.getElementById('cortObs').value.trim();
+
+      if (!genetica || !num_esquejes || num_esquejes <= 0 || !fecha_corte) {
+        mensaje.textContent = 'Completa los campos obligatorios';
+        mensaje.className = 'mensaje error';
+        return;
+      }
+
+      setOperarioGuardado(operario);
+
+      var busyEl = lockBtn(btnSubmit, 'Registrando…');
+      try {
+        var res = await fetch(base_url + '/cortes-crear', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ genetica: genetica, num_esquejes: num_esquejes, fecha_corte: fecha_corte, intervalo_dias: intervalo_dias, operario: operario, observaciones: observaciones })
+        });
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        if (!data.ok) throw new Error('no ok');
+
+        mensaje.textContent = '✓ ' + data.id_evento + ' · próximo corte ' + data.fecha_proximo_corte_estimada;
+        toast('Corte registrado: ' + data.id_evento);
+
+        document.getElementById('cortGenetica').value = '';
+        document.getElementById('cortNumEsquejes').value = '';
+        document.getElementById('cortObs').value = '';
+        document.getElementById('cortIntervalo').value = '14';
+
+        await cargarTareas();
+      } catch (e) {
+        mensaje.textContent = 'Error al registrar corte';
+        mensaje.className = 'mensaje error';
+        toast('No se pudo registrar el corte', true);
+      } finally {
+        unlockBtn(btnSubmit, busyEl);
+      }
+    });
+
     // ── CREAR TAREA ──
     document.getElementById('formNuevaTarea').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -1466,6 +1571,8 @@
     // ── INIT ──
     ponerFechaHoy();
     document.getElementById('ntFecha').value = fechaHoyISO();
+    document.getElementById('cortFecha').value = fechaHoyISO();
+    document.getElementById('cortOperario').value = getOperarioGuardado();
     cargarInfoLanding();
     cargarProductosIPM();
     cargarTablaIPM();

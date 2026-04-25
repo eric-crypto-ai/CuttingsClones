@@ -431,6 +431,8 @@
     .pill.gasto { color: var(--rojo); border-color: rgba(163,36,36,0.3); background: rgba(163,36,36,0.06); }
     .pill.aporte { color: var(--dorado-dark); border-color: rgba(155,126,34,0.3); background: rgba(155,126,34,0.08); }
     .pill.reparto { color: var(--azul); border-color: rgba(29,58,107,0.3); background: rgba(29,58,107,0.06); }
+    .pill.activo { color: var(--verde-bosque); border-color: rgba(26,61,31,0.3); background: rgba(26,61,31,0.06); }
+    .pill.cerrado { color: var(--carbon-60); border-color: var(--linea-fuerte); background: transparent; }
 
     /* ── SALDO GIGANTE — el hero del bote ── */
     .saldo-big {
@@ -640,6 +642,7 @@
 
   <nav class="tabs">
     <button data-tab="pedidos" class="active">🛒 Pedidos</button>
+    <button data-tab="cortes">✂️ Cortes</button>
     <button data-tab="bote">💰 Bote</button>
     <button data-tab="repartos">✅ Repartos</button>
     <button data-tab="gastos">💸 Gastos</button>
@@ -809,6 +812,19 @@
       </div>
     </section>
 
+    <!-- ========= CORTES ========= -->
+    <section id="tab-cortes" class="tab-content" hidden>
+      <div class="card">
+        <h3>Histórico de cortes</h3>
+        <div class="filters">
+          <button data-cortefilter="" class="active" onclick="filtrarCortes('')">Todos</button>
+          <button data-cortefilter="Amnesia" onclick="filtrarCortes('Amnesia')">Amnesia</button>
+          <button data-cortefilter="Hokuzai" onclick="filtrarCortes('Hokuzai')">Hokuzai</button>
+        </div>
+        <div id="lista-cortes" class="loading">Cargando…</div>
+      </div>
+    </section>
+
     <!-- ========= CLIENTES ========= -->
     <section id="tab-clientes" class="tab-content" hidden>
       <div class="card">
@@ -913,6 +929,8 @@
       entregarPedido: null,
       personalizado: false,
       movFiltro: "",
+      cortes: [],
+      cortesFiltro: "",
     };
 
     // ========== Utils ==========
@@ -963,6 +981,7 @@
       else if (tab === "gastos") { await cargarEstadoBote(); renderGastosFromMovs(); }
       else if (tab === "cobros") { await cargarEstadoBote(); renderCobrosFromMovs(); }
       else if (tab === "clientes") { await cargarClientes(); renderClientes(); }
+      else if (tab === "cortes") { await cargarCortes(); }
     }
 
     // ========== CLIENTES ==========
@@ -1436,6 +1455,58 @@
           </div>
         `;
       }).join("");
+    }
+
+    // ========== CORTES ==========
+    async function cargarCortes() {
+      const r = await api("/cortes-lista");
+      // Compatibilidad: el workflow Cortes responde { items: [...] } directo (sin success/data wrap)
+      if (r && Array.isArray(r.items)) state.cortes = r.items;
+      else if (r && r.success && r.data && Array.isArray(r.data.items)) state.cortes = r.data.items;
+      else state.cortes = [];
+      renderCortes();
+    }
+
+    function filtrarCortes(genetica) {
+      state.cortesFiltro = genetica;
+      document.querySelectorAll('.filters button[data-cortefilter]').forEach(b =>
+        b.classList.toggle("active", b.dataset.cortefilter === genetica));
+      renderCortes();
+    }
+
+    function renderCortes() {
+      const el = document.getElementById("lista-cortes");
+      if (!el) return;
+      let cortes = state.cortes || [];
+      if (state.cortesFiltro) cortes = cortes.filter(c => c.genetica === state.cortesFiltro);
+      if (cortes.length === 0) {
+        el.innerHTML = '<div class="empty">Sin cortes registrados</div>';
+        return;
+      }
+      const totalEsq = cortes.reduce((a, c) => a + Number(c.num_esquejes || 0), 0);
+      const header = `
+        <div class="list-item" style="background: var(--verde-tinte);">
+          <h4>Total · ${totalEsq} esquejes en ${cortes.length} corte${cortes.length !== 1 ? 's' : ''}</h4>
+        </div>`;
+      const hoy = new Date().toISOString().slice(0, 10);
+      const lista = cortes.map(c => {
+        const proximaPasada = c.fecha_proximo_corte_estimada && c.fecha_proximo_corte_estimada < hoy;
+        return `
+          <div class="list-item">
+            <h4>
+              <span class="mono">${c.id_evento}</span>
+              <span class="pill ${c.estado || 'activo'}">${c.estado || 'activo'}</span>
+            </h4>
+            <div class="meta"><b>${c.genetica}</b> · ${c.num_esquejes} esquejes · corte ${c.fecha_corte}</div>
+            <div class="meta">
+              Próximo corte estimado:
+              <b style="${proximaPasada ? 'color: var(--rojo);' : ''}">${c.fecha_proximo_corte_estimada || '—'}</b>
+              · ${c.intervalo_dias}d${c.operario ? ' · ' + c.operario : ''}
+            </div>
+            ${c.observaciones ? `<div class="meta" style="margin-top: 4px;"><em>${c.observaciones}</em></div>` : ""}
+          </div>`;
+      }).join("");
+      el.innerHTML = header + lista;
     }
 
     // ========== INIT ==========
