@@ -786,6 +786,16 @@
     <section id="tab-cobros" class="tab-content" hidden>
       <div class="card">
         <h3>Histórico de cobros</h3>
+        <div class="grid2" style="margin-bottom: 12px;">
+          <div>
+            <label>Año</label>
+            <select id="cobros-filtro-anio" onchange="renderCobrosFromMovs()"></select>
+          </div>
+          <div>
+            <label>Mes</label>
+            <select id="cobros-filtro-mes" onchange="renderCobrosFromMovs()"></select>
+          </div>
+        </div>
         <div id="lista-cobros" class="loading">Cargando…</div>
       </div>
     </section>
@@ -1278,20 +1288,42 @@
       `).join("");
     }
 
+    function poblarFiltrosCobros() {
+      const cobros = state.estadoBote?.cobros || [];
+      const selA = document.getElementById("cobros-filtro-anio");
+      const selM = document.getElementById("cobros-filtro-mes");
+      if (!selA || !selM) return;
+      const anios = [...new Set(cobros.map(c => (c.fecha || "").slice(0, 4)).filter(Boolean))].sort().reverse();
+      const meses = ["01","02","03","04","05","06","07","08","09","10","11","12"];
+      const nombresMes = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+      const valA = selA.value || "todos";
+      const valM = selM.value || "todos";
+      selA.innerHTML = `<option value="todos">Todos</option>` + anios.map(a => `<option value="${a}">${a}</option>`).join("");
+      selM.innerHTML = `<option value="todos">Todos</option>` + meses.map((m, i) => `<option value="${m}">${nombresMes[i]}</option>`).join("");
+      selA.value = anios.includes(valA) || valA === "todos" ? valA : "todos";
+      selM.value = valM;
+    }
+
     function renderCobrosFromMovs() {
       const el = document.getElementById("lista-cobros");
-      const cobros = state.estadoBote?.cobros || [];
-      if (cobros.length === 0) { el.innerHTML = '<div class="empty">Sin cobros recientes</div>'; return; }
-      const totals = cobros.reduce((a, c) => {
-        a.total += c.importe;
-        if (c.quien_cobro === "Eric") a.eric += c.importe;
-        else if (c.quien_cobro === "Noel") a.noel += c.importe;
-        return a;
-      }, { total: 0, eric: 0, noel: 0 });
+      poblarFiltrosCobros();
+      const fAnio = document.getElementById("cobros-filtro-anio")?.value || "todos";
+      const fMes = document.getElementById("cobros-filtro-mes")?.value || "todos";
+      let cobros = state.estadoBote?.cobros || [];
+      if (fAnio !== "todos") cobros = cobros.filter(c => (c.fecha || "").slice(0, 4) === fAnio);
+      if (fMes !== "todos") cobros = cobros.filter(c => (c.fecha || "").slice(5, 7) === fMes);
+      if (cobros.length === 0) {
+        el.innerHTML = `
+          <div class="list-item" style="background: var(--dorado-claro);">
+            <h4>Total · 0€ en 0 cobros</h4>
+          </div>
+          <div class="empty">Sin cobros en este periodo</div>`;
+        return;
+      }
+      const total = cobros.reduce((a, c) => a + c.importe, 0);
       const header = `
         <div class="list-item" style="background: var(--dorado-claro);">
-          <h4>Total · ${fmtEuro(totals.total)} en ${cobros.length} cobro${cobros.length !== 1 ? 's' : ''}</h4>
-          <div class="meta">cobró Eric ${fmtEuro(totals.eric)} · cobró Noel ${fmtEuro(totals.noel)}</div>
+          <h4>Total · ${fmtEuro(total)} en ${cobros.length} cobro${cobros.length !== 1 ? 's' : ''}</h4>
         </div>`;
       const lista = cobros.map(c => {
         const partes = [];
