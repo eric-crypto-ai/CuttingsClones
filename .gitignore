@@ -1,0 +1,10 @@
+node_modules/
+credentials.json
+*.rtf
+clave del bot api script de google
+.DS_Store
+*.png
+!assets/*.png
+
+# Symlink local al vault de Obsidian — no funciona fuera de este Mac
+obsidian

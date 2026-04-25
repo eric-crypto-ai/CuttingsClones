@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="version" content="2.0" />
+  <title>CuttingsClones — Portal del Trabajador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+  <style>
+
+    /* ====================================================================
+       CuttingsClones — Premium Agroindustrial
+       Paleta: bosque profundo + crema cálida + carbón
+       Tipografía: Geist (display) + Geist Mono (numérico/eyebrow)
+       ==================================================================== */
+
+    :root {
+      /* Verdes */
+      --verde-bosque: #1a3d1f;
+      --verde-bosque-h: #14321a;
+      --verde-savia: #2d5e36;
+      --verde-musgo: #3d6b42;
+      --verde-tinte: #e8eee2;
+
+      /* Neutros cálidos */
+      --crema: #f1ede2;
+      --crema-claro: #f8f5eb;
+      --crema-tinte: #ebe6d8;
+      --hueso: #fdfbf3;
+      --carbon: #14171a;
+      --carbon-80: #2a2e30;
+      --carbon-60: #56595a;
+      --carbon-40: #8a8c8a;
+      --carbon-20: #c8c5b9;
+
+      /* Líneas */
+      --linea: #d8d3c2;
+      --linea-fuerte: #c1bca8;
+      --linea-suave: #e3dfd0;
+
+      /* Acentos semánticos */
+      --dorado: #9b7e22;
+      --dorado-suave: #f0e6c0;
+      --dorado-dark: #6b5715;
+      --rojo: #a32424;
+      --rojo-suave: #f5e1e1;
+      --naranja: #b34d12;
+      --naranja-suave: #f3e3d4;
+
+      /* Compatibilidad con el HTML existente */
+      --verde: var(--verde-bosque);
+      --verde-claro: var(--verde-tinte);
+      --verde-oscuro: var(--verde-bosque);
+      --gris-oscuro: var(--carbon-80);
+      --gris-texto: var(--carbon-60);
+      --gris-borde: var(--linea);
+      --fondo: var(--crema);
+      --fondo-tinte: var(--crema-claro);
+      --blanco: var(--hueso);
+      --dorado-claro: var(--dorado-suave);
+      --rojo-claro: var(--rojo-suave);
+      --naranja-claro: var(--naranja-suave);
+
+      /* Sombras tintadas + inset highlight */
+      --sombra-1: 0 1px 0 rgba(26,61,31,0.04), 0 1px 3px rgba(20,23,26,0.06);
+      --sombra-2: 0 1px 0 rgba(26,61,31,0.04), 0 4px 12px rgba(20,23,26,0.06), 0 2px 4px rgba(20,23,26,0.04);
+      --sombra-3: 0 2px 0 rgba(26,61,31,0.05), 0 12px 32px rgba(20,23,26,0.1), 0 4px 8px rgba(20,23,26,0.06);
+      --sombra-header: 0 1px 0 rgba(0,0,0,0.2), 0 8px 24px rgba(20,23,26,0.18);
+      --sombra-inset: inset 0 1px 0 rgba(255,255,255,0.5);
+
+      /* Radios */
+      --r-xs: 4px;
+      --r-sm: 6px;
+      --r: 10px;
+      --r-lg: 14px;
+      --radius-sm: var(--r-sm);
+      --radius: var(--r);
+      --radius-lg: var(--r-lg);
+
+      /* Focus */
+      --ring: 0 0 0 3px rgba(45,94,54,0.22);
+      --anillo-focus: var(--ring);
+
+      /* Motion */
+      --t-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+      --t: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      --t-slow: 320ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transicion: var(--t);
+
+      --eyebrow: 10.5px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: var(--crema);
+      color: var(--carbon);
+      line-height: 1.5;
+      font-feature-settings: 'ss01' on, 'cv11' on;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Sutil grain en el fondo (industrial premium) */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.09 0 0 0 0 0.07 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.18;
+      mix-blend-mode: multiply;
+    }
+
+    main, header, footer { position: relative; z-index: 1; }
+
+    /* Tabular nums donde importan */
+    .info-value, td, th, .tarea-meta, .compra-nombre, input, select, textarea,
+    .zona-badge, .saldo-big, .mov-row, .meta {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mono, code {
+      font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--verde-bosque);
+      background-image:
+        radial-gradient(ellipse 600px 200px at 20% 0%, rgba(255,255,255,0.06), transparent 60%),
+        radial-gradient(ellipse 400px 200px at 100% 100%, rgba(0,0,0,0.25), transparent 60%);
+      color: white;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--sombra-header);
+      border-bottom: 1px solid rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      isolation: isolate;
+    }
+
+    /* línea acento dorada bajo header */
+    header::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--dorado) 30%, var(--dorado) 70%, transparent);
+      opacity: 0.45;
+    }
+
+    .logo {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .header-text { flex: 1; min-width: 0; }
+
+    .header-text h1 {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+    }
+
+    .header-text .subtitle {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      opacity: 0.6;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .header-text .tagline { display: none; }
+
+    .header-link {
+      color: white;
+      text-decoration: none;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 8px 12px;
+      border-radius: var(--r-sm);
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      letter-spacing: -0.005em;
+      transition: background var(--t), border-color var(--t);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .header-link:hover {
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 18px 14px 60px;
+    }
+
+    /* ── SECCIÓN ── */
+    section {
+      background: var(--hueso);
+      border-radius: var(--r-lg);
+      padding: 18px;
+      margin-bottom: 12px;
+      box-shadow: var(--sombra-1);
+      border: 1px solid var(--linea);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--linea-suave);
+    }
+
+    .section-icon {
+      font-size: 13px;
+      width: 28px;
+      height: 28px;
+      background: var(--verde-tinte);
+      border-radius: var(--r-xs);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--verde-bosque);
+      font-family: 'Geist Mono', monospace;
+      font-weight: 500;
+      border: 1px solid rgba(26,61,31,0.1);
+    }
+
+    .section-header h2 {
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--carbon);
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+    }
+
+    /* ── INFO ÚTIL — tipo "panel de instrumentos" ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--linea);
+      border-radius: var(--r-sm);
+      overflow: hidden;
+      border: 1px solid var(--linea);
+    }
+
+    .info-chip {
+      background: var(--crema-claro);
+      padding: 12px 13px;
+      border: none;
+      border-radius: 0;
+    }
+
+    .info-chip.full-width { grid-column: 1 / -1; }
+
+    .info-chip.aviso {
+      grid-column: 1 / -1;
+      background: var(--dorado-suave);
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .info-chip.aviso::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--dorado);
+    }
+
+    .info-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: var(--eyebrow);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--carbon-60);
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .info-value {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--carbon);
+      line-height: 1.4;
+    }
+
+    /* ── FORM ── */
+    .form-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-family: 'Geist Mono', monospace;
+      font-size: var(--eyebrow);
+      font-weight: 500;
+      text-transform: uppercase;
+      color: var(--carbon-60);
+      letter-spacing: 0.1em;
+    }
+
+    input, select, textarea {
+      padding: 10px 12px;
+      border: 1px solid var(--linea-fuerte);
+      border-radius: var(--r-sm);
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--crema-claro);
+      color: var(--carbon);
+      transition: border-color var(--t), box-shadow var(--t), background var(--t);
+    }
+
+    input:hover, select:hover, textarea:hover {
+      border-color: var(--carbon-40);
+      background: var(--hueso);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--verde-bosque);
+      background: var(--hueso);
+      box-shadow: var(--ring);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 64px;
+      width: 100%;
+      line-height: 1.5;
+    }
+
+    .mensaje.error { color: var(--rojo); }
+
+    /* ── BOTONES ── */
+    .btn {
+      padding: 10px 16px;
+      border: 1px solid transparent;
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      letter-spacing: -0.005em;
+      cursor: pointer;
+      transition: background var(--t), border-color var(--t), transform 80ms, box-shadow var(--t);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn:focus-visible { outline: none; box-shadow: var(--ring); }
+    .btn:active { transform: translateY(1px); }
+
+    .btn:disabled, .btn-tick:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .tarea-card.busy, .compra-item.busy, section.busy form {
+      opacity: 0.55;
+      pointer-events: none;
+      transition: opacity 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--verde-bosque);
+      color: white;
+      box-shadow: var(--sombra-inset), 0 1px 2px rgba(20,23,26,0.18);
+      border-color: rgba(0,0,0,0.2);
+    }
+
+    .btn-primary:hover { background: var(--verde-bosque-h); }
+
+    .btn-done {
+      background: var(--hueso);
+      color: var(--verde-bosque);
+      border-color: var(--linea-fuerte);
+    }
+
+    .btn-done:hover {
+      background: var(--verde-tinte);
+      border-color: var(--verde-musgo);
+    }
+
+    .btn-postpone {
+      background: var(--hueso);
+      color: var(--dorado-dark);
+      border-color: var(--linea-fuerte);
+    }
+
+    .btn-postpone:hover {
+      background: var(--dorado-suave);
+      border-color: var(--dorado);
+    }
+
+    .btn-sm {
+      padding: 7px 12px;
+      font-size: 12px;
+    }
+
+    .mensaje {
+      margin-top: 10px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--verde-bosque);
+    }
+
+    /* ── TABLA IPM ── */
+    .tabla-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--linea);
+      border-radius: var(--r-sm);
+      background: var(--crema-claro);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    th {
+      background: var(--crema-tinte);
+      color: var(--carbon-60);
+      font-family: 'Geist Mono', monospace;
+      font-size: var(--eyebrow);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 500;
+      padding: 10px 13px;
+      text-align: left;
+      border-bottom: 1px solid var(--linea);
+    }
+
+    td {
+      padding: 11px 13px;
+      border-bottom: 1px solid var(--linea-suave);
+      color: var(--carbon);
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    /* ── TAREAS POR ZONA ── */
+    .tareas-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .zona-card {
+      border: 1px solid var(--linea);
+      border-radius: var(--r);
+      overflow: hidden;
+      background: var(--hueso);
+      box-shadow: var(--sombra-1);
+    }
+
+    .zona-header {
+      background: var(--crema-claro);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid var(--linea-suave);
+      transition: background var(--t);
+    }
+
+    .zona-header:hover { background: var(--crema-tinte); }
+    .zona-header:active { background: var(--linea); }
+
+    .zona-card.collapsed .zona-header {
+      border-bottom-color: transparent;
+    }
+
+    .zona-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--carbon);
+      flex: 1;
+      letter-spacing: -0.015em;
+      text-transform: capitalize;
+    }
+
+    .zona-badge {
+      background: var(--carbon);
+      color: white;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 99px;
+      min-width: 22px;
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+
+    .zona-icon { font-size: 16px; }
+
+    .zona-chevron {
+      font-size: 10px;
+      color: var(--carbon-40);
+      transition: transform 0.2s;
+    }
+
+    .zona-card.collapsed .zona-chevron { transform: rotate(-90deg); }
+    .zona-card.collapsed .zona-body { display: none; }
+
+    .zona-body { padding: 0; background: var(--hueso); }
+
+    .zona-vacia {
+      color: var(--carbon-40);
+      font-size: 12.5px;
+      padding: 16px;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* TAREA — divide-y rows + accent stripe lateral */
+    .tarea-card {
+      position: relative;
+      padding: 12px 14px 12px 18px;
+      border-bottom: 1px solid var(--linea-suave);
+      background: var(--hueso);
+      transition: background var(--t);
+      margin: 0;
+      border-radius: 0;
+    }
+
+    .tarea-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 8px; bottom: 8px;
+      width: 3px;
+      border-radius: 0 2px 2px 0;
+      background: var(--carbon-20);
+      transition: background var(--t);
+    }
+
+    .tarea-card.prio-alta::before { background: var(--rojo); }
+    .tarea-card.prio-media::before { background: var(--naranja); }
+    .tarea-card.prio-baja::before { background: var(--verde-musgo); }
+
+    .tarea-card:hover { background: var(--crema-claro); }
+    .tarea-card:last-child { border-bottom: none; }
+
+    .tarea-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .tarea-titulo {
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--carbon);
+      flex: 1;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+    }
+
+    .prioridad {
+      display: inline-block;
+      font-family: 'Geist Mono', monospace;
+      padding: 2px 7px;
+      border-radius: var(--r-xs);
+      font-size: 9.5px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      flex-shrink: 0;
+      border: 1px solid;
+      background: transparent;
+    }
+
+    .prioridad.alta { color: var(--rojo); border-color: rgba(163,36,36,0.3); }
+    .prioridad.media { color: var(--naranja); border-color: rgba(179,77,18,0.3); }
+    .prioridad.baja { color: var(--verde-musgo); border-color: rgba(45,94,54,0.3); }
+
+    .tarea-meta {
+      font-size: 11.5px;
+      color: var(--carbon-60);
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .tarea-meta strong {
+      color: var(--carbon-80);
+      font-weight: 500;
+      font-family: 'Geist Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .tarea-obs {
+      font-size: 12px;
+      color: var(--carbon-80);
+      background: var(--crema-tinte);
+      border-radius: var(--r-xs);
+      padding: 8px 10px;
+      margin: 8px 0 0;
+      border-left: 2px solid var(--dorado);
+      line-height: 1.5;
+    }
+
+    .tarea-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .tarea-actions .btn { flex: 1; }
+
+    /* PANEL POSPONER */
+    .posponer-panel {
+      display: none;
+      margin-top: 10px;
+      padding: 12px;
+      background: var(--dorado-suave);
+      border: 1px solid rgba(155,126,34,0.25);
+      border-radius: var(--r-sm);
+      animation: fadeIn 0.18s ease-out;
+    }
+
+    .posponer-panel.visible { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .posponer-panel-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: var(--eyebrow);
+      font-weight: 500;
+      color: var(--dorado-dark);
+      margin-bottom: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .posponer-quick { display: flex; gap: 7px; margin-bottom: 9px; }
+    .posponer-quick .btn { flex: none; }
+
+    .posponer-custom { display: flex; gap: 7px; align-items: center; }
+
+    .posponer-custom input[type="date"] {
+      flex: 1;
+      padding: 7px 10px;
+      font-size: 12.5px;
+    }
+
+    .posponer-custom .btn { flex-shrink: 0; }
+
+    /* ── COMPRAS ── */
+    .compras-add {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .compras-add input { flex: 1; }
+
+    .compras-add .btn {
+      flex-shrink: 0;
+      font-size: 16px;
+      padding: 10px 16px;
+      font-weight: 500;
+    }
+
+    #listaCompras:not(.cargando):not(.error):not(:empty) {
+      border: 1px solid var(--linea);
+      border-radius: var(--r-sm);
+      background: var(--hueso);
+      overflow: hidden;
+    }
+
+    .compra-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border: none;
+      border-bottom: 1px solid var(--linea-suave);
+      border-radius: 0;
+      margin: 0;
+      background: var(--hueso);
+      transition: background var(--t);
+    }
+
+    .compra-item:hover { background: var(--crema-claro); }
+    .compra-item:last-child { border-bottom: none; }
+
+    .compra-nombre {
+      flex: 1;
+      font-size: 13.5px;
+      color: var(--carbon);
+      letter-spacing: -0.005em;
+    }
+
+    .btn-tick {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1.5px solid var(--linea-fuerte);
+      background: var(--crema-claro);
+      color: var(--carbon-60);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background var(--t), color var(--t), border-color var(--t), transform 80ms;
+    }
+
+    .btn-tick:hover {
+      background: var(--verde-bosque);
+      color: white;
+      border-color: var(--verde-bosque);
+    }
+
+    .btn-tick:active { transform: scale(0.92); }
+
+    .compras-vacia, .cargando, .error, .sin-datos {
+      color: var(--carbon-40);
+      font-size: 13px;
+      text-align: center;
+      padding: 18px;
+      font-style: italic;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--linea-suave) 25%, var(--crema-tinte) 50%, var(--linea-suave) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+      border-radius: 3px;
+      height: 14px;
+      width: 80%;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: var(--carbon);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.1);
+      max-width: 90vw;
+      text-align: center;
+      border: 1px solid rgba(0,0,0,0.4);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.err { background: var(--rojo); border-color: rgba(0,0,0,0.4); }
+
+    /* ── RESPONSIVE ── */
+    @media (min-width: 640px) {
+      main { padding: 22px 18px 60px; }
+      section { padding: 22px; margin-bottom: 14px; }
+      .tareas-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .info-grid { grid-template-columns: 1fr; }
+      .form-row { flex-direction: column; }
+      .tarea-actions { flex-direction: column; }
+      .posponer-custom { flex-direction: column; }
+      .posponer-custom input[type="date"] { width: 100%; }
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    <img class="logo" src="assets/logo.png" alt="CuttingsClones" />
+    <div class="header-text">
+      <h1>CuttingsClones</h1>
+      <div class="subtitle">Operaciones · Cultivo</div>
+    </div>
+    <a href="gestion.html" title="Gestión económica" class="header-link">Gestión</a>
+  </header>
+  <div id="toast" class="toast"></div>
+
+  <main>
+    <!-- TAREAS -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#9745;</div>
+        <h2>Tareas por zona</h2>
+      </div>
+      <div id="contenedorTareas" class="cargando">Cargando tareas...</div>
+    </section>
+
+    <!-- TABLA IPM -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#128202;</div>
+        <h2>Control IPM</h2>
+      </div>
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Producto</th>
+            </tr>
+          </thead>
+          <tbody id="tablaIPM">
+            <tr><td colspan="2" class="cargando">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- REGISTRO IPM -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#128196;</div>
+        <h2>Registrar producto IPM</h2>
+      </div>
+      <form id="formIPM">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" required />
+          </div>
+          <div class="form-group">
+            <label for="producto">Producto</label>
+            <select id="producto" required>
+              <option value="">Cargando...</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Guardar</button>
+      </form>
+      <div id="mensaje" class="mensaje"></div>
+    </section>
+
+    <!-- REGISTRAR CORTE -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#9986;&#65039;</div>
+        <h2>Registrar corte</h2>
+      </div>
+      <form id="formCorte">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cortGenetica">Gen&eacute;tica *</label>
+            <select id="cortGenetica" required>
+              <option value="">Selecciona</option>
+              <option value="Amnesia">Amnesia (28 madres)</option>
+              <option value="Hokuzai">Hokuzai (2 madres)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cortNumEsquejes">N&ordm; esquejes *</label>
+            <input type="number" id="cortNumEsquejes" min="1" placeholder="Ej: 48" required />
+          </div>
+        </div>
+        <div class="form-row" style="margin-top: 8px;">
+          <div class="form-group">
+            <label for="cortFecha">Fecha corte *</label>
+            <input type="date" id="cortFecha" required />
+          </div>
+          <div class="form-group">
+            <label for="cortIntervalo">Intervalo d&iacute;as</label>
+            <input type="number" id="cortIntervalo" min="1" max="60" value="14" />
+          </div>
+          <div class="form-group">
+            <label for="cortOperario">Operario</label>
+            <input type="text" id="cortOperario" placeholder="Eric" />
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 8px;">
+          <label for="cortObs">Observaciones (opcional)</label>
+          <textarea id="cortObs" placeholder="Vigor de las madres, particularidades..."></textarea>
+        </div>
+        <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <button type="submit" class="btn btn-primary">Registrar corte</button>
+          <span id="mensajeCorte" class="mensaje"></span>
+        </div>
+      </form>
+    </section>
+
+    <!-- NUEVA TAREA -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#43;</div>
+        <h2>Nueva tarea</h2>
+      </div>
+      <form id="formNuevaTarea">
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label for="ntTarea">Descripci&oacute;n *</label>
+          <input type="text" id="ntTarea" placeholder="Ej: Regar zona madres" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ntZona">Zona *</label>
+            <select id="ntZona" required>
+              <option value="">Selecciona zona</option>
+              <option value="madres">&#127793; Madres</option>
+              <option value="esquejes">&#9986;&#65039; Esquejes</option>
+              <option value="floracion">&#127800; Floraci&oacute;n</option>
+              <option value="limpieza">&#129529; Limpieza</option>
+              <option value="mantenimiento">&#128295; Mantenimiento</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ntPrioridad">Prioridad</label>
+            <select id="ntPrioridad">
+              <option value="media">Media</option>
+              <option value="alta">Alta</option>
+              <option value="baja">Baja</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ntFecha">Fecha *</label>
+            <input type="date" id="ntFecha" required />
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 8px;">
+          <label for="ntObs">Observaciones (opcional)</label>
+          <textarea id="ntObs" placeholder="Notas adicionales..."></textarea>
+        </div>
+        <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <button type="submit" class="btn btn-primary">&#43; Crear tarea</button>
+          <span id="mensajeNuevaTarea" class="mensaje"></span>
+        </div>
+      </form>
+    </section>
+
+    <!-- COMPRAS -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#128722;</div>
+        <h2>Compras</h2>
+      </div>
+      <div class="compras-add">
+        <input type="text" id="compraInput" placeholder="Ej: Micromite 250ml" maxlength="120" />
+        <button class="btn btn-primary" onclick="agregarCompra(this)">&#43;</button>
+      </div>
+      <div id="listaCompras" class="cargando">Cargando...</div>
+    </section>
+
+    <!-- INFO UTIL -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#8505;</div>
+        <h2>Informaci&oacute;n &uacute;til</h2>
+      </div>
+      <div class="info-grid">
+        <div class="info-chip">
+          <div class="info-label">&#128336; Horario</div>
+          <div class="info-value" id="horario"><div class="skeleton"></div></div>
+        </div>
+        <div class="info-chip">
+          <div class="info-label">&#128222; Soporte</div>
+          <div class="info-value" id="telefono_soporte"><div class="skeleton"></div></div>
+        </div>
+        <div class="info-chip full-width">
+          <div class="info-label">&#128203; Instrucciones</div>
+          <div class="info-value" id="instrucciones"><div class="skeleton"></div></div>
+        </div>
+        <div class="info-chip aviso">
+          <div class="info-label">&#9888;&#65039; Aviso del d&iacute;a</div>
+          <div class="info-value" id="aviso_del_dia"><div class="skeleton"></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const base_url = 'https://primary-production-2cf7.up.railway.app/webhook';
+
+    // ── ICONOS POR ZONA ──
+    const zonaIconos = {
+      madres: '\u{1F331}',
+      esquejes: '\u{2702}\u{FE0F}',
+      floracion: '\u{1F338}',
+      limpieza: '\u{1F9F9}',
+      mantenimiento: '\u{1F527}'
+    };
+
+    // ── FECHA HOY ──
+    function fechaHoyISO() {
+      const h = new Date();
+      return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0');
+    }
+
+    // ── ANTI-DOBLE-CLICK: feedback inmediato + bloqueo hasta respuesta ──
+    // Patrón de uso: al pulsar un botón que dispara backend, llamar lockBtn(btn, 'Procesando…').
+    // En el success path no hace falta unlockBtn si la UI se recarga (la tarjeta se reemplaza).
+    // En el catch, SIEMPRE llamar unlockBtn para restaurar por si el operario quiere reintentar.
+    function haptic() {
+      if (navigator.vibrate) navigator.vibrate(30);
+    }
+
+    function lockBtn(btn, busyText) {
+      if (!btn) return null;
+      haptic();
+      btn.disabled = true;
+      btn.dataset.originalText = btn.textContent;
+      btn.textContent = busyText || 'Procesando…';
+      var busyEl = btn.closest('.tarea-card, .compra-item, section');
+      if (busyEl) busyEl.classList.add('busy');
+      return busyEl;
+    }
+
+    function unlockBtn(btn, busyEl) {
+      if (!btn) return;
+      btn.disabled = false;
+      if (btn.dataset.originalText != null) {
+        btn.textContent = btn.dataset.originalText;
+        delete btn.dataset.originalText;
+      }
+      if (busyEl) busyEl.classList.remove('busy');
+    }
+
+    // ── TOAST (mismo patrón que gestion.html) ──
+    function toast(msg, err) {
+      var t = document.getElementById('toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.toggle('err', !!err);
+      t.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(function() { t.classList.remove('show'); }, 2400);
+    }
+
+    function ponerFechaHoy() {
+      document.getElementById('fecha').value = fechaHoyISO();
+    }
+
+    // ── INFO LANDING ──
+    async function cargarInfoLanding() {
+      try {
+        const res = await fetch(base_url + '/info-landing');
+        if (!res.ok) throw new Error('error');
+        const data = await res.json();
+        document.getElementById('horario').textContent = data.horario || '-';
+        document.getElementById('instrucciones').textContent = data.instrucciones || '-';
+        document.getElementById('telefono_soporte').textContent = data.telefono_soporte || '-';
+        document.getElementById('aviso_del_dia').textContent = data.aviso_del_dia || '-';
+      } catch (e) {
+        ['horario', 'instrucciones', 'telefono_soporte', 'aviso_del_dia'].forEach(function(id) {
+          document.getElementById(id).textContent = 'Error al cargar';
+        });
+      }
+    }
+
+    // ── PRODUCTOS IPM ──
+    async function cargarProductosIPM() {
+      var select = document.getElementById('producto');
+      try {
+        var res = await fetch(base_url + '/ipm-productos');
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        var items = Array.isArray(data) ? (data[0] && data[0].items ? data[0].items : []) : (data.items || []);
+        select.innerHTML = '<option value="">Selecciona producto</option>';
+        if (items.length === 0) {
+          select.innerHTML = '<option value="">Sin productos</option>';
+          return;
+        }
+        for (var i = 0; i < items.length; i++) {
+          var opt = document.createElement('option');
+          opt.value = items[i].producto || '';
+          opt.textContent = items[i].producto || '';
+          select.appendChild(opt);
+        }
+      } catch (e) {
+        select.innerHTML = '<option value="">Error al cargar</option>';
+      }
+    }
+
+    // ── TABLA IPM ──
+    async function cargarTablaIPM() {
+      var tabla = document.getElementById('tablaIPM');
+      try {
+        var res = await fetch(base_url + '/ipm-lista');
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        var items = Array.isArray(data) ? (data[0] && data[0].items ? data[0].items : []) : (data.items || []);
+        if (items.length === 0) {
+          tabla.innerHTML = '<tr><td colspan="2" class="sin-datos">Sin datos todav\u00eda</td></tr>';
+          return;
+        }
+        var html = '';
+        for (var i = 0; i < items.length; i++) {
+          html += '<tr><td>' + escapeHtml(items[i].fecha || '') + '</td><td>' + escapeHtml(items[i].producto || '') + '</td></tr>';
+        }
+        tabla.innerHTML = html;
+      } catch (e) {
+        tabla.innerHTML = '<tr><td colspan="2" class="error">Error al cargar</td></tr>';
+      }
+    }
+
+    // ── HELPERS ──
+    function capitalizar(t) {
+      return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
+    }
+
+    function escapeAttr(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // ── TAREAS ──
+    function renderBloqueZona(zona, tareas) {
+      var count = Array.isArray(tareas) ? tareas.length : 0;
+      var icono = zonaIconos[zona] || '\u{1F4CC}';
+
+      var body;
+      if (count === 0) {
+        body = '<p class="zona-vacia">Sin tareas pendientes</p>';
+      } else {
+        body = '';
+        for (var i = 0; i < tareas.length; i++) {
+          var t = tareas[i];
+          var prioClass = t.prioridad || 'media';
+          var prioLabel = t.prioridad || 'media';
+          var safeId = escapeAttr(t.id);
+          var panelId = 'posponer-' + safeId;
+
+          var mananaDate = calcManana();
+
+          body += '<div class="tarea-card prio-' + escapeAttr(prioClass) + '">';
+          body += '<div class="tarea-top">';
+          body += '<div class="tarea-titulo">' + escapeHtml(t.tarea || '') + '</div>';
+          body += '<span class="prioridad ' + escapeAttr(prioClass) + '">' + escapeHtml(prioLabel) + '</span>';
+          body += '</div>';
+          if (t.fecha) body += '<div class="tarea-meta"><strong>Fecha:</strong> ' + escapeHtml(t.fecha) + '</div>';
+          if (t.recurrente) body += '<div class="tarea-meta"><strong>Recurrente:</strong> ' + escapeHtml(String(t.recurrente)) + '</div>';
+          if (t.dia_recurrencia) body += '<div class="tarea-meta"><strong>D\u00eda:</strong> ' + escapeHtml(String(t.dia_recurrencia)) + '</div>';
+          if (t.observaciones) body += '<div class="tarea-obs">' + escapeHtml(t.observaciones) + '</div>';
+
+          body += '<div class="tarea-actions">';
+          body += '<button class="btn btn-done btn-sm" onclick="marcarTareaHecha(this, \'' + safeId + '\')">Hecha \u2713</button>';
+          body += '<button class="btn btn-postpone btn-sm" onclick="togglePosponer(\'' + safeId + '\')">Posponer \u23F0</button>';
+          body += '</div>';
+
+          // Inline postpone panel
+          body += '<div class="posponer-panel" id="' + panelId + '">';
+          body += '<div class="posponer-panel-label">Posponer tarea</div>';
+          body += '<div class="posponer-quick">';
+          body += '<button class="btn btn-postpone btn-sm" onclick="posponerManana(this, \'' + safeId + '\')">Ma\u00f1ana</button>';
+          body += '</div>';
+          body += '<div class="posponer-custom">';
+          body += '<input type="date" id="fecha-' + safeId + '" min="' + mananaDate + '" />';
+          body += '<button class="btn btn-primary btn-sm" onclick="posponerConFecha(this, \'' + safeId + '\')">Confirmar</button>';
+          body += '</div>';
+          body += '</div>';
+
+          body += '</div>';
+        }
+      }
+
+      return '<div class="zona-card">' +
+        '<div class="zona-header" onclick="toggleZona(this)">' +
+        '<span class="zona-icon">' + icono + '</span>' +
+        '<h3>' + capitalizar(zona) + '</h3>' +
+        '<span class="zona-badge">' + count + '</span>' +
+        '<span class="zona-chevron">\u25BC</span>' +
+        '</div>' +
+        '<div class="zona-body">' + body + '</div>' +
+        '</div>';
+    }
+
+    function toggleZona(headerEl) {
+      var card = headerEl.parentElement;
+      card.classList.toggle('collapsed');
+    }
+
+    async function cargarTareas() {
+      var contenedor = document.getElementById('contenedorTareas');
+      try {
+        var res = await fetch(base_url + '/tareas-lista');
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        var itemsPorZona = data.items_por_zona || {};
+        var zonas = ['madres', 'esquejes', 'floracion', 'limpieza', 'mantenimiento'];
+        var hoy = fechaHoyISO();
+        contenedor.className = 'tareas-grid';
+        var html = '';
+        for (var i = 0; i < zonas.length; i++) {
+          var tareasFiltradas = (itemsPorZona[zonas[i]] || []).filter(function(t) {
+            return !t.fecha || t.fecha <= hoy;
+          });
+          html += renderBloqueZona(zonas[i], tareasFiltradas);
+        }
+        contenedor.innerHTML = html;
+      } catch (e) {
+        contenedor.className = 'error';
+        contenedor.textContent = 'Error al cargar tareas';
+      }
+    }
+
+    // ── MARCAR HECHA ──
+    async function marcarTareaHecha(btn, id) {
+      if (!confirm('\u00bfMarcar esta tarea como hecha?')) return;
+      var busyEl = lockBtn(btn, 'Marcando\u2026');
+      try {
+        var res = await fetch(base_url + '/tareas-eliminar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id })
+        });
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        if (!data.ok) throw new Error('no ok');
+        await cargarTareas();
+        // La tarjeta desaparece con la recarga - no hace falta unlockBtn.
+      } catch (e) {
+        toast('No se pudo marcar como hecha', true);
+        unlockBtn(btn, busyEl);
+      }
+    }
+
+    // ── POSPONER ──
+    function calcManana() {
+      var d = new Date();
+      d.setDate(d.getDate() + 1);
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function togglePosponer(id) {
+      haptic();
+      var panel = document.getElementById('posponer-' + id);
+      if (!panel) return;
+      // Close all other panels first
+      var allPanels = document.querySelectorAll('.posponer-panel.visible');
+      for (var i = 0; i < allPanels.length; i++) {
+        if (allPanels[i] !== panel) {
+          allPanels[i].classList.remove('visible');
+        }
+      }
+      panel.classList.toggle('visible');
+    }
+
+    async function posponerTarea(btn, id, fecha) {
+      var busyEl = lockBtn(btn, 'Posponiendo…');
+      try {
+        var res = await fetch(base_url + '/tareas-posponer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id, nueva_fecha: fecha })
+        });
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        if (!data.ok) throw new Error('no ok');
+        await cargarTareas();
+      } catch (e) {
+        toast('No se pudo posponer la tarea', true);
+        unlockBtn(btn, busyEl);
+      }
+    }
+
+    function posponerManana(btn, id) {
+      var fecha = calcManana();
+      posponerTarea(btn, id, fecha);
+    }
+
+    function posponerConFecha(btn, id) {
+      var input = document.getElementById('fecha-' + id);
+      if (!input || !input.value) {
+        toast('Selecciona una fecha', true);
+        return;
+      }
+      posponerTarea(btn, id, input.value);
+    }
+
+    // ── FORM IPM ──
+    document.getElementById('formIPM').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = e.submitter || this.querySelector('button[type="submit"]');
+      var fecha = document.getElementById('fecha').value;
+      var producto = document.getElementById('producto').value;
+      var mensaje = document.getElementById('mensaje');
+      mensaje.textContent = '';
+
+      var busyEl = lockBtn(btn, 'Guardando…');
+      try {
+        var res = await fetch(base_url + '/ipm-guardar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fecha: fecha, producto: producto })
+        });
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        mensaje.textContent = data.mensaje || 'Guardado correctamente';
+        document.getElementById('producto').value = '';
+        ponerFechaHoy();
+        await cargarTablaIPM();
+      } catch (e) {
+        mensaje.textContent = 'Error al guardar';
+      } finally {
+        unlockBtn(btn, busyEl);
+      }
+    });
+
+    // ── REGISTRAR CORTE ──
+    function getOperarioGuardado() {
+      try { return localStorage.getItem('cc_operario') || ''; } catch (e) { return ''; }
+    }
+    function setOperarioGuardado(v) {
+      try { if (v) localStorage.setItem('cc_operario', v); } catch (e) {}
+    }
+
+    document.getElementById('formCorte').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btnSubmit = this.querySelector('button[type="submit"]');
+      var mensaje = document.getElementById('mensajeCorte');
+      mensaje.textContent = '';
+      mensaje.className = 'mensaje';
+
+      var genetica = document.getElementById('cortGenetica').value;
+      var num_esquejes = parseInt(document.getElementById('cortNumEsquejes').value, 10);
+      var fecha_corte = document.getElementById('cortFecha').value;
+      var intervalo_dias = parseInt(document.getElementById('cortIntervalo').value, 10) || 14;
+      var operario = document.getElementById('cortOperario').value.trim();
+      var observaciones = document.getElementById('cortObs').value.trim();
+
+      if (!genetica || !num_esquejes || num_esquejes <= 0 || !fecha_corte) {
+        mensaje.textContent = 'Completa los campos obligatorios';
+        mensaje.className = 'mensaje error';
+        return;
+      }
+
+      setOperarioGuardado(operario);
+
+      var busyEl = lockBtn(btnSubmit, 'Registrando…');
+      try {
+        var res = await fetch(base_url + '/cortes-crear', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ genetica: genetica, num_esquejes: num_esquejes, fecha_corte: fecha_corte, intervalo_dias: intervalo_dias, operario: operario, observaciones: observaciones })
+        });
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        if (!data.ok) throw new Error('no ok');
+
+        mensaje.textContent = '✓ ' + data.id_evento + ' · próximo corte ' + data.fecha_proximo_corte_estimada;
+        toast('Corte registrado: ' + data.id_evento);
+
+        document.getElementById('cortGenetica').value = '';
+        document.getElementById('cortNumEsquejes').value = '';
+        document.getElementById('cortObs').value = '';
+        document.getElementById('cortIntervalo').value = '14';
+
+        await cargarTareas();
+      } catch (e) {
+        mensaje.textContent = 'Error al registrar corte';
+        mensaje.className = 'mensaje error';
+        toast('No se pudo registrar el corte', true);
+      } finally {
+        unlockBtn(btnSubmit, busyEl);
+      }
+    });
+
+    // ── CREAR TAREA ──
+    document.getElementById('formNuevaTarea').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var tarea = document.getElementById('ntTarea').value.trim();
+      var zona = document.getElementById('ntZona').value;
+      var prioridad = document.getElementById('ntPrioridad').value;
+      var fecha = document.getElementById('ntFecha').value;
+      var observaciones = document.getElementById('ntObs').value.trim();
+      var mensaje = document.getElementById('mensajeNuevaTarea');
+
+      mensaje.textContent = '';
+      mensaje.className = 'mensaje';
+
+      if (!tarea || !zona || !fecha) {
+        mensaje.textContent = 'Completa los campos requeridos';
+        mensaje.className = 'mensaje error';
+        return;
+      }
+
+      var btnSubmit = this.querySelector('button[type="submit"]');
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Guardando...';
+
+      try {
+        var res = await fetch(base_url + '/tareas-crear', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tarea: tarea, zona: zona, prioridad: prioridad, fecha: fecha, observaciones: observaciones })
+        });
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        if (!data.ok) throw new Error('no ok');
+        mensaje.textContent = '\u2713 Tarea creada correctamente';
+        document.getElementById('ntTarea').value = '';
+        document.getElementById('ntZona').value = '';
+        document.getElementById('ntObs').value = '';
+        document.getElementById('ntPrioridad').value = 'media';
+        document.getElementById('ntFecha').value = fechaHoyISO();
+        await cargarTareas();
+      } catch (e) {
+        mensaje.textContent = 'Error al crear la tarea';
+        mensaje.className = 'mensaje error';
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = '\u002B Crear tarea';
+      }
+    });
+
+    // ── COMPRAS ──
+    async function cargarCompras() {
+      var lista = document.getElementById('listaCompras');
+      try {
+        var res = await fetch(base_url + '/compras-lista');
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        var items = data.items || [];
+        if (items.length === 0) {
+          lista.className = '';
+          lista.innerHTML = '<p class="compras-vacia">No hay items pendientes</p>';
+          return;
+        }
+        lista.className = '';
+        var html = '';
+        for (var i = 0; i < items.length; i++) {
+          var it = items[i];
+          html += '<div class="compra-item">';
+          html += '<span class="compra-nombre">' + escapeHtml(it.item || '') + '</span>';
+          html += '<button class="btn-tick" title="Marcar como comprado" onclick="eliminarCompra(this, \'' + escapeAttr(it.id) + '\')">&#10003;</button>';
+          html += '</div>';
+        }
+        lista.innerHTML = html;
+      } catch (e) {
+        lista.className = 'error';
+        lista.textContent = 'Error al cargar';
+      }
+    }
+
+    async function agregarCompra(btn) {
+      var input = document.getElementById('compraInput');
+      var item = input.value.trim();
+      if (!item) { input.focus(); return; }
+      var busyEl = lockBtn(btn, '…');
+      input.disabled = true;
+      try {
+        var res = await fetch(base_url + '/compras-agregar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item: item })
+        });
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        if (!data.ok) throw new Error('no ok');
+        input.value = '';
+        await cargarCompras();
+      } catch (e) {
+        toast('No se pudo agregar el item', true);
+      } finally {
+        input.disabled = false;
+        input.focus();
+        unlockBtn(btn, busyEl);
+      }
+    }
+
+    async function eliminarCompra(btn, id) {
+      var busyEl = lockBtn(btn, '…');
+      try {
+        var res = await fetch(base_url + '/compras-eliminar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id })
+        });
+        if (!res.ok) throw new Error('error');
+        var data = await res.json();
+        if (!data.ok) throw new Error('no ok');
+        await cargarCompras();
+        // El ítem desaparece con la recarga.
+      } catch (e) {
+        toast('No se pudo eliminar el item', true);
+        unlockBtn(btn, busyEl);
+      }
+    }
+
+    // Enviar con Enter en el input de compras
+    document.getElementById('compraInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        var addBtn = document.querySelector('.compras-add .btn-primary');
+        agregarCompra(addBtn);
+      }
+    });
+
+    // ── INIT ──
+    ponerFechaHoy();
+    document.getElementById('ntFecha').value = fechaHoyISO();
+    document.getElementById('cortFecha').value = fechaHoyISO();
+    document.getElementById('cortOperario').value = getOperarioGuardado();
+    cargarInfoLanding();
+    cargarProductosIPM();
+    cargarTablaIPM();
+    cargarTareas();
+    cargarCompras();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta name="version" content="2.0" />
+  <title>CuttingsClones — Gestión</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+  <style>
+
+    /* ====================================================================
+       CuttingsClones · Gestión — Premium Agroindustrial
+       ==================================================================== */
+
+    :root {
+      /* Verdes */
+      --verde-bosque: #1a3d1f;
+      --verde-bosque-h: #14321a;
+      --verde-savia: #2d5e36;
+      --verde-musgo: #3d6b42;
+      --verde-tinte: #e8eee2;
+
+      /* Neutros cálidos */
+      --crema: #f1ede2;
+      --crema-claro: #f8f5eb;
+      --crema-tinte: #ebe6d8;
+      --hueso: #fdfbf3;
+      --carbon: #14171a;
+      --carbon-80: #2a2e30;
+      --carbon-60: #56595a;
+      --carbon-40: #8a8c8a;
+      --carbon-20: #c8c5b9;
+
+      /* Líneas */
+      --linea: #d8d3c2;
+      --linea-fuerte: #c1bca8;
+      --linea-suave: #e3dfd0;
+
+      /* Acentos */
+      --dorado: #9b7e22;
+      --dorado-suave: #f0e6c0;
+      --dorado-dark: #6b5715;
+      --rojo: #a32424;
+      --rojo-suave: #f5e1e1;
+      --naranja: #b34d12;
+      --naranja-suave: #f3e3d4;
+      --azul: #1d3a6b;
+      --azul-suave: #dbe2ed;
+
+      /* Compatibilidad */
+      --verde: var(--verde-bosque);
+      --verde-claro: var(--verde-tinte);
+      --verde-oscuro: var(--verde-bosque);
+      --gris-oscuro: var(--carbon-80);
+      --gris-texto: var(--carbon-60);
+      --gris-claro: var(--carbon-40);
+      --gris-borde: var(--linea);
+      --fondo: var(--crema);
+      --fondo-tinte: var(--crema-claro);
+      --blanco: var(--hueso);
+      --dorado-claro: var(--dorado-suave);
+      --rojo-claro: var(--rojo-suave);
+      --naranja-claro: var(--naranja-suave);
+      --azul-claro: var(--azul-suave);
+
+      /* Sombras */
+      --sombra-1: 0 1px 0 rgba(26,61,31,0.04), 0 1px 3px rgba(20,23,26,0.06);
+      --sombra-2: 0 1px 0 rgba(26,61,31,0.04), 0 4px 12px rgba(20,23,26,0.06), 0 2px 4px rgba(20,23,26,0.04);
+      --sombra-3: 0 2px 0 rgba(26,61,31,0.05), 0 12px 32px rgba(20,23,26,0.1), 0 4px 8px rgba(20,23,26,0.06);
+      --sombra-header: 0 1px 0 rgba(0,0,0,0.2), 0 8px 24px rgba(20,23,26,0.18);
+      --sombra-inset: inset 0 1px 0 rgba(255,255,255,0.5);
+      --sombra: var(--sombra-1);
+
+      /* Radios */
+      --r-xs: 4px;
+      --r-sm: 6px;
+      --r: 10px;
+      --r-lg: 14px;
+      --radius-sm: var(--r-sm);
+      --radius: var(--r);
+      --radius-lg: var(--r-lg);
+
+      /* Focus */
+      --ring: 0 0 0 3px rgba(45,94,54,0.22);
+      --anillo-focus: var(--ring);
+
+      /* Motion */
+      --t-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+      --t: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      --t-slow: 320ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transicion: var(--t);
+
+      --eyebrow: 10.5px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: var(--crema);
+      color: var(--carbon);
+      line-height: 1.5;
+      font-feature-settings: 'ss01' on, 'cv11' on;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      padding-bottom: 80px;
+    }
+
+    /* Sutil grain en el fondo */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.09 0 0 0 0 0.07 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.18;
+      mix-blend-mode: multiply;
+    }
+
+    main, header, nav.tabs, footer, dialog { position: relative; z-index: 1; }
+
+    /* Tabular nums + mono */
+    input, select, .saldo-big, .mov-row, .meta, .pill, .list-item h4, td, th {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mono, code {
+      font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--verde-bosque);
+      background-image:
+        radial-gradient(ellipse 600px 200px at 20% 0%, rgba(255,255,255,0.06), transparent 60%),
+        radial-gradient(ellipse 400px 200px at 100% 100%, rgba(0,0,0,0.25), transparent 60%);
+      color: white;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--sombra-header);
+      border-bottom: 1px solid rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      isolation: isolate;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--dorado) 30%, var(--dorado) 70%, transparent);
+      opacity: 0.45;
+    }
+
+    header .back {
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--r-sm);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: background var(--t);
+    }
+
+    header .back:hover { background: rgba(255,255,255,0.14); }
+
+    .header-logo {
+      width: 68px;
+      height: 68px;
+      object-fit: contain;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: 600;
+      flex: 1;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      opacity: 0.6;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* ── NAV TABS — underline animado, premium dashboard ── */
+    nav.tabs {
+      background: var(--hueso);
+      display: flex;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--linea);
+      position: sticky;
+      top: 56px;
+      z-index: 99;
+      scrollbar-width: none;
+      padding: 0 4px;
+    }
+    nav.tabs::-webkit-scrollbar { display: none; }
+
+    nav.tabs button {
+      border: none;
+      background: none;
+      padding: 14px 14px 12px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--carbon-60);
+      cursor: pointer;
+      white-space: nowrap;
+      letter-spacing: -0.005em;
+      position: relative;
+      transition: color var(--t);
+      font-family: inherit;
+    }
+
+    nav.tabs button::after {
+      content: '';
+      position: absolute;
+      left: 14px; right: 14px; bottom: -1px;
+      height: 2px;
+      background: var(--carbon);
+      opacity: 0;
+      transform: scaleX(0.6);
+      transition: opacity var(--t), transform var(--t);
+    }
+
+    nav.tabs button:hover { color: var(--carbon); }
+
+    nav.tabs button.active {
+      color: var(--carbon);
+      font-weight: 600;
+    }
+
+    nav.tabs button.active::after {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+
+    main {
+      padding: 18px 14px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--hueso);
+      border-radius: var(--r-lg);
+      padding: 18px;
+      margin-bottom: 12px;
+      box-shadow: var(--sombra-1);
+      border: 1px solid var(--linea);
+    }
+
+    .card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: var(--carbon);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    label {
+      display: block;
+      font-family: 'Geist Mono', monospace;
+      font-size: var(--eyebrow);
+      color: var(--carbon-60);
+      margin-bottom: 6px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--linea-fuerte);
+      border-radius: var(--r-sm);
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--crema-claro);
+      color: var(--carbon);
+      margin-bottom: 12px;
+      transition: border-color var(--t), box-shadow var(--t), background var(--t);
+    }
+
+    input:hover, select:hover, textarea:hover {
+      border-color: var(--carbon-40);
+      background: var(--hueso);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--verde-bosque);
+      background: var(--hueso);
+      box-shadow: var(--ring);
+    }
+
+    /* ── BOTONES ── */
+    button.btn {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--verde-bosque);
+      color: white;
+      border: 1px solid rgba(0,0,0,0.2);
+      border-radius: var(--r-sm);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background var(--t), transform 80ms, box-shadow var(--t), border-color var(--t);
+      box-shadow: var(--sombra-inset), 0 1px 2px rgba(20,23,26,0.18);
+      font-family: inherit;
+    }
+
+    button.btn:hover { background: var(--verde-bosque-h); }
+    button.btn:active { transform: translateY(1px); }
+    button.btn:focus-visible { outline: none; box-shadow: var(--ring); }
+    button.btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+    .card.busy, .list-item.busy {
+      opacity: 0.55;
+      pointer-events: none;
+      transition: opacity 0.15s;
+    }
+
+    button.btn.ghost {
+      background: var(--hueso);
+      color: var(--carbon-80);
+      border: 1px solid var(--linea-fuerte);
+      box-shadow: none;
+    }
+    button.btn.ghost:hover {
+      background: var(--crema-claro);
+      border-color: var(--carbon-40);
+    }
+    button.btn.danger {
+      background: var(--rojo);
+      border-color: rgba(0,0,0,0.2);
+    }
+    button.btn.danger:hover { background: #841c1c; }
+    button.btn.dorado {
+      background: var(--dorado);
+      color: white;
+      border-color: rgba(0,0,0,0.2);
+    }
+    button.btn.dorado:hover { background: var(--dorado-dark); }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .row input, .row select { margin-bottom: 0; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ── LIST ITEM — divide-y rows con accent stripe sutil ── */
+    .list-item {
+      position: relative;
+      padding: 14px 14px 14px 16px;
+      border: 1px solid var(--linea);
+      border-radius: var(--r-sm);
+      margin-bottom: 8px;
+      background: var(--hueso);
+      transition: border-color var(--t), box-shadow var(--t);
+    }
+    .list-item:hover {
+      border-color: var(--carbon-40);
+      box-shadow: var(--sombra-2);
+    }
+    .list-item h4 {
+      font-size: 14.5px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--carbon);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .list-item .meta {
+      font-size: 12px;
+      color: var(--carbon-60);
+      line-height: 1.5;
+    }
+
+    .pill {
+      display: inline-block;
+      font-family: 'Geist Mono', monospace;
+      padding: 2px 8px;
+      border-radius: var(--r-xs);
+      font-size: 9.5px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid;
+      background: transparent;
+    }
+
+    .pill.pendiente { color: var(--dorado-dark); border-color: rgba(155,126,34,0.3); background: rgba(155,126,34,0.08); }
+    .pill.entregado { color: var(--verde-bosque); border-color: rgba(26,61,31,0.3); background: rgba(26,61,31,0.06); }
+    .pill.cancelado { color: var(--rojo); border-color: rgba(163,36,36,0.3); background: rgba(163,36,36,0.06); }
+    .pill.no_aplica { color: var(--carbon-60); border-color: var(--linea-fuerte); background: transparent; }
+    .pill.pendiente_entregar { color: var(--azul); border-color: rgba(29,58,107,0.3); background: rgba(29,58,107,0.06); }
+    .pill.cobro { color: var(--verde-bosque); border-color: rgba(26,61,31,0.3); background: rgba(26,61,31,0.06); }
+    .pill.gasto { color: var(--rojo); border-color: rgba(163,36,36,0.3); background: rgba(163,36,36,0.06); }
+    .pill.aporte { color: var(--dorado-dark); border-color: rgba(155,126,34,0.3); background: rgba(155,126,34,0.08); }
+    .pill.reparto { color: var(--azul); border-color: rgba(29,58,107,0.3); background: rgba(29,58,107,0.06); }
+    .pill.activo { color: var(--verde-bosque); border-color: rgba(26,61,31,0.3); background: rgba(26,61,31,0.06); }
+    .pill.cerrado { color: var(--carbon-60); border-color: var(--linea-fuerte); background: transparent; }
+
+    /* ── SALDO GIGANTE — el hero del bote ── */
+    .saldo-big {
+      font-family: 'Geist Mono', 'JetBrains Mono', monospace;
+      font-size: 56px;
+      font-weight: 500;
+      color: var(--carbon);
+      text-align: center;
+      margin: 6px 0 4px;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      font-feature-settings: 'tnum' on;
+    }
+    .saldo-big.rojo { color: var(--rojo); }
+
+    @media (min-width: 480px) {
+      .saldo-big { font-size: 68px; }
+    }
+
+    .saldo-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: var(--eyebrow);
+      color: var(--carbon-60);
+      text-align: center;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 500;
+    }
+
+    /* ── MOVIMIENTOS ── */
+    .mov-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--linea-suave);
+      font-size: 13px;
+      gap: 10px;
+    }
+    .mov-row:last-child { border-bottom: none; }
+    .mov-row .concepto {
+      color: var(--carbon-60);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .mov-row .importe.pos {
+      color: var(--verde-bosque);
+      font-weight: 500;
+      font-family: 'Geist Mono', monospace;
+      letter-spacing: -0.01em;
+    }
+    .mov-row .importe.neg {
+      color: var(--rojo);
+      font-weight: 500;
+      font-family: 'Geist Mono', monospace;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── FILTROS ── */
+    .filters {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+      scrollbar-width: none;
+    }
+    .filters::-webkit-scrollbar { display: none; }
+    .filters button {
+      border: 1px solid var(--linea-fuerte);
+      background: var(--hueso);
+      padding: 6px 13px;
+      border-radius: 99px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--carbon-60);
+      white-space: nowrap;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: -0.005em;
+      transition: background var(--t), color var(--t), border-color var(--t);
+    }
+    .filters button:hover {
+      border-color: var(--carbon-40);
+      color: var(--carbon);
+    }
+    .filters button.active {
+      background: var(--carbon);
+      color: white;
+      border-color: var(--carbon);
+    }
+
+    .empty, .loading {
+      text-align: center;
+      color: var(--carbon-40);
+      padding: 26px 16px;
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .action-row button {
+      flex: 1;
+      padding: 9px;
+      font-size: 12.5px;
+      margin-top: 0;
+    }
+
+    /* ── SOCIO COLS — 3 paneles tipo "instrumento industrial" ── */
+    .socio-col {
+      padding: 12px 10px;
+      border: 1px solid var(--linea);
+      border-radius: var(--r-sm);
+      background: var(--crema-claro);
+      min-width: 0;
+    }
+    .socio-col h4 {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    .socio-cols-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    @media (max-width: 500px) {
+      .socio-cols-3 { grid-template-columns: 1fr; }
+    }
+
+    /* ── DIALOG ── */
+    dialog {
+      border: none;
+      border-radius: var(--r-lg);
+      padding: 0;
+      max-width: 92%;
+      width: 440px;
+      box-shadow: var(--sombra-3);
+      background: var(--hueso);
+      font-family: inherit;
+      color: var(--carbon);
+      border: 1px solid var(--linea);
+    }
+    dialog::backdrop {
+      background: rgba(20,23,26,0.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .dialog-body { padding: 22px; }
+    .dialog-body h3 {
+      margin-bottom: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: var(--carbon);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.1);
+      max-width: 90vw;
+      text-align: center;
+      border: 1px solid rgba(0,0,0,0.4);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast.err { background: var(--rojo); border-color: rgba(0,0,0,0.4); }
+
+    hr.sep { border: none; border-top: 1px solid var(--linea-suave); margin: 14px 0; }
+
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="back" title="Portal operario">←</a>
+    <img class="header-logo" src="assets/logo.png" alt="CuttingsClones" />
+    <div class="title">
+      Gestión económica
+      <div class="subtitle">Bote &amp; pedidos</div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="pedidos" class="active">🛒 Pedidos</button>
+    <button data-tab="cortes">✂️ Cortes</button>
+    <button data-tab="bote">💰 Bote</button>
+    <button data-tab="repartos">✅ Repartos</button>
+    <button data-tab="gastos">💸 Gastos</button>
+    <button data-tab="cobros">📋 Cobros</button>
+    <button data-tab="clientes">👥 Clientes</button>
+  </nav>
+
+  <main>
+    <!-- ========= PEDIDOS ========= -->
+    <section id="tab-pedidos" class="tab-content">
+      <div class="card">
+        <h3>➕ Nuevo pedido</h3>
+        <label>Cliente</label>
+        <select id="pedido-cliente"><option value="">Selecciona cliente…</option></select>
+        <label>Genética</label>
+        <input id="pedido-genetica" placeholder="p. ej. Gelato 33" />
+        <div class="grid2">
+          <div>
+            <label>Cantidad</label>
+            <input id="pedido-cantidad" type="number" min="1" placeholder="50" />
+          </div>
+          <div>
+            <label>Precio unitario €</label>
+            <input id="pedido-precio" type="number" step="0.1" min="0" placeholder="3.0" />
+          </div>
+        </div>
+        <label>Fecha entrega prometida</label>
+        <input id="pedido-fecha" type="date" />
+        <label>Notas (opcional)</label>
+        <input id="pedido-notas" placeholder="p. ej. de la misma madre" />
+        <button class="btn" onclick="crearPedido(this)">Crear pedido</button>
+      </div>
+
+      <div class="card">
+        <h3>Pedidos</h3>
+        <div class="filters">
+          <button data-filter="pendiente" class="active" onclick="filtrarPedidos('pendiente')">Pendientes</button>
+          <button data-filter="entregado" onclick="filtrarPedidos('entregado')">Entregados</button>
+          <button data-filter="" onclick="filtrarPedidos('')">Todos</button>
+        </div>
+        <div id="lista-pedidos" class="loading">Cargando…</div>
+      </div>
+    </section>
+
+    <!-- ========= BOTE ========= -->
+    <section id="tab-bote" class="tab-content" hidden>
+      <div class="card">
+        <div class="saldo-label">Saldo del bote</div>
+        <div id="saldo-bote" class="saldo-big">—</div>
+        <div id="bote-pendiente-ingreso" class="saldo-label" style="color: var(--naranja);"></div>
+      </div>
+
+      <div class="card">
+        <h3>Últimos movimientos</h3>
+        <div class="filters">
+          <button data-movfilter="" class="active" onclick="filtrarMovs('')">Todos</button>
+          <button data-movfilter="cobro" onclick="filtrarMovs('cobro')">Cobros</button>
+          <button data-movfilter="gasto" onclick="filtrarMovs('gasto')">Gastos</button>
+          <button data-movfilter="aportacion" onclick="filtrarMovs('aportacion')">Aportaciones</button>
+          <button data-movfilter="reparto_bote" onclick="filtrarMovs('reparto_bote')">Repartos bote</button>
+        </div>
+        <div id="lista-movs" class="loading">Cargando…</div>
+      </div>
+
+      <div class="card">
+        <h3>💵 Aportar al bote</h3>
+        <label>Socio</label>
+        <select id="aporta-socio">
+          <option>Eric</option>
+          <option>Noel</option>
+        </select>
+        <label>Importe €</label>
+        <input id="aporta-importe" type="number" step="1" min="0" placeholder="100" />
+        <label>Concepto (opcional)</label>
+        <input id="aporta-concepto" placeholder="p. ej. Aportación para compra urgente" />
+        <button class="btn dorado" onclick="aportarBote(this)">Aportar</button>
+      </div>
+
+      <div class="card">
+        <h3>🎁 Repartir bote</h3>
+        <label>Importe a repartir €</label>
+        <input id="rep-bote-importe" type="number" step="1" min="0" placeholder="200" oninput="previewRepartirBote()" />
+        <div id="rep-bote-preview" style="background: var(--dorado-claro); padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px; min-height: 20px;"></div>
+        <label>Concepto (opcional)</label>
+        <input id="rep-bote-concepto" placeholder="p. ej. Reparto fin de mes" />
+        <button class="btn dorado" onclick="repartirBote(this)">Confirmar reparto</button>
+      </div>
+    </section>
+
+    <!-- ========= REPARTOS ========= -->
+    <section id="tab-repartos" class="tab-content" hidden>
+      <div class="card">
+        <h3>Repartos pendientes</h3>
+        <div class="socio-cols-3">
+          <div class="socio-col">
+            <h4 style="color: var(--verde);">Eric</h4>
+            <div id="reps-eric-total" class="meta" style="text-align: center; margin-bottom: 6px;"></div>
+            <div id="reps-eric" class="loading">Cargando…</div>
+            <button id="btn-todos-eric" class="btn ghost" style="font-size: 12px; padding: 6px; margin-top: 8px; display: none;" onclick="marcarTodosSocio(this, 'Eric')">✓ Marcar todos</button>
+          </div>
+          <div class="socio-col">
+            <h4 style="color: var(--dorado);">Noel</h4>
+            <div id="reps-noel-total" class="meta" style="text-align: center; margin-bottom: 6px;"></div>
+            <div id="reps-noel" class="loading">Cargando…</div>
+            <button id="btn-todos-noel" class="btn ghost" style="font-size: 12px; padding: 6px; margin-top: 8px; display: none;" onclick="marcarTodosSocio(this, 'Noel')">✓ Marcar todos</button>
+          </div>
+          <div class="socio-col">
+            <h4 style="color: var(--naranja);">Bote</h4>
+            <div id="reps-bote-total" class="meta" style="text-align: center; margin-bottom: 6px;"></div>
+            <div id="reps-bote" class="loading">Cargando…</div>
+            <button id="btn-todos-bote" class="btn ghost" style="font-size: 12px; padding: 6px; margin-top: 8px; display: none;" onclick="marcarTodosSocio(this, 'bote')">✓ Ingresar todos</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Historial de entregados</span>
+          <button class="btn ghost" style="font-size: 11px; padding: 4px 10px; width: auto;" onclick="toggleHistorial(this)">Mostrar</button>
+        </h3>
+        <div id="lista-historial" hidden></div>
+      </div>
+    </section>
+
+    <!-- ========= GASTOS ========= -->
+    <section id="tab-gastos" class="tab-content" hidden>
+      <div class="card">
+        <h3>➕ Registrar gasto</h3>
+        <label>Concepto</label>
+        <input id="gasto-concepto" placeholder="p. ej. Sustrato Gold Label 50L" />
+        <div class="grid2">
+          <div>
+            <label>Importe €</label>
+            <input id="gasto-importe" type="number" step="0.01" min="0" />
+          </div>
+          <div>
+            <label>Quién lo gestionó</label>
+            <select id="gasto-quien">
+              <option>Eric</option>
+              <option>Noel</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn danger" onclick="registrarGasto(this)">Registrar gasto</button>
+      </div>
+      <div class="card">
+        <h3>Últimos gastos registrados</h3>
+        <div id="lista-gastos" class="loading">Cargando…</div>
+      </div>
+    </section>
+
+    <!-- ========= COBROS ========= -->
+    <section id="tab-cobros" class="tab-content" hidden>
+      <div class="card">
+        <h3>Histórico de cobros</h3>
+        <div class="grid2" style="margin-bottom: 12px;">
+          <div>
+            <label>Año</label>
+            <select id="cobros-filtro-anio" onchange="renderCobrosFromMovs()"></select>
+          </div>
+          <div>
+            <label>Mes</label>
+            <select id="cobros-filtro-mes" onchange="renderCobrosFromMovs()"></select>
+          </div>
+        </div>
+        <div id="lista-cobros" class="loading">Cargando…</div>
+      </div>
+    </section>
+
+    <!-- ========= CORTES ========= -->
+    <section id="tab-cortes" class="tab-content" hidden>
+      <div class="card">
+        <h3>Histórico de cortes</h3>
+        <div class="filters">
+          <button data-cortefilter="" class="active" onclick="filtrarCortes('')">Todos</button>
+          <button data-cortefilter="Amnesia" onclick="filtrarCortes('Amnesia')">Amnesia</button>
+          <button data-cortefilter="Hokuzai" onclick="filtrarCortes('Hokuzai')">Hokuzai</button>
+        </div>
+        <div id="lista-cortes" class="loading">Cargando…</div>
+      </div>
+    </section>
+
+    <!-- ========= CLIENTES ========= -->
+    <section id="tab-clientes" class="tab-content" hidden>
+      <div class="card">
+        <h3>➕ Nuevo cliente</h3>
+        <label>Nombre</label>
+        <input id="cli-nombre" placeholder="p. ej. Grow Shop La Indica" />
+        <label>Anotaciones (opcional)</label>
+        <input id="cli-notas" placeholder="p. ej. pide los lunes, paga al contado" />
+        <button class="btn" onclick="crearCliente(this)">Crear cliente</button>
+      </div>
+      <div class="card">
+        <h3>Cartera</h3>
+        <input id="cli-busqueda" placeholder="Buscar por nombre…" oninput="renderClientes()" style="margin-bottom: 10px;" />
+        <div id="lista-clientes" class="loading">Cargando…</div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="dialog-entregar">
+    <div class="dialog-body">
+      <h3>Entregar pedido</h3>
+      <div id="entregar-info" class="meta" style="margin-bottom: 10px;"></div>
+      <label>Importe cobrado €</label>
+      <input id="ent-importe" type="number" step="1" min="0" oninput="recalcularReparto()" />
+      <div class="grid2">
+        <div>
+          <label>Método</label>
+          <select id="ent-metodo">
+            <option value="efectivo">Efectivo</option>
+            <option value="bizum">Bizum</option>
+            <option value="transferencia">Transferencia</option>
+          </select>
+        </div>
+        <div>
+          <label>¿Quién cobra?</label>
+          <select id="ent-quien-cobro">
+            <option value="Noel" selected>Noel</option>
+            <option value="Eric">Eric</option>
+          </select>
+        </div>
+      </div>
+      <div id="reparto-preview" style="background: var(--verde-claro); padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px;"></div>
+      <button class="btn ghost" id="btn-personalizar" onclick="togglePersonalizar()">✏️ Personalizar reparto</button>
+      <div id="ent-personalizado" hidden>
+        <hr class="sep">
+        <div class="grid2">
+          <div>
+            <label>Al bote €</label>
+            <input id="ent-bote" type="number" step="1" min="0" oninput="validarPersonalizado()" />
+          </div>
+          <div>
+            <label>A repartir €</label>
+            <input id="ent-reparto" type="number" step="1" min="0" oninput="validarPersonalizado()" />
+          </div>
+        </div>
+        <label>Nota del reparto</label>
+        <input id="ent-nota" placeholder="p. ej. todo al bote para compra urgente" />
+        <div id="validacion-personalizado" style="font-size: 12px; margin-top: 4px;"></div>
+      </div>
+      <div class="action-row">
+        <button class="btn ghost" onclick="cerrarEntregar()">Cancelar</button>
+        <button class="btn" id="btn-confirmar-entrega" onclick="confirmarEntrega()">Confirmar entrega</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const BASE = "https://primary-production-2cf7.up.railway.app/webhook";
+
+    // ========== Anti-doble-click (ver 03 Stack/Frontend/Patrones_UI.md §1) ==========
+    function haptic() { if (navigator.vibrate) navigator.vibrate(30); }
+    function lockBtn(btn, busyText) {
+      if (!btn) return null;
+      haptic();
+      btn.disabled = true;
+      btn.dataset.originalText = btn.textContent;
+      btn.textContent = busyText || "Procesando…";
+      var busyEl = btn.closest(".card, .list-item");
+      if (busyEl) busyEl.classList.add("busy");
+      return busyEl;
+    }
+    function unlockBtn(btn, busyEl) {
+      if (!btn) return;
+      btn.disabled = false;
+      if (btn.dataset.originalText != null) {
+        btn.textContent = btn.dataset.originalText;
+        delete btn.dataset.originalText;
+      }
+      if (busyEl) busyEl.classList.remove("busy");
+    }
+
+    // ========== State ==========
+    let state = {
+      pedidos: [],
+      pedidosFiltro: "pendiente",
+      clientes: [],
+      estadoBote: null,
+      gastos: [],
+      cobros: [],
+      entregarPedido: null,
+      personalizado: false,
+      movFiltro: "",
+      cortes: [],
+      cortesFiltro: "",
+    };
+
+    // ========== Utils ==========
+    function fmtEuro(n) {
+      if (n === null || n === undefined || n === "") return "—";
+      return Number(n).toLocaleString("es-ES", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " €";
+    }
+    function toast(msg, err) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.toggle("err", !!err);
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2400);
+    }
+    function nombreCliente(id) {
+      const c = state.clientes.find(x => x.id_cliente === id);
+      return c ? c.nombre : (id || "—");
+    }
+    async function api(path, opts) {
+      const url = BASE + path;
+      try {
+        const res = await fetch(url, opts);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const txt = await res.text();
+        if (!txt) return { success: false, error: "respuesta vacía del servidor" };
+        return JSON.parse(txt);
+      } catch (e) {
+        return { success: false, error: e.message || String(e) };
+      }
+    }
+
+    // ========== Tabs ==========
+    document.querySelectorAll("nav.tabs button").forEach(b => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll("nav.tabs button").forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        const tab = b.dataset.tab;
+        document.querySelectorAll(".tab-content").forEach(s => s.hidden = true);
+        document.getElementById("tab-" + tab).hidden = false;
+        cargarTab(tab);
+      });
+    });
+
+    async function cargarTab(tab) {
+      if (tab === "pedidos") { await cargarClientes(); await cargarPedidos(); }
+      else if (tab === "bote") { await cargarEstadoBote(); }
+      else if (tab === "repartos") { await cargarEstadoBote(); renderRepartos(); }
+      else if (tab === "gastos") { await cargarEstadoBote(); renderGastosFromMovs(); }
+      else if (tab === "cobros") { await cargarEstadoBote(); renderCobrosFromMovs(); }
+      else if (tab === "clientes") { await cargarClientes(); renderClientes(); }
+      else if (tab === "cortes") { await cargarCortes(); }
+    }
+
+    // ========== CLIENTES ==========
+    async function cargarClientes() {
+      const r = await api("/clientes-lista");
+      if (r && r.success) state.clientes = r.data.clientes || [];
+      const sel = document.getElementById("pedido-cliente");
+      sel.innerHTML = '<option value="">Selecciona cliente…</option>' +
+        state.clientes.filter(c => c.activo === "si").map(c =>
+          `<option value="${c.id_cliente}">${c.nombre}</option>`).join("");
+    }
+
+    function renderClientes() {
+      const q = (document.getElementById("cli-busqueda")?.value || "").toLowerCase();
+      const filtered = state.clientes.filter(c => !q || (c.nombre || "").toLowerCase().includes(q));
+      const el = document.getElementById("lista-clientes");
+      if (filtered.length === 0) { el.innerHTML = '<div class="empty">Sin clientes</div>'; return; }
+      el.innerHTML = filtered.map(c => `
+        <div class="list-item">
+          <h4>${c.nombre} <span class="pill ${c.activo === 'si' ? 'entregado' : 'cancelado'}">${c.activo === 'si' ? 'activo' : 'inactivo'}</span></h4>
+          ${c.contacto ? `<div class="meta">${c.contacto}</div>` : ""}
+          ${c.notas ? `<div class="meta" style="margin-top: 4px;"><em>${c.notas}</em></div>` : ""}
+        </div>
+      `).join("");
+    }
+
+    async function crearCliente(btn) {
+      const nombre = document.getElementById("cli-nombre").value.trim();
+      if (!nombre) { toast("Nombre requerido", true); return; }
+      const body = {
+        nombre,
+        notas: document.getElementById("cli-notas").value.trim(),
+      };
+      const busy = lockBtn(btn, "Creando…");
+      try {
+        const r = await api("/clientes-crear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (r.success) {
+          toast("Cliente creado ✓");
+          ["cli-nombre","cli-notas"].forEach(id => document.getElementById(id).value = "");
+          await cargarClientes();
+          renderClientes();
+        } else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
+    }
+
+    // ========== PEDIDOS ==========
+    async function cargarPedidos() {
+      const q = state.pedidosFiltro ? "?estado=" + state.pedidosFiltro : "";
+      const r = await api("/pedidos-lista" + q);
+      if (r && r.success) state.pedidos = r.data.pedidos || [];
+      renderPedidos();
+    }
+
+    function filtrarPedidos(estado) {
+      state.pedidosFiltro = estado;
+      document.querySelectorAll('.filters button[data-filter]').forEach(b =>
+        b.classList.toggle("active", b.dataset.filter === estado));
+      cargarPedidos();
+    }
+
+    function renderPedidos() {
+      const el = document.getElementById("lista-pedidos");
+      if (state.pedidos.length === 0) { el.innerHTML = '<div class="empty">Sin pedidos</div>'; return; }
+      el.innerHTML = state.pedidos.map(p => `
+        <div class="list-item">
+          <h4>${p.genetica} × ${p.cantidad} <span class="pill ${p.estado}">${p.estado}</span></h4>
+          <div class="meta">${nombreCliente(p.id_cliente)}</div>
+          <div class="meta">${fmtEuro(p.total)} · entrega ${p.fecha_entrega_prometida || "—"}${p.fecha_entrega_real ? ' · real ' + p.fecha_entrega_real : ''}</div>
+          ${p.notas ? `<div class="meta" style="margin-top: 4px;"><em>${p.notas}</em></div>` : ""}
+          ${p.estado === "pendiente" ? `<div class="action-row"><button class="btn" onclick='abrirEntregar(${JSON.stringify(p)})'>Entregar y cobrar</button></div>` : ""}
+        </div>
+      `).join("");
+    }
+
+    async function crearPedido(btn) {
+      const body = {
+        id_cliente: document.getElementById("pedido-cliente").value,
+        genetica: document.getElementById("pedido-genetica").value.trim(),
+        cantidad: Number(document.getElementById("pedido-cantidad").value),
+        precio_unitario: Number(document.getElementById("pedido-precio").value),
+        fecha_entrega_prometida: document.getElementById("pedido-fecha").value,
+        notas: document.getElementById("pedido-notas").value.trim(),
+      };
+      if (!body.id_cliente) { toast("Cliente requerido", true); return; }
+      if (!body.genetica) { toast("Genética requerida", true); return; }
+      if (!body.cantidad || body.cantidad <= 0) { toast("Cantidad inválida", true); return; }
+      if (!body.precio_unitario || body.precio_unitario <= 0) { toast("Precio inválido", true); return; }
+      const busy = lockBtn(btn, "Creando…");
+      try {
+        const r = await api("/pedidos-crear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (r.success) {
+          toast("Pedido creado ✓ total " + fmtEuro(r.data.total));
+          ["pedido-genetica","pedido-cantidad","pedido-precio","pedido-fecha","pedido-notas"].forEach(id => document.getElementById(id).value = "");
+          cargarPedidos();
+        } else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
+    }
+
+    // ========== ENTREGAR PEDIDO ==========
+    function abrirEntregar(pedido) {
+      state.entregarPedido = pedido;
+      state.personalizado = false;
+      document.getElementById("entregar-info").innerHTML =
+        `<b>${pedido.genetica} × ${pedido.cantidad}</b><br>${nombreCliente(pedido.id_cliente)} · total previsto ${fmtEuro(pedido.total)}`;
+      document.getElementById("ent-importe").value = pedido.total;
+      document.getElementById("ent-personalizado").hidden = true;
+      document.getElementById("btn-personalizar").textContent = "✏️ Personalizar reparto";
+      document.getElementById("btn-confirmar-entrega").disabled = false;
+      recalcularReparto();
+      document.getElementById("dialog-entregar").showModal();
+    }
+    function cerrarEntregar() { document.getElementById("dialog-entregar").close(); }
+
+    function calcularReparto(importe) {
+      const por_socio = Math.floor(importe * 2 / 5 / 20) * 20;
+      const reparto = por_socio * 2;
+      const bote = importe - reparto;
+      return { por_socio, reparto, bote };
+    }
+
+    function recalcularReparto() {
+      const imp = Number(document.getElementById("ent-importe").value || 0);
+      const { por_socio, reparto, bote } = calcularReparto(imp);
+      document.getElementById("reparto-preview").innerHTML =
+        `<b>Regla por defecto:</b> 🪙 Bote ${fmtEuro(bote)} · 👥 Reparto ${fmtEuro(reparto)} (${fmtEuro(por_socio)}/socio)`;
+      // pre-rellenar campos personalizados con regla por si activa el toggle
+      document.getElementById("ent-bote").value = bote;
+      document.getElementById("ent-reparto").value = reparto;
+    }
+
+    function togglePersonalizar() {
+      state.personalizado = !state.personalizado;
+      document.getElementById("ent-personalizado").hidden = !state.personalizado;
+      document.getElementById("btn-personalizar").textContent = state.personalizado
+        ? "↩️ Volver a la regla por defecto"
+        : "✏️ Personalizar reparto";
+      if (state.personalizado) validarPersonalizado();
+    }
+
+    function validarPersonalizado() {
+      const imp = Number(document.getElementById("ent-importe").value || 0);
+      const b = Number(document.getElementById("ent-bote").value || 0);
+      const r = Number(document.getElementById("ent-reparto").value || 0);
+      const ok = Math.abs(b + r - imp) < 0.01;
+      const v = document.getElementById("validacion-personalizado");
+      if (ok) {
+        v.innerHTML = `<span style="color: var(--verde);">✓ Suma OK · ${fmtEuro(r/2)} por socio</span>`;
+        document.getElementById("btn-confirmar-entrega").disabled = false;
+      } else {
+        v.innerHTML = `<span style="color: var(--rojo);">⚠ bote + reparto = ${fmtEuro(b+r)} ≠ importe ${fmtEuro(imp)}</span>`;
+        document.getElementById("btn-confirmar-entrega").disabled = true;
+      }
+    }
+
+    async function confirmarEntrega() {
+      const imp = Number(document.getElementById("ent-importe").value || 0);
+      if (!imp || imp <= 0) { toast("Importe inválido", true); return; }
+      const body = {
+        id_pedido: state.entregarPedido.id_pedido,
+        importe: imp,
+        metodo: document.getElementById("ent-metodo").value,
+        quien_cobro: document.getElementById("ent-quien-cobro").value,
+      };
+      if (state.personalizado) {
+        body.modo_reparto = "personalizado";
+        body.bote_personalizado = Number(document.getElementById("ent-bote").value || 0);
+        body.reparto_personalizado = Number(document.getElementById("ent-reparto").value || 0);
+        body.nota_reparto = document.getElementById("ent-nota").value.trim();
+      }
+      document.getElementById("btn-confirmar-entrega").disabled = true;
+      const r = await api("/pedidos-entregar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      document.getElementById("btn-confirmar-entrega").disabled = false;
+      if (r.success) {
+        toast(`Entregado · cobró ${r.data.quien_cobro} · bote ${fmtEuro(r.data.bote)} · por socio ${fmtEuro(r.data.por_socio)}`);
+        cerrarEntregar();
+        await cargarPedidos();
+      } else {
+        toast("Error: " + (r.error || "desconocido"), true);
+      }
+    }
+
+    // ========== BOTE / MOVIMIENTOS ==========
+    async function cargarEstadoBote() {
+      const r = await api("/estado-bote");
+      if (r && r.success) state.estadoBote = r.data;
+      renderBote();
+      // Refrescar todas las vistas que dependen del state actual
+      if (document.getElementById("reps-eric")) renderRepartos();
+      const histEl = document.getElementById("lista-historial");
+      if (histEl && !histEl.hidden) renderHistorial();
+      if (document.getElementById("lista-cobros")) renderCobrosFromMovs();
+      if (document.getElementById("lista-gastos")) renderGastosFromMovs();
+    }
+
+    function renderBote() {
+      const el = document.getElementById("saldo-bote");
+      if (!el) return;
+      const s = state.estadoBote?.saldo ?? 0;
+      el.textContent = fmtEuro(s);
+      el.classList.toggle("rojo", s < 0);
+
+      // Pendientes de ingresar al bote (sumatorio)
+      const pendIng = state.estadoBote?.bote_pendiente || [];
+      const totalPend = pendIng.reduce((a, b) => a + Number(b.importe || 0), 0);
+      const elPend = document.getElementById("bote-pendiente-ingreso");
+      if (elPend) {
+        elPend.textContent = totalPend > 0
+          ? `+ ${fmtEuro(totalPend)} pendientes de ingresar (${pendIng.length} cobro${pendIng.length > 1 ? 's' : ''})`
+          : "";
+      }
+
+      renderMovs();
+    }
+
+    function renderMovs() {
+      const movs = state.estadoBote?.ultimos_movimientos || [];
+      const filtered = state.movFiltro ? movs.filter(m => m.tipo === state.movFiltro) : movs;
+      const lista = document.getElementById("lista-movs");
+      if (!lista) return;
+      if (filtered.length === 0) { lista.innerHTML = '<div class="empty">Sin movimientos</div>'; return; }
+      lista.innerHTML = filtered.map(m => {
+        const pillClass = { cobro: 'entregado', gasto: 'cancelado', aportacion: 'pendiente', reparto_bote: 'no_aplica' }[m.tipo] || 'no_aplica';
+        return `
+          <div class="mov-row">
+            <div>
+              <div>${m.fecha} · <span class="pill ${pillClass}">${m.tipo}</span></div>
+              <div class="concepto">${m.concepto || ''}${m.socio ? ' · ' + m.socio : ''}</div>
+            </div>
+            <div style="text-align: right;">
+              <div class="importe ${Number(m.importe) >= 0 ? 'pos' : 'neg'}">${Number(m.importe) >= 0 ? '+' : ''}${fmtEuro(m.importe)}</div>
+              <div class="concepto">saldo ${fmtEuro(m.saldo_despues)}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function filtrarMovs(tipo) {
+      state.movFiltro = tipo;
+      document.querySelectorAll('.filters button[data-movfilter]').forEach(b =>
+        b.classList.toggle("active", b.dataset.movfilter === tipo));
+      renderMovs();
+    }
+
+    function previewRepartirBote() {
+      const imp = Number(document.getElementById("rep-bote-importe").value || 0);
+      const saldo = state.estadoBote?.saldo ?? 0;
+      const el = document.getElementById("rep-bote-preview");
+      if (imp <= 0) { el.textContent = ""; return; }
+      if (imp > saldo) {
+        el.innerHTML = `<span style="color: var(--rojo);">⚠ ${fmtEuro(imp)} &gt; saldo actual ${fmtEuro(saldo)}</span>`;
+        return;
+      }
+      const pe = Math.floor(imp / 2);
+      const pn = imp - pe;
+      el.innerHTML = `50/50 → <b>Eric ${fmtEuro(pe)}</b> · <b>Noel ${fmtEuro(pn)}</b> · bote queda en ${fmtEuro(saldo - imp)}`;
+    }
+
+    async function repartirBote(btn) {
+      const imp = Number(document.getElementById("rep-bote-importe").value || 0);
+      if (!imp || imp <= 0) { toast("Importe inválido", true); return; }
+      const saldo = state.estadoBote?.saldo ?? 0;
+      if (imp > saldo) { toast("Importe > saldo del bote", true); return; }
+      const body = { importe: imp, concepto: document.getElementById("rep-bote-concepto").value.trim() };
+      const busy = lockBtn(btn, "Repartiendo…");
+      try {
+        const r = await api("/bote-repartir", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (r.success) {
+          toast(`Repartidos ${fmtEuro(r.data.importe)} · Eric ${fmtEuro(r.data.parte_eric)} · Noel ${fmtEuro(r.data.parte_noel)}`);
+          document.getElementById("rep-bote-importe").value = "";
+          document.getElementById("rep-bote-concepto").value = "";
+          document.getElementById("rep-bote-preview").innerHTML = "";
+          await cargarEstadoBote();
+        } else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
+    }
+
+    async function aportarBote(btn) {
+      const body = {
+        socio: document.getElementById("aporta-socio").value,
+        importe: Number(document.getElementById("aporta-importe").value || 0),
+        concepto: document.getElementById("aporta-concepto").value.trim(),
+      };
+      if (!body.importe || body.importe <= 0) { toast("Importe inválido", true); return; }
+      const busy = lockBtn(btn, "Aportando…");
+      try {
+        const r = await api("/aportacion-bote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (r.success) {
+          toast("Aportado · saldo " + fmtEuro(r.data.saldo_bote));
+          document.getElementById("aporta-importe").value = "";
+          document.getElementById("aporta-concepto").value = "";
+          cargarEstadoBote();
+        } else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
+    }
+
+    // ========== GASTOS ==========
+    async function registrarGasto(btn) {
+      const body = {
+        concepto: document.getElementById("gasto-concepto").value.trim(),
+        importe: Number(document.getElementById("gasto-importe").value || 0),
+        quien_lo_gestiono: document.getElementById("gasto-quien").value,
+      };
+      if (!body.concepto) { toast("Concepto requerido", true); return; }
+      if (!body.importe || body.importe <= 0) { toast("Importe inválido", true); return; }
+      const busy = lockBtn(btn, "Registrando…");
+      try {
+        const r = await api("/gastos-registrar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (r.success) {
+          let msg = "Gasto · saldo " + fmtEuro(r.data.saldo_bote);
+          if (r.data.warning) msg += " ⚠ " + r.data.warning;
+          toast(msg, !!r.data.warning);
+          document.getElementById("gasto-concepto").value = "";
+          document.getElementById("gasto-importe").value = "";
+          cargarEstadoBote();
+        } else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
+    }
+
+    function renderGastosFromMovs() {
+      const el = document.getElementById("lista-gastos");
+      const gastos = (state.estadoBote?.ultimos_movimientos || []).filter(m => m.tipo === "gasto");
+      if (gastos.length === 0) { el.innerHTML = '<div class="empty">Sin gastos recientes</div>'; return; }
+      el.innerHTML = gastos.map(g => `
+        <div class="mov-row">
+          <div>
+            <div>${g.fecha}</div>
+            <div class="concepto">${(g.concepto || "").replace(/^Gasto:\s*/, "")}</div>
+          </div>
+          <div class="importe neg">${fmtEuro(g.importe)}</div>
+        </div>
+      `).join("");
+    }
+
+    function poblarFiltrosCobros() {
+      const cobros = state.estadoBote?.cobros || [];
+      const selA = document.getElementById("cobros-filtro-anio");
+      const selM = document.getElementById("cobros-filtro-mes");
+      if (!selA || !selM) return;
+      const anios = [...new Set(cobros.map(c => (c.fecha || "").slice(0, 4)).filter(Boolean))].sort().reverse();
+      const meses = ["01","02","03","04","05","06","07","08","09","10","11","12"];
+      const nombresMes = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+      const valA = selA.value || "todos";
+      const valM = selM.value || "todos";
+      selA.innerHTML = `<option value="todos">Todos</option>` + anios.map(a => `<option value="${a}">${a}</option>`).join("");
+      selM.innerHTML = `<option value="todos">Todos</option>` + meses.map((m, i) => `<option value="${m}">${nombresMes[i]}</option>`).join("");
+      selA.value = anios.includes(valA) || valA === "todos" ? valA : "todos";
+      selM.value = valM;
+    }
+
+    function renderCobrosFromMovs() {
+      const el = document.getElementById("lista-cobros");
+      poblarFiltrosCobros();
+      const fAnio = document.getElementById("cobros-filtro-anio")?.value || "todos";
+      const fMes = document.getElementById("cobros-filtro-mes")?.value || "todos";
+      let cobros = state.estadoBote?.cobros || [];
+      if (fAnio !== "todos") cobros = cobros.filter(c => (c.fecha || "").slice(0, 4) === fAnio);
+      if (fMes !== "todos") cobros = cobros.filter(c => (c.fecha || "").slice(5, 7) === fMes);
+      if (cobros.length === 0) {
+        el.innerHTML = `
+          <div class="list-item" style="background: var(--dorado-claro);">
+            <h4>Total · 0€ en 0 cobros</h4>
+          </div>
+          <div class="empty">Sin cobros en este periodo</div>`;
+        return;
+      }
+      const total = cobros.reduce((a, c) => a + c.importe, 0);
+      const header = `
+        <div class="list-item" style="background: var(--dorado-claro);">
+          <h4>Total · ${fmtEuro(total)} en ${cobros.length} cobro${cobros.length !== 1 ? 's' : ''}</h4>
+        </div>`;
+      const lista = cobros.map(c => {
+        const partes = [];
+        if (c.bote > 0) partes.push(`${fmtEuro(c.bote)} al bote`);
+        if (c.reparto > 0) partes.push(`${fmtEuro(c.reparto)} reparto (${fmtEuro(c.por_socio)}/socio)`);
+        return `
+        <div class="list-item">
+          <h4>${fmtEuro(c.importe)} <span class="pill cobro">cobró ${c.quien_cobro || '—'}</span></h4>
+          <div class="meta">${c.fecha}${c.metodo ? ' · ' + c.metodo : ''}</div>
+          <div class="meta">${partes.join(' · ') || 'sin desglose'}</div>
+        </div>`;
+      }).join("");
+      el.innerHTML = header + lista;
+    }
+
+    // ========== REPARTOS ==========
+    function renderRepartos() {
+      // 3 columnas: Eric (repartos_pendientes.Eric), Noel (repartos_pendientes.Noel), Bote (bote_pendiente)
+      const grupos = [
+        { key: "Eric", data: state.estadoBote?.repartos_pendientes?.Eric || [], btnId: "btn-todos-eric", listId: "reps-eric", totalId: "reps-eric-total", btnLabel: "✓ Marcar todos" },
+        { key: "Noel", data: state.estadoBote?.repartos_pendientes?.Noel || [], btnId: "btn-todos-noel", listId: "reps-noel", totalId: "reps-noel-total", btnLabel: "✓ Marcar todos" },
+        { key: "bote", data: state.estadoBote?.bote_pendiente || [], btnId: "btn-todos-bote", listId: "reps-bote", totalId: "reps-bote-total", btnLabel: "✓ Ingresar todos" },
+      ];
+      grupos.forEach(g => {
+        const el = document.getElementById(g.listId);
+        const total = g.data.reduce((a, b) => a + Number(b.importe || 0), 0);
+        const elT = document.getElementById(g.totalId);
+        if (elT) elT.textContent = total > 0 ? `${fmtEuro(total)} en ${g.data.length}` : "";
+        const btn = document.getElementById(g.btnId);
+        if (btn) btn.style.display = g.data.length > 1 ? "block" : "none";
+        if (btn) btn.textContent = `${g.btnLabel} (${fmtEuro(total)})`;
+
+        if (g.data.length === 0) { el.innerHTML = '<div class="empty">Ninguno</div>'; return; }
+        el.innerHTML = g.data.map(r => `
+          <div class="list-item" style="padding: 8px;">
+            <h4 style="font-size: 15px;">${fmtEuro(r.importe)}</h4>
+            <div class="meta">${r.fecha}${r.quien_cobro ? ' · cobró <b>' + r.quien_cobro + '</b>' : (g.key === 'bote' && !r.quien_cobro ? '' : '')}</div>
+            <button class="btn ghost" style="font-size: 11px; padding: 6px; margin-top: 6px;" onclick="marcarEntregado(this, '${r.id_reparto}')">${g.key === 'bote' ? '✓ Ingresado' : '✓ Entregado'}</button>
+          </div>
+        `).join("");
+      });
+    }
+
+    async function marcarEntregado(btn, id_reparto) {
+      const busy = lockBtn(btn, "…");
+      try {
+        const r = await api("/repartos-marcar-entregado", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id_reparto })
+        });
+        if (r.success) { toast("Marcado ✓"); await cargarEstadoBote(); renderRepartos(); }
+        else { toast("Error: " + (r.error || "desconocido"), true); }
+      } finally { unlockBtn(btn, busy); }
+    }
+
+    async function marcarTodosSocio(btn, socio) {
+      const key = socio === "bote" ? "bote_pendiente" : null;
+      const reps = socio === "bote"
+        ? (state.estadoBote?.bote_pendiente || [])
+        : (state.estadoBote?.repartos_pendientes?.[socio] || []);
+      if (reps.length === 0) return;
+      if (!confirm(`¿Marcar ${reps.length} ${socio === "bote" ? "ingreso(s) al bote" : "reparto(s) a " + socio} como entregado(s)?`)) return;
+      const busy = lockBtn(btn, `… (0/${reps.length})`);
+      try {
+        // Secuencial para evitar race conditions en el saldo del bote cuando socio=bote
+        let ok = 0, err = 0;
+        for (const r of reps) {
+          const res = await api("/repartos-marcar-entregado", {
+            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id_reparto: r.id_reparto })
+          });
+          if (res.success) ok++;
+          else err++;
+          btn.textContent = `… (${ok + err}/${reps.length})`;
+        }
+        toast(`${ok} marcado${ok !== 1 ? 's' : ''}${err > 0 ? ' · ' + err + ' error' + (err !== 1 ? 'es' : '') : ''}`, err > 0);
+        await cargarEstadoBote();
+        renderRepartos();
+      } finally { unlockBtn(btn, busy); }
+    }
+
+    function toggleHistorial(btn) {
+      const el = document.getElementById("lista-historial");
+      const open = !el.hidden;
+      el.hidden = open;
+      btn.textContent = open ? "Mostrar" : "Ocultar";
+      if (!open) renderHistorial();
+    }
+
+    function renderHistorial() {
+      const el = document.getElementById("lista-historial");
+      if (!el) return;
+      const entregados = state.estadoBote?.entregados || [];
+      if (entregados.length === 0) { el.innerHTML = '<div class="empty">Sin historial</div>'; return; }
+      el.innerHTML = entregados.map(e => {
+        const pillClass = e.socio === "bote" ? "no_aplica" : (e.socio === "Eric" ? "entregado" : "pendiente");
+        return `
+          <div class="mov-row">
+            <div>
+              <div><span class="pill ${pillClass}">${e.socio}</span> ${fmtEuro(e.importe)}</div>
+              <div class="concepto">entregado ${e.fecha_entregado || e.fecha}${e.quien_cobro ? ' · cobró ' + e.quien_cobro : ''}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // ========== CORTES ==========
+    async function cargarCortes() {
+      const r = await api("/cortes-lista");
+      // Compatibilidad: el workflow Cortes responde { items: [...] } directo (sin success/data wrap)
+      if (r && Array.isArray(r.items)) state.cortes = r.items;
+      else if (r && r.success && r.data && Array.isArray(r.data.items)) state.cortes = r.data.items;
+      else state.cortes = [];
+      renderCortes();
+    }
+
+    function filtrarCortes(genetica) {
+      state.cortesFiltro = genetica;
+      document.querySelectorAll('.filters button[data-cortefilter]').forEach(b =>
+        b.classList.toggle("active", b.dataset.cortefilter === genetica));
+      renderCortes();
+    }
+
+    function renderCortes() {
+      const el = document.getElementById("lista-cortes");
+      if (!el) return;
+      let cortes = state.cortes || [];
+      if (state.cortesFiltro) cortes = cortes.filter(c => c.genetica === state.cortesFiltro);
+      if (cortes.length === 0) {
+        el.innerHTML = '<div class="empty">Sin cortes registrados</div>';
+        return;
+      }
+      const totalEsq = cortes.reduce((a, c) => a + Number(c.num_esquejes || 0), 0);
+      const header = `
+        <div class="list-item" style="background: var(--verde-tinte);">
+          <h4>Total · ${totalEsq} esquejes en ${cortes.length} corte${cortes.length !== 1 ? 's' : ''}</h4>
+        </div>`;
+      const hoy = new Date().toISOString().slice(0, 10);
+      const lista = cortes.map(c => {
+        const proximaPasada = c.fecha_proximo_corte_estimada && c.fecha_proximo_corte_estimada < hoy;
+        return `
+          <div class="list-item">
+            <h4>
+              <span class="mono">${c.id_evento}</span>
+              <span class="pill ${c.estado || 'activo'}">${c.estado || 'activo'}</span>
+            </h4>
+            <div class="meta"><b>${c.genetica}</b> · ${c.num_esquejes} esquejes · corte ${c.fecha_corte}</div>
+            <div class="meta">
+              Próximo corte estimado:
+              <b style="${proximaPasada ? 'color: var(--rojo);' : ''}">${c.fecha_proximo_corte_estimada || '—'}</b>
+              · ${c.intervalo_dias}d${c.operario ? ' · ' + c.operario : ''}
+            </div>
+            ${c.observaciones ? `<div class="meta" style="margin-top: 4px;"><em>${c.observaciones}</em></div>` : ""}
+          </div>`;
+      }).join("");
+      el.innerHTML = header + lista;
+    }
+
+    // ========== INIT ==========
+    (async function init() {
+      const hoy = new Date().toISOString().slice(0, 10);
+      document.getElementById("pedido-fecha").value = hoy;
+      await cargarClientes();
+      await cargarPedidos();
+    })();
+  </script>
+</body>
+</html>
