@@ -1274,15 +1274,19 @@
 
     function renderCobrosFromMovs() {
       const el = document.getElementById("lista-cobros");
-      const cobros = (state.estadoBote?.ultimos_movimientos || []).filter(m => m.tipo === "cobro");
+      const cobros = state.estadoBote?.cobros || [];
       if (cobros.length === 0) { el.innerHTML = '<div class="empty">Sin cobros recientes</div>'; return; }
-      el.innerHTML = cobros.map(c => `
+      el.innerHTML = cobros.map(c => {
+        const partes = [];
+        if (c.bote > 0) partes.push(`${fmtEuro(c.bote)} al bote`);
+        if (c.reparto > 0) partes.push(`${fmtEuro(c.reparto)} reparto (${fmtEuro(c.por_socio)}/socio)`);
+        return `
         <div class="list-item">
-          <h4>${fmtEuro(c.importe)} <span class="pill entregado">al bote</span></h4>
-          <div class="meta">${c.fecha} · ${c.concepto}</div>
-          <div class="meta">saldo tras cobro: ${fmtEuro(c.saldo_despues)}</div>
-        </div>
-      `).join("");
+          <h4>${fmtEuro(c.importe)} <span class="pill cobro">cobró ${c.quien_cobro || '—'}</span></h4>
+          <div class="meta">${c.fecha}${c.metodo ? ' · ' + c.metodo : ''}</div>
+          <div class="meta">${partes.join(' · ') || 'sin desglose'}</div>
+        </div>`;
+      }).join("");
     }
 
     // ========== REPARTOS ==========
