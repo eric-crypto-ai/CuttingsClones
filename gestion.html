@@ -455,6 +455,8 @@
     .pill.reparto { color: var(--azul); border-color: rgba(29,58,107,0.3); background: rgba(29,58,107,0.06); }
     .pill.activo { color: var(--verde-bosque); border-color: rgba(26,61,31,0.3); background: rgba(26,61,31,0.06); }
     .pill.cerrado { color: var(--carbon-60); border-color: var(--linea-fuerte); background: transparent; }
+    .pill.inactivo { color: var(--carbon-60); border-color: var(--linea-fuerte); background: transparent; }
+    .pill.alerta25d { color: var(--naranja); border-color: rgba(179,77,18,0.35); background: rgba(179,77,18,0.08); }
 
     /* ── SALDO GIGANTE — el hero del bote ── */
     .saldo-big {
@@ -659,26 +661,298 @@
 
     hr.sep { border: none; border-top: 1px solid var(--linea-suave); margin: 14px 0; }
 
+    /* ── COMPRAS (importado de index.html para tab Compras) ── */
+    .compras-add {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .compras-add input { flex: 1; margin-bottom: 0; min-width: 0; }
+    .compras-add .btn {
+      flex-shrink: 0;
+      width: auto;
+      font-size: 16px;
+      padding: 10px 16px;
+      margin-top: 0;
+    }
+    #listaCompras:not(.loading):not(.error):not(:empty) {
+      border: 1px solid var(--linea);
+      border-radius: var(--r-sm);
+      background: var(--hueso);
+      overflow: hidden;
+    }
+    .compra-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border: none;
+      border-bottom: 1px solid var(--linea-suave);
+      background: var(--hueso);
+      transition: background var(--t);
+      margin: 0;
+    }
+    .compra-item:hover { background: var(--crema-claro); }
+    .compra-item:last-child { border-bottom: none; }
+    .compra-nombre {
+      flex: 1;
+      font-size: 13.5px;
+      color: var(--carbon);
+      letter-spacing: -0.005em;
+      min-width: 0;
+      word-break: break-word;
+    }
+    .btn-tick {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: 1.5px solid var(--linea-fuerte);
+      background: var(--crema-claro);
+      color: var(--carbon-60);
+      font-size: 14px; font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background var(--t), color var(--t), border-color var(--t), transform 80ms;
+    }
+    .btn-tick:hover {
+      background: var(--verde-bosque);
+      color: white;
+      border-color: var(--verde-bosque);
+    }
+    .btn-tick:active { transform: scale(0.92); }
+    .btn-tick:disabled { opacity: 0.5; cursor: not-allowed; }
+    .compra-item.busy { opacity: 0.55; pointer-events: none; }
+    .mensaje {
+      margin-top: 10px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--verde-bosque);
+    }
+    .mensaje.error { color: var(--rojo); }
+
+    /* ── DRAWER (menú lateral mobile-first, compartido index/gestion) ── */
+    .menu-toggle {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: white;
+      width: 40px; height: 40px;
+      border-radius: var(--r-sm);
+      font-size: 20px; line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: inherit;
+      transition: background var(--t), border-color var(--t);
+    }
+    .menu-toggle:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.2); }
+    .menu-toggle:active { transform: translateY(1px); }
+    .menu-toggle:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.3); }
+
+    .drawer {
+      position: fixed;
+      top: 0; left: 0;
+      height: 100dvh;
+      width: 84vw;
+      max-width: 320px;
+      background: var(--hueso);
+      z-index: 200;
+      transform: translateX(-100%);
+      transition: transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 8px 0 24px rgba(0,0,0,0.18);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      border-right: 1px solid rgba(0,0,0,0.1);
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-head {
+      background: var(--verde-bosque);
+      color: white;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(0,0,0,0.2);
+      position: sticky; top: 0; z-index: 1;
+    }
+    .drawer-head button {
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 18px;
+      width: 32px; height: 32px;
+      border-radius: var(--r-xs);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      transition: background var(--t);
+    }
+    .drawer-head button:hover { background: rgba(255,255,255,0.12); }
+
+    .drawer-nav { padding: 8px 0 32px; }
+
+    .drawer-link, .drawer-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      width: 100%;
+      color: var(--carbon);
+      text-decoration: none;
+      font-size: 14.5px;
+      font-weight: 500;
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: left;
+      letter-spacing: -0.01em;
+      border-left: 3px solid transparent;
+      transition: background var(--t), border-color var(--t);
+      min-width: 0;
+    }
+    .drawer-link:hover, .drawer-group:hover {
+      background: var(--crema-claro);
+      border-left-color: var(--verde-musgo);
+    }
+    .drawer-link.activo {
+      background: var(--verde-tinte);
+      border-left-color: var(--verde-bosque);
+      font-weight: 600;
+    }
+    .drawer-icon {
+      font-size: 17px;
+      flex-shrink: 0;
+      width: 22px;
+      text-align: center;
+    }
+    .drawer-chevron {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--carbon-40);
+      transition: transform 0.2s;
+    }
+    .drawer-group.expanded .drawer-chevron { transform: rotate(180deg); }
+
+    .drawer-sub {
+      display: none;
+      padding: 4px 0 8px;
+      background: var(--crema-claro);
+      border-top: 1px solid var(--linea-suave);
+      border-bottom: 1px solid var(--linea-suave);
+    }
+    .drawer-group.expanded + .drawer-sub { display: block; }
+    .drawer-sublink {
+      display: block;
+      padding: 11px 18px 11px 53px;
+      color: var(--carbon-80);
+      text-decoration: none;
+      font-size: 13.5px;
+      border-left: 3px solid transparent;
+      transition: background var(--t), border-color var(--t);
+    }
+    .drawer-sublink:hover {
+      background: var(--crema-tinte);
+      border-left-color: var(--verde-musgo);
+    }
+    .drawer-sublink.activo {
+      background: var(--verde-tinte);
+      border-left-color: var(--verde-bosque);
+      font-weight: 600;
+      color: var(--carbon);
+    }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(20,23,26,0.5);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: 199;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 240ms;
+    }
+    .drawer-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    body.no-scroll { overflow: hidden; }
+
   </style>
 </head>
 <body>
   <header>
-    <a href="index.html" class="back" title="Portal operario">←</a>
+    <button class="menu-toggle" type="button" onclick="abrirMenu()" aria-label="Abrir menú" aria-controls="drawer" aria-expanded="false">☰</button>
     <img class="header-logo" src="assets/logo.png" alt="CuttingsClones" />
     <div class="title">
-      Gestión económica
-      <div class="subtitle">Bote &amp; pedidos</div>
+      <span id="tabTitle">Gestión económica</span>
+      <div class="subtitle" id="tabSubtitle">Bote &amp; pedidos</div>
     </div>
   </header>
 
+  <!-- ── DRAWER LATERAL (menú principal) ── -->
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <span>Menú</span>
+      <button type="button" onclick="cerrarMenu()" aria-label="Cerrar menú">✕</button>
+    </div>
+    <nav class="drawer-nav">
+      <a href="index.html" class="drawer-link"><span class="drawer-icon">🏠</span> Inicio</a>
+      <a href="gestion.html?tab=pedidos" class="drawer-link" data-drawer-tab="pedidos"><span class="drawer-icon">🛒</span> Pedidos</a>
+
+      <button type="button" class="drawer-group" onclick="toggleDrawerGroup(this)" aria-expanded="false">
+        <span class="drawer-icon">✂️</span> Cortes <span class="drawer-chevron">▾</span>
+      </button>
+      <div class="drawer-sub">
+        <a href="gestion.html?tab=registrar-corte" class="drawer-sublink" data-drawer-tab="registrar-corte">Registrar cortes</a>
+        <a href="gestion.html?tab=cortes" class="drawer-sublink" data-drawer-tab="cortes">Histórico de cortes</a>
+      </div>
+
+      <button type="button" class="drawer-group" onclick="toggleDrawerGroup(this)" aria-expanded="false">
+        <span class="drawer-icon">💰</span> Gestión económica <span class="drawer-chevron">▾</span>
+      </button>
+      <div class="drawer-sub">
+        <a href="gestion.html?tab=bote" class="drawer-sublink" data-drawer-tab="bote">Bote</a>
+        <a href="gestion.html?tab=repartos" class="drawer-sublink" data-drawer-tab="repartos">Repartos</a>
+        <a href="gestion.html?tab=gastos" class="drawer-sublink" data-drawer-tab="gastos">Gastos</a>
+        <a href="gestion.html?tab=cobros" class="drawer-sublink" data-drawer-tab="cobros">Cobros</a>
+      </div>
+
+      <a href="gestion.html?tab=clientes" class="drawer-link" data-drawer-tab="clientes"><span class="drawer-icon">👥</span> Clientes</a>
+      <a href="gestion.html?tab=nueva-tarea" class="drawer-link" data-drawer-tab="nueva-tarea"><span class="drawer-icon">➕</span> Nueva tarea</a>
+      <a href="gestion.html?tab=compras" class="drawer-link" data-drawer-tab="compras"><span class="drawer-icon">🛍️</span> Compras</a>
+    </nav>
+  </aside>
+  <div class="drawer-backdrop" id="drawerBackdrop" onclick="cerrarMenu()"></div>
+
   <nav class="tabs">
     <button data-tab="pedidos" class="active">🛒 Pedidos</button>
-    <button data-tab="cortes">✂️ Cortes</button>
+    <button data-tab="registrar-corte">✂️ Registrar corte</button>
+    <button data-tab="cortes">📜 Histórico cortes</button>
     <button data-tab="bote">💰 Bote</button>
     <button data-tab="repartos">✅ Repartos</button>
     <button data-tab="gastos">💸 Gastos</button>
     <button data-tab="cobros">📋 Cobros</button>
     <button data-tab="clientes">👥 Clientes</button>
+    <button data-tab="nueva-tarea">➕ Nueva tarea</button>
+    <button data-tab="compras">🛍️ Compras</button>
   </nav>
 
   <main>
@@ -891,6 +1165,94 @@
         <div id="lista-clientes" class="loading">Cargando…</div>
       </div>
     </section>
+
+    <!-- ========= REGISTRAR CORTE ========= -->
+    <section id="tab-registrar-corte" class="tab-content" hidden>
+      <div class="card">
+        <h3>✂️ Registrar corte</h3>
+        <form id="formCorte">
+          <div class="grid2">
+            <div>
+              <label>Genética *</label>
+              <select id="cortGenetica" required>
+                <option value="">Selecciona</option>
+                <option value="Amnesia">Amnesia</option>
+                <option value="Hokuzai">Hokuzai</option>
+              </select>
+            </div>
+            <div>
+              <label>Nº esquejes *</label>
+              <input id="cortNumEsquejes" type="number" min="1" placeholder="Ej: 48" required />
+            </div>
+          </div>
+          <div class="grid2">
+            <div>
+              <label>Fecha corte *</label>
+              <input id="cortFecha" type="date" required />
+            </div>
+            <div>
+              <label>Intervalo días</label>
+              <input id="cortIntervalo" type="number" min="1" max="60" value="14" />
+            </div>
+          </div>
+          <label>Observaciones (opcional)</label>
+          <textarea id="cortObs" placeholder="Vigor de las madres, particularidades..."></textarea>
+          <button type="submit" class="btn">Registrar corte</button>
+          <div id="mensajeCorte" class="mensaje"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========= NUEVA TAREA ========= -->
+    <section id="tab-nueva-tarea" class="tab-content" hidden>
+      <div class="card">
+        <h3>➕ Nueva tarea</h3>
+        <form id="formNuevaTarea">
+          <label>Descripción *</label>
+          <input id="ntTarea" type="text" placeholder="Ej: Regar zona madres" required />
+          <div class="grid2">
+            <div>
+              <label>Zona *</label>
+              <select id="ntZona" required>
+                <option value="">Selecciona zona</option>
+                <option value="madres">🌱 Madres</option>
+                <option value="esquejes">✂️ Esquejes</option>
+                <option value="floracion">🌸 Floración</option>
+                <option value="limpieza">🧹 Limpieza</option>
+                <option value="mantenimiento">🔧 Mantenimiento</option>
+                <option value="general">📌 General</option>
+              </select>
+            </div>
+            <div>
+              <label>Prioridad</label>
+              <select id="ntPrioridad">
+                <option value="media">Media</option>
+                <option value="alta">Alta</option>
+                <option value="baja">Baja</option>
+              </select>
+            </div>
+          </div>
+          <label>Fecha *</label>
+          <input id="ntFecha" type="date" required />
+          <label>Observaciones (opcional)</label>
+          <textarea id="ntObs" placeholder="Notas adicionales..."></textarea>
+          <button type="submit" class="btn">+ Crear tarea</button>
+          <div id="mensajeNuevaTarea" class="mensaje"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========= COMPRAS ========= -->
+    <section id="tab-compras" class="tab-content" hidden>
+      <div class="card">
+        <h3>🛍️ Lista de compras</h3>
+        <div class="compras-add">
+          <input id="compraInput" type="text" placeholder="Ej: Micromite 250ml" maxlength="120" />
+          <button class="btn" type="button" onclick="agregarCompra(this)">+</button>
+        </div>
+        <div id="listaCompras" class="loading">Cargando…</div>
+      </div>
+    </section>
   </main>
 
   <dialog id="dialog-entregar">
@@ -1028,15 +1390,52 @@
     }
 
     // ========== Tabs ==========
-    document.querySelectorAll("nav.tabs button").forEach(b => {
-      b.addEventListener("click", () => {
-        document.querySelectorAll("nav.tabs button").forEach(x => x.classList.remove("active"));
-        b.classList.add("active");
-        const tab = b.dataset.tab;
-        document.querySelectorAll(".tab-content").forEach(s => s.hidden = true);
-        document.getElementById("tab-" + tab).hidden = false;
-        cargarTab(tab);
+    const TAB_META = {
+      "pedidos":         { titulo: "Pedidos",            sub: "Crear · entregar" },
+      "registrar-corte": { titulo: "Registrar corte",    sub: "Madres · esquejes" },
+      "cortes":          { titulo: "Histórico cortes",   sub: "Lotes · stock" },
+      "bote":            { titulo: "Bote",               sub: "Saldo · movimientos" },
+      "repartos":        { titulo: "Repartos",           sub: "Pendientes" },
+      "gastos":          { titulo: "Gastos",             sub: "Registro · histórico" },
+      "cobros":          { titulo: "Cobros",             sub: "Histórico" },
+      "clientes":        { titulo: "Clientes",           sub: "Cartera" },
+      "nueva-tarea":     { titulo: "Nueva tarea",        sub: "Crear tarea" },
+      "compras":         { titulo: "Compras",            sub: "Lista pendiente" },
+    };
+
+    function activarTab(tab) {
+      if (!TAB_META[tab]) tab = "pedidos";
+      document.querySelectorAll("nav.tabs button").forEach(x => x.classList.remove("active"));
+      const btn = document.querySelector('nav.tabs button[data-tab="' + tab + '"]');
+      if (btn) {
+        btn.classList.add("active");
+        // scrolling horizontal del tab al centro si está fuera de vista
+        try { btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); } catch (e) {}
+      }
+      document.querySelectorAll(".tab-content").forEach(s => s.hidden = true);
+      const sec = document.getElementById("tab-" + tab);
+      if (sec) sec.hidden = false;
+      // Actualiza title del header
+      const meta = TAB_META[tab];
+      const tEl = document.getElementById("tabTitle");
+      const sEl = document.getElementById("tabSubtitle");
+      if (tEl) tEl.textContent = meta.titulo;
+      if (sEl) sEl.textContent = meta.sub;
+      // Actualiza ?tab= sin recargar
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set("tab", tab);
+        history.replaceState(null, "", url);
+      } catch (e) {}
+      // Marcar enlace activo en drawer
+      document.querySelectorAll(".drawer [data-drawer-tab]").forEach(a => {
+        a.classList.toggle("activo", a.dataset.drawerTab === tab);
       });
+      cargarTab(tab);
+    }
+
+    document.querySelectorAll("nav.tabs button").forEach(b => {
+      b.addEventListener("click", () => activarTab(b.dataset.tab));
     });
 
     async function cargarTab(tab) {
@@ -1047,7 +1446,42 @@
       else if (tab === "cobros") { await cargarEstadoBote(); renderCobrosFromMovs(); }
       else if (tab === "clientes") { await cargarClientes(); renderClientes(); }
       else if (tab === "cortes") { await cargarCortes(); }
+      else if (tab === "compras") { await cargarCompras(); }
+      // registrar-corte y nueva-tarea son forms locales, no requieren carga remota
     }
+
+    // ========== DRAWER ==========
+    function abrirMenu() {
+      const d = document.getElementById("drawer");
+      const b = document.getElementById("drawerBackdrop");
+      d.classList.add("open");
+      d.setAttribute("aria-hidden", "false");
+      b.classList.add("open");
+      document.body.classList.add("no-scroll");
+      const toggle = document.querySelector(".menu-toggle");
+      if (toggle) toggle.setAttribute("aria-expanded", "true");
+    }
+    function cerrarMenu() {
+      const d = document.getElementById("drawer");
+      const b = document.getElementById("drawerBackdrop");
+      d.classList.remove("open");
+      d.setAttribute("aria-hidden", "true");
+      b.classList.remove("open");
+      document.body.classList.remove("no-scroll");
+      const toggle = document.querySelector(".menu-toggle");
+      if (toggle) toggle.setAttribute("aria-expanded", "false");
+    }
+    function toggleDrawerGroup(btn) {
+      const expanded = btn.classList.toggle("expanded");
+      btn.setAttribute("aria-expanded", expanded ? "true" : "false");
+    }
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") cerrarMenu();
+    });
+    // Cerrar drawer al pulsar un sublink (los .drawer-link navegan, pero igual cerramos por si la página tarda)
+    document.querySelectorAll(".drawer a").forEach(a => {
+      a.addEventListener("click", () => cerrarMenu());
+    });
 
     // ========== CLIENTES ==========
     async function cargarClientes() {
@@ -1740,9 +2174,18 @@
           </div>`;
       }
       const hoy = new Date().toISOString().slice(0, 10);
+      const diasEntre = (a, b) => {
+        if (!a || !b) return null;
+        const ms = new Date(b + "T00:00:00Z") - new Date(a + "T00:00:00Z");
+        return Math.floor(ms / 86400000);
+      };
       const lista = cortes.map(c => {
+        const estadoLote = (c.estado || 'activo').toLowerCase();
+        const esActivo = estadoLote === 'activo';
         const proximaPasada = c.fecha_proximo_corte_estimada && c.fecha_proximo_corte_estimada < hoy;
         const tieneStock = c.disponible !== undefined && c.total_neto !== undefined;
+        const dias = diasEntre(c.fecha_corte, hoy);
+        const alerta25d = esActivo && dias !== null && dias >= 25;
         let lineaStock;
         if (tieneStock) {
           const agotado = Number(c.disponible) <= 0;
@@ -1750,13 +2193,23 @@
           const etiquetaDisp = agotado ? 'AGOTADO' : `<b>${c.disponible} disponibles</b>`;
           lineaStock = `
             <div class="meta">
-              <b>${c.genetica}</b> · corte ${c.fecha_corte}
+              <b>${c.genetica}</b> · corte ${c.fecha_corte}${dias !== null ? ` · <span style="opacity:0.7;">${dias}d</span>` : ''}
             </div>
             <div class="meta">
               ${c.total_neto} cortados · ${c.reservado} reservados · <span style="color: ${colorDisp};">${etiquetaDisp}</span>
             </div>`;
         } else {
-          lineaStock = `<div class="meta"><b>${c.genetica}</b> · ${c.num_esquejes} esquejes · corte ${c.fecha_corte}</div>`;
+          lineaStock = `<div class="meta"><b>${c.genetica}</b> · ${c.num_esquejes} esquejes · corte ${c.fecha_corte}${dias !== null ? ` · <span style="opacity:0.7;">${dias}d</span>` : ''}</div>`;
+        }
+        // Línea de cierre si está inactivo
+        let lineaCierre = '';
+        if (!esActivo && (c.motivo_cierre || c.fecha_cierre)) {
+          const motivoLabel = ({
+            consumido: 'consumido',
+            manual: 'cerrado manualmente',
+            caducado_25d: 'caducado a 25d',
+          })[c.motivo_cierre] || c.motivo_cierre || '—';
+          lineaCierre = `<div class="meta" style="opacity:0.75;">Cerrado: ${motivoLabel}${c.fecha_cierre ? ` · ${c.fecha_cierre}` : ''}</div>`;
         }
         // Desglose de reservas activas (consumidas + reservadas)
         const reservas = c.reservas_activas || [];
@@ -1777,11 +2230,16 @@
               }).join('')}
             </div>`;
         }
+        // Botones acción cierre / reactivación
+        const botonAccion = esActivo
+          ? `<button class="btn ghost" style="font-size: 12px; padding: 6px 10px;" onclick="cerrarLote('${c.id_evento}', this)">Cerrar lote</button>`
+          : `<button class="btn ghost" style="font-size: 12px; padding: 6px 10px;" onclick="reactivarLote('${c.id_evento}', this)">Reactivar</button>`;
         return `
-          <div class="list-item">
+          <div class="list-item" style="${!esActivo ? 'opacity: 0.78;' : ''}">
             <h4>
               <span class="mono">${c.id_evento}</span>
-              <span class="pill ${c.estado || 'activo'}">${c.estado || 'activo'}</span>
+              <span class="pill ${estadoLote}">${estadoLote}</span>
+              ${alerta25d ? '<span class="pill alerta25d">+25d</span>' : ''}
             </h4>
             ${lineaStock}
             <div class="meta">
@@ -1789,11 +2247,47 @@
               <b style="${proximaPasada ? 'color: var(--rojo);' : ''}">${c.fecha_proximo_corte_estimada || '—'}</b>
               · ${c.intervalo_dias}d${c.operario ? ' · ' + c.operario : ''}
             </div>
+            ${lineaCierre}
             ${c.observaciones ? `<div class="meta" style="margin-top: 4px;"><em>${c.observaciones}</em></div>` : ""}
             ${bloqueReservas}
+            <div style="margin-top: 10px; display: flex; justify-content: flex-end;">${botonAccion}</div>
           </div>`;
       }).join("");
       el.innerHTML = header + lista;
+    }
+
+    async function cerrarLote(idEvento, btn) {
+      if (!confirm(`¿Cerrar lote ${idEvento}?\n\nDejará de aparecer en el selector de pedidos. Podrás reactivarlo si te equivocas.`)) return;
+      btn.disabled = true;
+      btn.textContent = "Cerrando…";
+      const r = await api("/cortes-cerrar", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_evento: idEvento, motivo: "manual" })
+      });
+      if (r && (r.ok || r.success)) {
+        await cargarCortes();
+      } else {
+        alert("No se pudo cerrar: " + (r?.error || "respuesta inválida"));
+        btn.disabled = false;
+        btn.textContent = "Cerrar lote";
+      }
+    }
+
+    async function reactivarLote(idEvento, btn) {
+      if (!confirm(`¿Reactivar lote ${idEvento}?\n\nVolverá a aparecer en el selector de pedidos.`)) return;
+      btn.disabled = true;
+      btn.textContent = "Reactivando…";
+      const r = await api("/cortes-reactivar", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_evento: idEvento })
+      });
+      if (r && (r.ok || r.success)) {
+        await cargarCortes();
+      } else {
+        alert("No se pudo reactivar: " + (r?.error || "respuesta inválida"));
+        btn.disabled = false;
+        btn.textContent = "Reactivar";
+      }
     }
 
     async function cargarGeneticasConocidas() {
@@ -1808,14 +2302,224 @@
       if (previo && geneticas.includes(previo)) sel.value = previo;
     }
 
+    // ========== REGISTRAR CORTE (migrado de index.html) ==========
+    function fechaHoyISO() {
+      const h = new Date();
+      return h.getFullYear() + "-" + String(h.getMonth() + 1).padStart(2, "0") + "-" + String(h.getDate()).padStart(2, "0");
+    }
+    function getOperarioGuardado() {
+      try { return localStorage.getItem("cc_operario") || ""; } catch (e) { return ""; }
+    }
+
+    document.getElementById("formCorte").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const btnSubmit = this.querySelector('button[type="submit"]');
+      const mensaje = document.getElementById("mensajeCorte");
+      mensaje.textContent = "";
+      mensaje.className = "mensaje";
+
+      const genetica = document.getElementById("cortGenetica").value;
+      const num_esquejes = parseInt(document.getElementById("cortNumEsquejes").value, 10);
+      const fecha_corte = document.getElementById("cortFecha").value;
+      const intervalo_dias = parseInt(document.getElementById("cortIntervalo").value, 10) || 14;
+      const operario = getOperarioGuardado();
+      const observaciones = document.getElementById("cortObs").value.trim();
+
+      if (!genetica || !num_esquejes || num_esquejes <= 0 || !fecha_corte) {
+        mensaje.textContent = "Completa los campos obligatorios";
+        mensaje.className = "mensaje error";
+        return;
+      }
+
+      const busy = lockBtn(btnSubmit, "Registrando…");
+      try {
+        const res = await fetch(BASE + "/cortes-crear", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ genetica, num_esquejes, fecha_corte, intervalo_dias, operario, observaciones })
+        });
+        if (!res.ok) throw new Error("error");
+        const data = await res.json();
+        if (!data.ok) throw new Error("no ok");
+
+        mensaje.textContent = "✓ " + data.id_evento + " · próximo corte " + data.fecha_proximo_corte_estimada;
+        toast("Corte registrado: " + data.id_evento);
+
+        document.getElementById("cortGenetica").value = "";
+        document.getElementById("cortNumEsquejes").value = "";
+        document.getElementById("cortObs").value = "";
+        document.getElementById("cortIntervalo").value = "14";
+        document.getElementById("cortFecha").value = fechaHoyISO();
+
+        // refrescar histórico si la pestaña Cortes ya cargó datos
+        if (state.cortes.length > 0) await cargarCortes();
+        cargarGeneticasConocidas();
+      } catch (e) {
+        mensaje.textContent = "Error al registrar corte";
+        mensaje.className = "mensaje error";
+        toast("No se pudo registrar el corte", true);
+      } finally {
+        unlockBtn(btnSubmit, busy);
+      }
+    });
+
+    // ========== NUEVA TAREA (migrado de index.html) ==========
+    document.getElementById("formNuevaTarea").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const tarea = document.getElementById("ntTarea").value.trim();
+      const zona = document.getElementById("ntZona").value;
+      const prioridad = document.getElementById("ntPrioridad").value;
+      const fecha = document.getElementById("ntFecha").value;
+      const observaciones = document.getElementById("ntObs").value.trim();
+      const mensaje = document.getElementById("mensajeNuevaTarea");
+
+      mensaje.textContent = "";
+      mensaje.className = "mensaje";
+
+      if (!tarea || !zona || !fecha) {
+        mensaje.textContent = "Completa los campos requeridos";
+        mensaje.className = "mensaje error";
+        return;
+      }
+
+      const btnSubmit = this.querySelector('button[type="submit"]');
+      const busy = lockBtn(btnSubmit, "Guardando…");
+      try {
+        const res = await fetch(BASE + "/tareas-crear", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tarea, zona, prioridad, fecha, observaciones })
+        });
+        if (!res.ok) throw new Error("error");
+        const data = await res.json();
+        if (!data.ok) throw new Error("no ok");
+        mensaje.textContent = "✓ Tarea creada correctamente";
+        toast("Tarea creada");
+        document.getElementById("ntTarea").value = "";
+        document.getElementById("ntZona").value = "";
+        document.getElementById("ntObs").value = "";
+        document.getElementById("ntPrioridad").value = "media";
+        document.getElementById("ntFecha").value = fechaHoyISO();
+      } catch (e) {
+        mensaje.textContent = "Error al crear la tarea";
+        mensaje.className = "mensaje error";
+        toast("No se pudo crear la tarea", true);
+      } finally {
+        unlockBtn(btnSubmit, busy);
+      }
+    });
+
+    // ========== COMPRAS (migrado de index.html) ==========
+    function escapeHtmlCompras(str) {
+      const div = document.createElement("div");
+      div.appendChild(document.createTextNode(String(str ?? "")));
+      return div.innerHTML;
+    }
+    function escapeAttrCompras(str) {
+      return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    async function cargarCompras() {
+      const lista = document.getElementById("listaCompras");
+      try {
+        const res = await fetch(BASE + "/compras-lista");
+        if (!res.ok) throw new Error("error");
+        const data = await res.json();
+        const items = data.items || [];
+        if (items.length === 0) {
+          lista.className = "empty";
+          lista.textContent = "No hay items pendientes";
+          return;
+        }
+        lista.className = "";
+        let html = "";
+        for (let i = 0; i < items.length; i++) {
+          const it = items[i];
+          html += '<div class="compra-item">';
+          html += '<span class="compra-nombre">' + escapeHtmlCompras(it.item || "") + "</span>";
+          html += '<button class="btn-tick" title="Marcar como comprado" onclick="eliminarCompra(this, \'' + escapeAttrCompras(it.id) + '\')">✓</button>';
+          html += "</div>";
+        }
+        lista.innerHTML = html;
+      } catch (e) {
+        lista.className = "empty";
+        lista.textContent = "Error al cargar";
+      }
+    }
+
+    async function agregarCompra(btn) {
+      const input = document.getElementById("compraInput");
+      const item = input.value.trim();
+      if (!item) { input.focus(); return; }
+      const busy = lockBtn(btn, "…");
+      input.disabled = true;
+      try {
+        const res = await fetch(BASE + "/compras-agregar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ item })
+        });
+        if (!res.ok) throw new Error("error");
+        const data = await res.json();
+        if (!data.ok) throw new Error("no ok");
+        input.value = "";
+        await cargarCompras();
+      } catch (e) {
+        toast("No se pudo agregar el item", true);
+      } finally {
+        input.disabled = false;
+        input.focus();
+        unlockBtn(btn, busy);
+      }
+    }
+
+    async function eliminarCompra(btn, id) {
+      const busy = lockBtn(btn, "…");
+      try {
+        const res = await fetch(BASE + "/compras-eliminar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id })
+        });
+        if (!res.ok) throw new Error("error");
+        const data = await res.json();
+        if (!data.ok) throw new Error("no ok");
+        await cargarCompras();
+      } catch (e) {
+        toast("No se pudo eliminar el item", true);
+        unlockBtn(btn, busy);
+      }
+    }
+
+    // Enter en el input de compras
+    document.getElementById("compraInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const addBtn = document.querySelector("#tab-compras .compras-add .btn");
+        agregarCompra(addBtn);
+      }
+    });
+
     // ========== INIT ==========
     (async function init() {
-      const hoy = new Date().toISOString().slice(0, 10);
+      const hoy = fechaHoyISO();
       document.getElementById("pedido-fecha").value = hoy;
+      document.getElementById("cortFecha").value = hoy;
+      document.getElementById("ntFecha").value = hoy;
+
+      // Tab inicial: lee ?tab=X o cae a "pedidos"
+      let tabInicial = "pedidos";
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const t = params.get("tab");
+        if (t && TAB_META[t]) tabInicial = t;
+      } catch (e) {}
+      activarTab(tabInicial);
+
+      // Datos siempre necesarios para cruces (clientes para cortes/pedidos, lista pedidos para reservas)
       await cargarClientes();
-      await cargarPedidos();
       cargarGeneticasConocidas();
-      cargarPedidosTodos();  // para que el desglose de reservas en pestaña Cortes muestre cliente
+      cargarPedidosTodos();
     })();
   </script>
 </body>
