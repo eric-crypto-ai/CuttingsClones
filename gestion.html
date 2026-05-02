@@ -658,16 +658,27 @@
         <label>Cliente</label>
         <select id="pedido-cliente"><option value="">Selecciona cliente…</option></select>
         <label>Genética</label>
-        <input id="pedido-genetica" placeholder="p. ej. Gelato 33" />
+        <input id="pedido-genetica" list="lista-geneticas" placeholder="elige o escribe nueva" oninput="onChangeGeneticaPedido()" />
+        <datalist id="lista-geneticas"></datalist>
         <div class="grid2">
           <div>
             <label>Cantidad</label>
-            <input id="pedido-cantidad" type="number" min="1" placeholder="50" />
+            <input id="pedido-cantidad" type="number" min="1" placeholder="50" oninput="onChangeCantidadPedido()" />
           </div>
           <div>
             <label>Precio unitario €</label>
             <input id="pedido-precio" type="number" step="0.1" min="0" placeholder="3.0" />
           </div>
+        </div>
+        <div id="pedido-lotes-block" style="margin: 8px 0;">
+          <label>Reservar de lotes (FIFO)</label>
+          <div id="pedido-lotes" style="font-size: 12px; opacity: 0.85;">
+            <em>introduce genética y cantidad para ver lotes disponibles</em>
+          </div>
+          <div id="pedido-suma" style="font-size: 13px; margin-top: 6px;"></div>
+          <label style="margin-top: 8px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+            <input type="checkbox" id="pedido-sin-reservar" onchange="onCheckSinReservar()" /> Crear sin reservar lotes
+          </label>
         </div>
         <label>Fecha entrega prometida</label>
         <input id="pedido-fecha" type="date" />
@@ -931,6 +942,9 @@
       movFiltro: "",
       cortes: [],
       cortesFiltro: "",
+      lotesDisponibles: [],
+      reservasPedido: {},
+      sinReservar: false,
     };
 
     // ========== Utils ==========
@@ -1069,15 +1083,167 @@
       if (!body.genetica) { toast("Genética requerida", true); return; }
       if (!body.cantidad || body.cantidad <= 0) { toast("Cantidad inválida", true); return; }
       if (!body.precio_unitario || body.precio_unitario <= 0) { toast("Precio inválido", true); return; }
+
+      // Reservas (validación estricta — coincide con la del backend)
+      if (!state.sinReservar) {
+        const reservas = Object.entries(state.reservasPedido)
+          .filter(([_, c]) => Number(c) > 0)
+          .map(([id_evento, cantidad]) => ({ id_evento, cantidad: Number(cantidad) }));
+        const suma = reservas.reduce((a, r) => a + r.cantidad, 0);
+        if (reservas.length === 0 && state.lotesDisponibles.length > 0) {
+          toast("No has asignado lote — usa FIFO o marca «Crear sin reservar»", true);
+          return;
+        }
+        if (reservas.length > 0 && suma !== body.cantidad) {
+          toast(`Reservas suman ${suma}, cantidad ${body.cantidad} — debe coincidir`, true);
+          return;
+        }
+        if (reservas.length > 0) body.reservas = reservas;
+      }
+
       const busy = lockBtn(btn, "Creando…");
       try {
         const r = await api("/pedidos-crear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
         if (r.success) {
           toast("Pedido creado ✓ total " + fmtEuro(r.data.total));
           ["pedido-genetica","pedido-cantidad","pedido-precio","pedido-fecha","pedido-notas"].forEach(id => document.getElementById(id).value = "");
+          document.getElementById("pedido-sin-reservar").checked = false;
+          state.sinReservar = false;
+          state.lotesDisponibles = [];
+          state.reservasPedido = {};
+          renderLotesPedido();
           cargarPedidos();
         } else { toast("Error: " + (r.error || "desconocido"), true); }
       } finally { unlockBtn(btn, busy); }
+    }
+
+    // ========== LOTES en formulario nuevo pedido ==========
+    let lotesFetchTimer = null;
+    function onChangeGeneticaPedido() {
+      const g = document.getElementById("pedido-genetica").value.trim();
+      clearTimeout(lotesFetchTimer);
+      if (!g) {
+        state.lotesDisponibles = [];
+        state.reservasPedido = {};
+        renderLotesPedido();
+        return;
+      }
+      lotesFetchTimer = setTimeout(() => fetchLotesParaPedido(g), 350);
+    }
+
+    function onChangeCantidadPedido() {
+      aplicarFIFO();
+      renderLotesPedido();
+    }
+
+    async function fetchLotesParaPedido(g) {
+      const r = await api("/cortes-disponibilidad?genetica=" + encodeURIComponent(g));
+      state.lotesDisponibles = (r && r.items) || (r && r.data && r.data.items) || [];
+      state.reservasPedido = {};
+      aplicarFIFO();
+      renderLotesPedido();
+    }
+
+    function aplicarFIFO() {
+      const cant = Number(document.getElementById("pedido-cantidad").value || 0);
+      state.reservasPedido = {};
+      if (!cant || state.sinReservar || !state.lotesDisponibles.length) return;
+      let resta = cant;
+      for (const lote of state.lotesDisponibles) {
+        if (resta <= 0) break;
+        const usar = Math.min(resta, Number(lote.disponible) || 0);
+        if (usar > 0) {
+          state.reservasPedido[lote.id_evento] = usar;
+          resta -= usar;
+        }
+      }
+    }
+
+    function onCheckSinReservar() {
+      state.sinReservar = document.getElementById("pedido-sin-reservar").checked;
+      if (state.sinReservar) state.reservasPedido = {};
+      else aplicarFIFO();
+      renderLotesPedido();
+    }
+
+    function onChangeReservaLote(idEvento, valor) {
+      const v = Math.max(0, Number(valor || 0));
+      if (v <= 0) delete state.reservasPedido[idEvento];
+      else state.reservasPedido[idEvento] = v;
+      renderSumaReservas();
+    }
+
+    function renderLotesPedido() {
+      const el = document.getElementById("pedido-lotes");
+      const sumaEl = document.getElementById("pedido-suma");
+      if (state.sinReservar) {
+        el.innerHTML = '<em style="color: var(--naranja);">⚠ se creará sin reservar lotes</em>';
+        sumaEl.innerHTML = '';
+        return;
+      }
+      const g = document.getElementById("pedido-genetica").value.trim();
+      if (!state.lotesDisponibles || state.lotesDisponibles.length === 0) {
+        el.innerHTML = g
+          ? '<em style="color: var(--naranja);">⚠ no hay lotes con stock para "' + g + '" — marca «Crear sin reservar» para continuar</em>'
+          : '<em>introduce genética y cantidad para ver lotes disponibles</em>';
+        sumaEl.innerHTML = '';
+        return;
+      }
+      el.innerHTML = state.lotesDisponibles.map(l => {
+        const asignado = Number(state.reservasPedido[l.id_evento] || 0);
+        const seleccionado = asignado > 0;
+        const bg = seleccionado ? 'var(--verde-tinte)' : '#f5f5f5';
+        const borde = seleccionado ? '2px solid var(--verde)' : '2px solid transparent';
+        const check = seleccionado ? '✓' : '○';
+        return `
+          <div onclick="onClickLote('${l.id_evento}')"
+               style="cursor: pointer; background: ${bg}; border: ${borde}; padding: 10px; border-radius: 8px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+            <div style="font-size: 18px; color: var(--verde); width: 18px; text-align: center;">${check}</div>
+            <div style="flex: 1; min-width: 0;">
+              <div class="mono" style="font-size: 12px;">${l.id_evento}</div>
+              <div style="font-size: 11px; opacity: 0.75;">${l.disponible} disp · corte ${l.fecha_corte}</div>
+            </div>
+            <input type="number" min="0" max="${l.disponible}" value="${asignado}"
+              onclick="event.stopPropagation()"
+              oninput="onChangeReservaLote('${l.id_evento}', this.value)"
+              style="width: 70px; text-align: right; padding: 6px;" />
+          </div>`;
+      }).join("");
+      renderSumaReservas();
+    }
+
+    function onClickLote(idEvento) {
+      const cant = Number(document.getElementById("pedido-cantidad").value || 0);
+      if (!cant) { toast("Pon antes la cantidad", true); return; }
+      const lote = state.lotesDisponibles.find(l => l.id_evento === idEvento);
+      if (!lote) return;
+      const yaSeleccionado = Number(state.reservasPedido[idEvento] || 0) > 0;
+      if (yaSeleccionado) {
+        // Toggle off: deselecciona y reasigna FIFO al resto
+        delete state.reservasPedido[idEvento];
+      } else {
+        // Toggle on: asigna a este lote lo que falta hasta cubrir la cantidad
+        const yaAsignado = Object.values(state.reservasPedido).reduce((a, b) => a + Number(b || 0), 0);
+        const restante = cant - yaAsignado;
+        const usar = Math.min(Math.max(restante, 0), Number(lote.disponible) || 0);
+        if (usar <= 0) {
+          // Si la cantidad ya está cubierta por otros lotes, mover toda la cantidad a este (1 lote)
+          state.reservasPedido = { [idEvento]: Math.min(cant, Number(lote.disponible) || 0) };
+        } else {
+          state.reservasPedido[idEvento] = usar;
+        }
+      }
+      renderLotesPedido();
+    }
+
+    function renderSumaReservas() {
+      const sumaEl = document.getElementById("pedido-suma");
+      const cant = Number(document.getElementById("pedido-cantidad").value || 0);
+      const suma = Object.values(state.reservasPedido).reduce((a, b) => a + Number(b || 0), 0);
+      if (!cant || state.sinReservar) { sumaEl.innerHTML = ''; return; }
+      const ok = suma === cant;
+      const color = ok ? 'var(--verde)' : 'var(--naranja)';
+      sumaEl.innerHTML = `<span style="color: ${color};">Asignado: <b>${suma}</b> / ${cant} ${ok ? '✓' : ''}</span>`;
     }
 
     // ========== ENTREGAR PEDIDO ==========
@@ -1483,21 +1649,52 @@
         el.innerHTML = '<div class="empty">Sin cortes registrados</div>';
         return;
       }
+      // Detectar si el workflow ya devuelve disponibilidad (campos añadidos en CORTES.md §4.2).
+      // Si no, render legacy con solo num_esquejes — retrocompat con workflow antiguo.
+      const conStock = cortes.every(c => c.disponible !== undefined && c.total_neto !== undefined);
       const totalEsq = cortes.reduce((a, c) => a + Number(c.num_esquejes || 0), 0);
-      const header = `
-        <div class="list-item" style="background: var(--verde-tinte);">
-          <h4>Total · ${totalEsq} esquejes en ${cortes.length} corte${cortes.length !== 1 ? 's' : ''}</h4>
-        </div>`;
+      let header;
+      if (conStock) {
+        const totalNeto = cortes.reduce((a, c) => a + Number(c.total_neto || 0), 0);
+        const totalRes = cortes.reduce((a, c) => a + Number(c.reservado || 0), 0);
+        const totalDisp = cortes.reduce((a, c) => a + Number(c.disponible || 0), 0);
+        header = `
+          <div class="list-item" style="background: var(--verde-tinte);">
+            <h4>Total · ${totalEsq} esquejes en ${cortes.length} corte${cortes.length !== 1 ? 's' : ''}</h4>
+            <div class="meta">${totalNeto} netos · ${totalRes} reservados · <b>${totalDisp} disponibles</b></div>
+          </div>`;
+      } else {
+        header = `
+          <div class="list-item" style="background: var(--verde-tinte);">
+            <h4>Total · ${totalEsq} esquejes en ${cortes.length} corte${cortes.length !== 1 ? 's' : ''}</h4>
+          </div>`;
+      }
       const hoy = new Date().toISOString().slice(0, 10);
       const lista = cortes.map(c => {
         const proximaPasada = c.fecha_proximo_corte_estimada && c.fecha_proximo_corte_estimada < hoy;
+        const tieneStock = c.disponible !== undefined && c.total_neto !== undefined;
+        let lineaStock;
+        if (tieneStock) {
+          const agotado = Number(c.disponible) <= 0;
+          const colorDisp = agotado ? 'var(--naranja)' : 'var(--verde)';
+          const etiquetaDisp = agotado ? 'AGOTADO' : `<b>${c.disponible} disponibles</b>`;
+          lineaStock = `
+            <div class="meta">
+              <b>${c.genetica}</b> · corte ${c.fecha_corte}
+            </div>
+            <div class="meta">
+              ${c.total_neto} cortados · ${c.reservado} reservados · <span style="color: ${colorDisp};">${etiquetaDisp}</span>
+            </div>`;
+        } else {
+          lineaStock = `<div class="meta"><b>${c.genetica}</b> · ${c.num_esquejes} esquejes · corte ${c.fecha_corte}</div>`;
+        }
         return `
           <div class="list-item">
             <h4>
               <span class="mono">${c.id_evento}</span>
               <span class="pill ${c.estado || 'activo'}">${c.estado || 'activo'}</span>
             </h4>
-            <div class="meta"><b>${c.genetica}</b> · ${c.num_esquejes} esquejes · corte ${c.fecha_corte}</div>
+            ${lineaStock}
             <div class="meta">
               Próximo corte estimado:
               <b style="${proximaPasada ? 'color: var(--rojo);' : ''}">${c.fecha_proximo_corte_estimada || '—'}</b>
@@ -1509,12 +1706,21 @@
       el.innerHTML = header + lista;
     }
 
+    async function cargarGeneticasConocidas() {
+      const r = await api("/cortes-lista");
+      const items = (r && r.items) || (r && r.data && r.data.items) || [];
+      const geneticas = [...new Set(items.map(i => (i.genetica || "").trim()).filter(Boolean))].sort();
+      const dl = document.getElementById("lista-geneticas");
+      if (dl) dl.innerHTML = geneticas.map(g => `<option value="${g}">`).join("");
+    }
+
     // ========== INIT ==========
     (async function init() {
       const hoy = new Date().toISOString().slice(0, 10);
       document.getElementById("pedido-fecha").value = hoy;
       await cargarClientes();
       await cargarPedidos();
+      cargarGeneticasConocidas();
     })();
   </script>
 </body>
