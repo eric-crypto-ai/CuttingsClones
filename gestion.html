@@ -539,7 +539,9 @@
       margin-top: 10px;
     }
     .action-row button {
-      flex: 1;
+      flex: 1 1 0;
+      width: auto;
+      min-width: 0;
       padding: 9px;
       font-size: 12.5px;
       margin-top: 0;
@@ -1079,7 +1081,7 @@
           <div class="meta">${fmtEuro(p.total)} · entrega ${p.fecha_entrega_prometida || "—"}${p.fecha_entrega_real ? ' · real ' + p.fecha_entrega_real : ''}</div>
           ${p.notas ? `<div class="meta" style="margin-top: 4px;"><em>${p.notas}</em></div>` : ""}
           ${p.estado === "pendiente" ? `<div class="action-row">
-            <button class="btn ghost" onclick='cancelarPedido(${JSON.stringify(p)})' style="flex: 0 0 auto;">Cancelar</button>
+            <button class="btn ghost" onclick='cancelarPedido(${JSON.stringify(p)})'>Cancelar</button>
             <button class="btn" onclick='abrirEntregar(${JSON.stringify(p)})'>Entregar y cobrar</button>
           </div>` : ""}
         </div>
