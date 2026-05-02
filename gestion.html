@@ -1255,6 +1255,19 @@
     </section>
   </main>
 
+  <dialog id="dialog-reservar">
+    <div class="dialog-body">
+      <h3>Reservar lotes</h3>
+      <div id="reservar-info" class="meta" style="margin-bottom: 10px;"></div>
+      <div id="reservar-lotes-disponibles" style="margin-bottom: 10px;"></div>
+      <div id="reservar-totales" style="background: var(--verde-claro); padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px;"></div>
+      <div class="action-row">
+        <button class="btn ghost" onclick="cerrarReservar()">Cancelar</button>
+        <button class="btn" id="btn-confirmar-reservar" onclick="confirmarReservar()" disabled>Confirmar reserva</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="dialog-entregar">
     <div class="dialog-body">
       <h3>Entregar pedido</h3>
@@ -1347,6 +1360,8 @@
       reservasPedido: {},
       sinReservar: false,
       pedidosTodos: [],  // todos los pedidos (todos los estados) — para cruzar id_pedido → cliente en pestaña Cortes
+      reservarPedido: null,    // pedido seleccionado en el dialog "Reservar lotes" (a posteriori)
+      reservarAsignado: {},    // { id_evento: cantidad } seleccionado en el dialog
     };
 
     // ========== Utils ==========
@@ -1529,10 +1544,30 @@
     // ========== PEDIDOS ==========
     async function cargarPedidos() {
       const q = state.pedidosFiltro ? "?estado=" + state.pedidosFiltro : "";
-      const r = await api("/pedidos-lista" + q);
-      if (r && r.success) state.pedidos = r.data.pedidos || [];
+      // Cargamos pedidos + cortes en paralelo: cortes nos dice qué pedidos
+      // ya tienen reservas activas (para mostrar el botón "Reservar lotes")
+      const [pr, cr] = await Promise.all([
+        api("/pedidos-lista" + q),
+        api("/cortes-lista"),
+      ]);
+      if (pr && pr.success) state.pedidos = pr.data.pedidos || [];
+      if (cr && Array.isArray(cr.items)) state.cortes = cr.items;
+      else if (cr && cr.success && cr.data && Array.isArray(cr.data.items)) state.cortes = cr.data.items;
       renderPedidos();
       cargarPedidosTodos();  // mantener actualizado el cache para desglose de reservas en Cortes
+    }
+
+    function pedidosConReservasActivas() {
+      const ids = new Set();
+      for (const c of (state.cortes || [])) {
+        for (const r of (c.reservas_activas || [])) {
+          const est = String(r.estado || '').toLowerCase();
+          if (r.id_pedido && (est === 'reservada' || est === 'consumida')) {
+            ids.add(r.id_pedido);
+          }
+        }
+      }
+      return ids;
     }
 
     function filtrarPedidos(estado) {
@@ -1545,18 +1580,114 @@
     function renderPedidos() {
       const el = document.getElementById("lista-pedidos");
       if (state.pedidos.length === 0) { el.innerHTML = '<div class="empty">Sin pedidos</div>'; return; }
-      el.innerHTML = state.pedidos.map(p => `
+      const conReservas = pedidosConReservasActivas();
+      el.innerHTML = state.pedidos.map(p => {
+        const sinReservas = p.estado === "pendiente" && !conReservas.has(p.id_pedido);
+        return `
         <div class="list-item">
-          <h4>${p.genetica} × ${p.cantidad} <span class="pill ${p.estado}">${p.estado}</span></h4>
+          <h4>${p.genetica} × ${p.cantidad} <span class="pill ${p.estado}">${p.estado}</span>${sinReservas ? ' <span class="pill alerta25d">sin reservas</span>' : ''}</h4>
           <div class="meta">${nombreCliente(p.id_cliente)}</div>
           <div class="meta">${fmtEuro(p.total)} · entrega ${p.fecha_entrega_prometida || "—"}${p.fecha_entrega_real ? ' · real ' + p.fecha_entrega_real : ''}</div>
           ${p.notas ? `<div class="meta" style="margin-top: 4px;"><em>${p.notas}</em></div>` : ""}
           ${p.estado === "pendiente" ? `<div class="action-row">
+            ${sinReservas ? `<button class="btn dorado" onclick='abrirReservar(${JSON.stringify(p)})'>Reservar lotes</button>` : ''}
             <button class="btn ghost" onclick='cancelarPedido(${JSON.stringify(p)})'>Cancelar</button>
             <button class="btn" onclick='abrirEntregar(${JSON.stringify(p)})'>Entregar y cobrar</button>
           </div>` : ""}
         </div>
-      `).join("");
+      `;
+      }).join("");
+    }
+
+    // ========== RESERVAR LOTES (a posteriori) ==========
+    function abrirReservar(pedido) {
+      state.reservarPedido = pedido;
+      state.reservarAsignado = {};
+      const lotes = (state.cortes || []).filter(c =>
+        (String(c.estado || 'activo').toLowerCase()) === 'activo' &&
+        Number(c.disponible) > 0 &&
+        String(c.genetica || '').toLowerCase() === String(pedido.genetica || '').toLowerCase()
+      ).sort((a, b) => (a.fecha_corte || '').localeCompare(b.fecha_corte || ''));
+
+      document.getElementById('reservar-info').innerHTML =
+        `<b>${pedido.genetica} × ${pedido.cantidad}</b> — ${nombreCliente(pedido.id_cliente)}<br>` +
+        `Entrega prometida: ${pedido.fecha_entrega_prometida || '—'}`;
+
+      const cont = document.getElementById('reservar-lotes-disponibles');
+      const totalDisp = lotes.reduce((a, l) => a + Number(l.disponible || 0), 0);
+      if (lotes.length === 0) {
+        cont.innerHTML = `<div class="empty">Sin lotes activos disponibles para ${pedido.genetica}.</div>`;
+      } else if (totalDisp < Number(pedido.cantidad)) {
+        cont.innerHTML = `<div style="color: var(--rojo); font-weight: 600; margin-bottom: 10px;">Stock total disponible (${totalDisp}) menor que la cantidad pedida (${pedido.cantidad}). Espera al próximo corte.</div>` +
+          lotes.map(l => loteRowHTML(l)).join('');
+      } else {
+        cont.innerHTML = lotes.map(l => loteRowHTML(l)).join('');
+      }
+
+      actualizarTotalesReservar();
+      document.getElementById('dialog-reservar').showModal();
+    }
+
+    function loteRowHTML(l) {
+      return `
+        <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--linea-fuerte);">
+          <div style="flex: 1;">
+            <div><span class="mono">${l.id_evento}</span></div>
+            <div class="meta"><b>${l.disponible}</b> disponibles · corte ${l.fecha_corte}</div>
+          </div>
+          <input type="number" min="0" max="${l.disponible}" step="1" value="0"
+            data-evento="${l.id_evento}" oninput="actualizarTotalesReservar()"
+            style="width: 90px;" />
+        </div>`;
+    }
+
+    function actualizarTotalesReservar() {
+      const inputs = document.querySelectorAll('#reservar-lotes-disponibles input[data-evento]');
+      let asignado = 0;
+      state.reservarAsignado = {};
+      for (const inp of inputs) {
+        const c = Number(inp.value) || 0;
+        if (c > 0) {
+          state.reservarAsignado[inp.dataset.evento] = c;
+          asignado += c;
+        }
+      }
+      const necesarios = Number(state.reservarPedido?.cantidad) || 0;
+      const ok = asignado === necesarios && necesarios > 0;
+      const exceso = asignado > necesarios;
+      const color = ok ? 'var(--verde-bosque)' : (exceso ? 'var(--rojo)' : 'var(--carbon-60)');
+      document.getElementById('reservar-totales').innerHTML =
+        `<div style="font-weight: 600; color: ${color};">Asignado: ${asignado} / ${necesarios}${ok ? ' ✓' : (exceso ? ' (exceso)' : '')}</div>`;
+      document.getElementById('btn-confirmar-reservar').disabled = !ok;
+    }
+
+    async function confirmarReservar() {
+      const reservas = Object.entries(state.reservarAsignado || {})
+        .filter(([_, c]) => Number(c) > 0)
+        .map(([id_evento, cantidad]) => ({ id_evento, cantidad: Number(cantidad) }));
+      if (reservas.length === 0) return;
+      const btn = document.getElementById('btn-confirmar-reservar');
+      btn.disabled = true;
+      btn.textContent = 'Confirmando…';
+      const r = await api('/pedidos-reservar', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_pedido: state.reservarPedido.id_pedido, reservas })
+      });
+      if (r.success) {
+        toast(`Reservas creadas ✓ (${reservas.length} lote${reservas.length > 1 ? 's' : ''})`);
+        cerrarReservar();
+        await cargarPedidos();
+      } else {
+        toast('Error: ' + (r.error || 'desconocido'), true);
+        btn.disabled = false;
+        btn.textContent = 'Confirmar reserva';
+      }
+    }
+
+    function cerrarReservar() {
+      document.getElementById('dialog-reservar').close();
+      state.reservarPedido = null;
+      state.reservarAsignado = {};
     }
 
     async function cancelarPedido(p) {
