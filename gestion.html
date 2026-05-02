@@ -971,13 +971,41 @@
           </div>
           <div>
             <label>Cantidad</label>
-            <input id="pedido-cantidad" type="number" min="1" placeholder="50" oninput="onChangeCantidadPedido()" />
+            <input id="pedido-cantidad" type="number" min="1" placeholder="50" list="pedido-cantidad-opciones" oninput="onChangeCantidadPedido()" />
+            <datalist id="pedido-cantidad-opciones">
+              <option value="50"></option>
+              <option value="100"></option>
+              <option value="150"></option>
+              <option value="200"></option>
+              <option value="250"></option>
+              <option value="300"></option>
+              <option value="350"></option>
+              <option value="400"></option>
+              <option value="450"></option>
+              <option value="500"></option>
+              <option value="550"></option>
+              <option value="600"></option>
+              <option value="650"></option>
+              <option value="700"></option>
+              <option value="750"></option>
+              <option value="800"></option>
+              <option value="850"></option>
+              <option value="900"></option>
+              <option value="950"></option>
+              <option value="1000"></option>
+            </datalist>
           </div>
         </div>
         <div class="grid2">
           <div>
             <label>Precio unitario €</label>
-            <input id="pedido-precio" type="number" step="0.1" min="0" placeholder="3.0" />
+            <input id="pedido-precio" type="number" step="0.1" min="0" placeholder="3.0" list="pedido-precio-opciones" />
+            <datalist id="pedido-precio-opciones">
+              <option value="2"></option>
+              <option value="2.5"></option>
+              <option value="3"></option>
+              <option value="3.5"></option>
+            </datalist>
           </div>
           <div>
             <label>Fecha entrega prometida</label>
