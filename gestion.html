@@ -377,6 +377,28 @@
     .row input, .row select { margin-bottom: 0; }
 
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid2 > * { min-width: 0; }
+    input, select, textarea { box-sizing: border-box; }
+
+    /* checkbox + texto plano (sobrescribe label uppercase) */
+    .check-inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--carbon-80);
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+    .check-inline input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      flex: 0 0 auto;
+    }
 
     /* ── LIST ITEM — divide-y rows con accent stripe sutil ── */
     .list-item {
@@ -574,6 +596,13 @@
       .socio-cols-3 { grid-template-columns: 1fr; }
     }
 
+    @media (max-width: 480px) {
+      main { padding: 10px; }
+      .card { padding: 12px; }
+      .grid2 { grid-template-columns: 1fr; gap: 8px; }
+      input, select, textarea { font-size: 14px; }
+    }
+
     /* ── DIALOG ── */
     dialog {
       border: none;
@@ -687,8 +716,9 @@
             <em>introduce genética y cantidad para ver lotes disponibles</em>
           </div>
           <div id="pedido-suma" style="font-size: 13px; margin-top: 6px;"></div>
-          <label style="margin-top: 8px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
-            <input type="checkbox" id="pedido-sin-reservar" onchange="onCheckSinReservar()" /> Crear sin reservar lotes
+          <label class="check-inline">
+            <input type="checkbox" id="pedido-sin-reservar" onchange="onCheckSinReservar()" />
+            <span>Crear sin reservar lotes</span>
           </label>
         </div>
         <label>Notas (opcional)</label>

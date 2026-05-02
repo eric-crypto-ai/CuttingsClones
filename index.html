@@ -437,14 +437,18 @@
       display: flex;
       gap: 8px;
       align-items: flex-end;
+      flex-wrap: wrap;
     }
 
     .form-group {
-      flex: 1;
+      flex: 1 1 0;
+      min-width: 0;
       display: flex;
       flex-direction: column;
       gap: 5px;
     }
+
+    input, select, textarea { max-width: 100%; box-sizing: border-box; }
 
     .form-group label {
       font-family: 'Geist Mono', monospace;
@@ -953,12 +957,16 @@
       }
     }
 
-    @media (max-width: 380px) {
+    @media (max-width: 480px) {
       .info-grid { grid-template-columns: 1fr; }
-      .form-row { flex-direction: column; }
+      .form-group { flex: 1 1 calc(50% - 4px); }
       .tarea-actions { flex-direction: column; }
       .posponer-custom { flex-direction: column; }
       .posponer-custom input[type="date"] { width: 100%; }
+    }
+
+    @media (max-width: 360px) {
+      .form-group { flex: 1 1 100%; }
     }
 
   </style>
@@ -1100,10 +1108,6 @@
           <div class="form-group">
             <label for="cortIntervalo">Intervalo d&iacute;as</label>
             <input type="number" id="cortIntervalo" min="1" max="60" value="14" />
-          </div>
-          <div class="form-group">
-            <label for="cortOperario">Operario</label>
-            <input type="text" id="cortOperario" placeholder="Eric" />
           </div>
         </div>
         <div class="form-group" style="margin-top: 8px;">
@@ -1662,7 +1666,7 @@
       var num_esquejes = parseInt(document.getElementById('cortNumEsquejes').value, 10);
       var fecha_corte = document.getElementById('cortFecha').value;
       var intervalo_dias = parseInt(document.getElementById('cortIntervalo').value, 10) || 14;
-      var operario = document.getElementById('cortOperario').value.trim();
+      var operario = getOperarioGuardado();
       var observaciones = document.getElementById('cortObs').value.trim();
 
       if (!genetica || !num_esquejes || num_esquejes <= 0 || !fecha_corte) {
@@ -1670,8 +1674,6 @@
         mensaje.className = 'mensaje error';
         return;
       }
-
-      setOperarioGuardado(operario);
 
       var busyEl = lockBtn(btnSubmit, 'Registrando…');
       try {
@@ -1837,7 +1839,6 @@
     ponerFechaHoy();
     document.getElementById('ntFecha').value = fechaHoyISO();
     document.getElementById('cortFecha').value = fechaHoyISO();
-    document.getElementById('cortOperario').value = getOperarioGuardado();
     cargarInfoLanding();
     cargarProductosIPM();
     cargarTablaIPM();
