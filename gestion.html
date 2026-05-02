@@ -945,6 +945,7 @@
       lotesDisponibles: [],
       reservasPedido: {},
       sinReservar: false,
+      pedidosTodos: [],  // todos los pedidos (todos los estados) — para cruzar id_pedido → cliente en pestaña Cortes
     };
 
     // ========== Utils ==========
@@ -959,6 +960,17 @@
       t.classList.add("show");
       setTimeout(() => t.classList.remove("show"), 2400);
     }
+    function nombreClientePorPedido(idPedido) {
+      const p = state.pedidosTodos.find(x => x.id_pedido === idPedido);
+      if (!p) return idPedido;  // fallback: si no encuentra, devuelve el id
+      return nombreCliente(p.id_cliente);
+    }
+
+    async function cargarPedidosTodos() {
+      const r = await api("/pedidos-lista");
+      if (r && r.success) state.pedidosTodos = r.data.pedidos || [];
+    }
+
     function nombreCliente(id) {
       const c = state.clientes.find(x => x.id_cliente === id);
       return c ? c.nombre : (id || "—");
@@ -1047,6 +1059,7 @@
       const r = await api("/pedidos-lista" + q);
       if (r && r.success) state.pedidos = r.data.pedidos || [];
       renderPedidos();
+      cargarPedidosTodos();  // mantener actualizado el cache para desglose de reservas en Cortes
     }
 
     function filtrarPedidos(estado) {
@@ -1065,9 +1078,27 @@
           <div class="meta">${nombreCliente(p.id_cliente)}</div>
           <div class="meta">${fmtEuro(p.total)} · entrega ${p.fecha_entrega_prometida || "—"}${p.fecha_entrega_real ? ' · real ' + p.fecha_entrega_real : ''}</div>
           ${p.notas ? `<div class="meta" style="margin-top: 4px;"><em>${p.notas}</em></div>` : ""}
-          ${p.estado === "pendiente" ? `<div class="action-row"><button class="btn" onclick='abrirEntregar(${JSON.stringify(p)})'>Entregar y cobrar</button></div>` : ""}
+          ${p.estado === "pendiente" ? `<div class="action-row">
+            <button class="btn ghost" onclick='cancelarPedido(${JSON.stringify(p)})' style="flex: 0 0 auto;">Cancelar</button>
+            <button class="btn" onclick='abrirEntregar(${JSON.stringify(p)})'>Entregar y cobrar</button>
+          </div>` : ""}
         </div>
       `).join("");
+    }
+
+    async function cancelarPedido(p) {
+      if (!confirm(`Cancelar pedido ${p.genetica} × ${p.cantidad} de ${nombreCliente(p.id_cliente)}?\nLas reservas asociadas se liberarán.`)) return;
+      const r = await api("/pedidos-cancelar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_pedido: p.id_pedido }),
+      });
+      if (r.success) {
+        toast("Pedido cancelado ✓");
+        cargarPedidos();
+      } else {
+        toast("Error: " + (r.error || "desconocido"), true);
+      }
     }
 
     async function crearPedido(btn) {
@@ -1688,6 +1719,25 @@
         } else {
           lineaStock = `<div class="meta"><b>${c.genetica}</b> · ${c.num_esquejes} esquejes · corte ${c.fecha_corte}</div>`;
         }
+        // Desglose de reservas activas (consumidas + reservadas)
+        const reservas = c.reservas_activas || [];
+        let bloqueReservas = '';
+        if (reservas.length > 0) {
+          bloqueReservas = `
+            <div style="margin-top: 8px; padding: 8px; background: var(--verde-tinte); border-radius: 6px; font-size: 12px;">
+              <div style="font-weight: 600; margin-bottom: 4px; opacity: 0.85;">Reservas (${reservas.length})</div>
+              ${reservas.map(r => {
+                const cliente = nombreClientePorPedido(r.id_pedido);
+                const estadoColor = r.estado === 'consumida' ? 'var(--verde)' : 'var(--naranja)';
+                return `<div style="margin-bottom: 2px;">
+                  <span style="color: ${estadoColor}; font-weight: 600;">${r.cantidad}</span>
+                  · ${cliente}
+                  · <span class="mono" style="font-size: 11px; opacity: 0.7;">${r.id_pedido}</span>
+                  · ${r.estado}
+                </div>`;
+              }).join('')}
+            </div>`;
+        }
         return `
           <div class="list-item">
             <h4>
@@ -1701,6 +1751,7 @@
               · ${c.intervalo_dias}d${c.operario ? ' · ' + c.operario : ''}
             </div>
             ${c.observaciones ? `<div class="meta" style="margin-top: 4px;"><em>${c.observaciones}</em></div>` : ""}
+            ${bloqueReservas}
           </div>`;
       }).join("");
       el.innerHTML = header + lista;
@@ -1721,6 +1772,7 @@
       await cargarClientes();
       await cargarPedidos();
       cargarGeneticasConocidas();
+      cargarPedidosTodos();  // para que el desglose de reservas en pestaña Cortes muestre cliente
     })();
   </script>
 </body>
