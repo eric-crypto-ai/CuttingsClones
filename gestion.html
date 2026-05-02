@@ -660,8 +660,9 @@
         <label>Cliente</label>
         <select id="pedido-cliente"><option value="">Selecciona cliente…</option></select>
         <label>Genética</label>
-        <input id="pedido-genetica" list="lista-geneticas" placeholder="elige o escribe nueva" oninput="onChangeGeneticaPedido()" />
-        <datalist id="lista-geneticas"></datalist>
+        <select id="pedido-genetica" onchange="onChangeGeneticaPedido()">
+          <option value="">Selecciona genética…</option>
+        </select>
         <div class="grid2">
           <div>
             <label>Cantidad</label>
@@ -1763,8 +1764,12 @@
       const r = await api("/cortes-lista");
       const items = (r && r.items) || (r && r.data && r.data.items) || [];
       const geneticas = [...new Set(items.map(i => (i.genetica || "").trim()).filter(Boolean))].sort();
-      const dl = document.getElementById("lista-geneticas");
-      if (dl) dl.innerHTML = geneticas.map(g => `<option value="${g}">`).join("");
+      const sel = document.getElementById("pedido-genetica");
+      if (!sel) return;
+      const previo = sel.value;
+      sel.innerHTML = '<option value="">Selecciona genética…</option>' +
+        geneticas.map(g => `<option value="${g}">${g}</option>`).join("");
+      if (previo && geneticas.includes(previo)) sel.value = previo;
     }
 
     // ========== INIT ==========
