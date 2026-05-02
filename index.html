@@ -315,6 +315,123 @@
       line-height: 1.4;
     }
 
+    /* ── FASE + CORTES ── */
+    .info-fase {
+      background: var(--crema-claro);
+      border: 1px solid var(--linea);
+      border-radius: var(--r-sm);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+
+    .info-fase-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .info-fecha-grande {
+      font-family: 'Geist Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--carbon);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+
+    .info-contador {
+      font-family: 'Geist Mono', monospace;
+      font-size: 12.5px;
+      color: var(--dorado-dark);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .info-contador.cosecha {
+      color: var(--verde-bosque);
+      font-weight: 600;
+    }
+
+    .btn-edit-fase {
+      background: transparent;
+      border: 1px solid var(--linea-fuerte);
+      border-radius: var(--r-sm);
+      padding: 5px 10px;
+      cursor: pointer;
+      color: var(--carbon-60);
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: background var(--t), border-color var(--t);
+    }
+
+    .btn-edit-fase:hover {
+      background: var(--crema-tinte);
+      border-color: var(--carbon-40);
+    }
+
+    .info-editor {
+      background: var(--crema-claro);
+      border: 1px solid var(--linea);
+      border-radius: var(--r-sm);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .info-editor-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .info-cortes {
+      background: var(--crema-claro);
+      border: 1px solid var(--linea);
+      border-radius: var(--r-sm);
+      padding: 12px 14px;
+    }
+
+    .info-cortes .info-label { margin-bottom: 8px; }
+
+    .corte-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--linea-suave);
+      gap: 10px;
+    }
+
+    .corte-item:last-child { border-bottom: none; }
+
+    .corte-genetica {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--carbon);
+    }
+
+    .corte-fecha {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11.5px;
+      color: var(--carbon-60);
+      margin-top: 2px;
+    }
+
+    .corte-dias {
+      font-family: 'Geist Mono', monospace;
+      font-size: 12.5px;
+      color: var(--carbon-60);
+      white-space: nowrap;
+    }
+
+    .corte-item.urgente { background: var(--dorado-suave); border-radius: var(--r-sm); padding-left: 8px; padding-right: 8px; }
+    .corte-item.urgente .corte-genetica { color: var(--dorado-dark); }
+    .corte-dias.urgente { color: var(--dorado-dark); font-weight: 600; }
+
     /* ── FORM ── */
     .form-row {
       display: flex;
@@ -858,6 +975,48 @@
   <div id="toast" class="toast"></div>
 
   <main>
+    <!-- INFO ÚTIL -->
+    <section>
+      <div class="section-header">
+        <div class="section-icon">&#8505;</div>
+        <h2>Informaci&oacute;n &uacute;til</h2>
+      </div>
+
+      <div class="info-fase" id="infoFaseChip">
+        <div class="info-fase-head">
+          <div class="info-label" id="faseLabel">&mdash; Cargando &mdash;</div>
+          <button class="btn-edit-fase" type="button" onclick="abrirEditorFase()" aria-label="Editar fase">&#9998; Editar</button>
+        </div>
+        <div class="info-fecha-grande" id="faseFecha">&mdash;</div>
+        <div class="info-contador" id="faseContador">&nbsp;</div>
+      </div>
+
+      <div class="info-editor" id="infoEditor" hidden>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editFase">Fase</label>
+            <select id="editFase">
+              <option value="floracion">Floraci&oacute;n</option>
+              <option value="crecimiento">Crecimiento</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editFecha">Fecha de inicio</label>
+            <input type="date" id="editFecha" />
+          </div>
+        </div>
+        <div class="info-editor-actions">
+          <button class="btn btn-primary btn-sm" type="button" onclick="guardarFase(this)">Guardar</button>
+          <button class="btn btn-sm" type="button" onclick="cerrarEditorFase()">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="info-cortes">
+        <div class="info-label">&#9986; Pr&oacute;ximos cortes</div>
+        <div id="listaCortes" class="cargando">Cargando...</div>
+      </div>
+    </section>
+
     <!-- TAREAS -->
     <section>
       <div class="section-header">
@@ -1018,31 +1177,6 @@
       <div id="listaCompras" class="cargando">Cargando...</div>
     </section>
 
-    <!-- INFO UTIL -->
-    <section>
-      <div class="section-header">
-        <div class="section-icon">&#8505;</div>
-        <h2>Informaci&oacute;n &uacute;til</h2>
-      </div>
-      <div class="info-grid">
-        <div class="info-chip">
-          <div class="info-label">&#128336; Horario</div>
-          <div class="info-value" id="horario"><div class="skeleton"></div></div>
-        </div>
-        <div class="info-chip">
-          <div class="info-label">&#128222; Soporte</div>
-          <div class="info-value" id="telefono_soporte"><div class="skeleton"></div></div>
-        </div>
-        <div class="info-chip full-width">
-          <div class="info-label">&#128203; Instrucciones</div>
-          <div class="info-value" id="instrucciones"><div class="skeleton"></div></div>
-        </div>
-        <div class="info-chip aviso">
-          <div class="info-label">&#9888;&#65039; Aviso del d&iacute;a</div>
-          <div class="info-value" id="aviso_del_dia"><div class="skeleton"></div></div>
-        </div>
-      </div>
-    </section>
   </main>
 
   <script>
@@ -1107,20 +1241,151 @@
       document.getElementById('fecha').value = fechaHoyISO();
     }
 
-    // ── INFO LANDING ──
+    // ── INFO ÚTIL ──
+    var infoUtilState = { fase_actual: 'floracion', inicio_floracion: '', inicio_crecimiento: '' };
+
     async function cargarInfoLanding() {
       try {
         const res = await fetch(base_url + '/info-landing');
         if (!res.ok) throw new Error('error');
         const data = await res.json();
-        document.getElementById('horario').textContent = data.horario || '-';
-        document.getElementById('instrucciones').textContent = data.instrucciones || '-';
-        document.getElementById('telefono_soporte').textContent = data.telefono_soporte || '-';
-        document.getElementById('aviso_del_dia').textContent = data.aviso_del_dia || '-';
+        infoUtilState = {
+          fase_actual: data.fase_actual === 'crecimiento' ? 'crecimiento' : 'floracion',
+          inicio_floracion: data.inicio_floracion || '',
+          inicio_crecimiento: data.inicio_crecimiento || ''
+        };
+        renderFase();
+        renderCortes(data.proximos_cortes || []);
       } catch (e) {
-        ['horario', 'instrucciones', 'telefono_soporte', 'aviso_del_dia'].forEach(function(id) {
-          document.getElementById(id).textContent = 'Error al cargar';
+        document.getElementById('faseLabel').textContent = 'Error al cargar';
+        document.getElementById('faseFecha').textContent = '—';
+        document.getElementById('faseContador').textContent = '';
+        document.getElementById('listaCortes').textContent = 'Error al cargar';
+      }
+    }
+
+    function formatearFechaCorta(iso) {
+      var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (!m) return iso || '—';
+      var meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+      return parseInt(m[3], 10) + ' ' + meses[parseInt(m[2], 10) - 1] + ' ' + m[1];
+    }
+
+    function renderFase() {
+      var fase = infoUtilState.fase_actual === 'crecimiento' ? 'crecimiento' : 'floracion';
+      var fechaStr = fase === 'crecimiento' ? infoUtilState.inicio_crecimiento : infoUtilState.inicio_floracion;
+      var labelEl = document.getElementById('faseLabel');
+      var fechaEl = document.getElementById('faseFecha');
+      var contadorEl = document.getElementById('faseContador');
+
+      var emoji = fase === 'crecimiento' ? '\u{1F331}' : '\u{1F338}';
+      var nombre = fase === 'crecimiento' ? 'crecimiento' : 'floración';
+      labelEl.textContent = emoji + ' Inicio ' + nombre;
+
+      contadorEl.className = 'info-contador';
+
+      if (!fechaStr) {
+        fechaEl.textContent = 'Sin fecha — pulsa "Editar"';
+        contadorEl.innerHTML = '&nbsp;';
+        return;
+      }
+
+      fechaEl.textContent = formatearFechaCorta(fechaStr);
+
+      var inicio = new Date(fechaStr);
+      inicio.setHours(0, 0, 0, 0);
+      var hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      var dias = Math.round((hoy - inicio) / 86400000);
+
+      if (dias < 0) {
+        contadorEl.textContent = 'Empieza en ' + Math.abs(dias) + ' día' + (Math.abs(dias) === 1 ? '' : 's');
+        return;
+      }
+
+      var semana = Math.floor(dias / 7) + 1;
+
+      if (fase === 'floracion') {
+        if (semana >= 9) {
+          contadorEl.textContent = 'Semana 9 — listo para cosecha · Día ' + dias;
+          contadorEl.className = 'info-contador cosecha';
+        } else {
+          contadorEl.textContent = 'Día ' + dias + ' · Semana ' + semana + ' / 9';
+        }
+      } else {
+        contadorEl.textContent = 'Día ' + dias + ' · Semana ' + semana;
+      }
+    }
+
+    function renderCortes(cortes) {
+      var cont = document.getElementById('listaCortes');
+      if (!cortes || cortes.length === 0) {
+        cont.innerHTML = '<div class="sin-datos">Sin cortes próximos</div>';
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < cortes.length; i++) {
+        var c = cortes[i];
+        var d = c.dias_restantes;
+        var texto;
+        if (d < 0) texto = 'Hace ' + Math.abs(d) + ' día' + (Math.abs(d) === 1 ? '' : 's');
+        else if (d === 0) texto = 'Hoy';
+        else if (d === 1) texto = 'Mañana';
+        else texto = 'En ' + d + ' días';
+        var urgente = (d <= 2) ? ' urgente' : '';
+        html += '<div class="corte-item' + urgente + '">';
+        html += '<div class="corte-info">';
+        html += '<div class="corte-genetica">' + escapeHtml(c.genetica || '—') + '</div>';
+        html += '<div class="corte-fecha">' + escapeHtml(formatearFechaCorta(c.fecha || '')) + '</div>';
+        html += '</div>';
+        html += '<div class="corte-dias' + urgente + '">' + escapeHtml(texto) + '</div>';
+        html += '</div>';
+      }
+      cont.innerHTML = html;
+    }
+
+    function abrirEditorFase() {
+      var editor = document.getElementById('infoEditor');
+      var selFase = document.getElementById('editFase');
+      var selFecha = document.getElementById('editFecha');
+      selFase.value = infoUtilState.fase_actual;
+      var fechaSel = infoUtilState.fase_actual === 'crecimiento'
+        ? infoUtilState.inicio_crecimiento
+        : infoUtilState.inicio_floracion;
+      selFecha.value = fechaSel || fechaHoyISO();
+      selFase.onchange = function() {
+        var f = this.value === 'crecimiento' ? infoUtilState.inicio_crecimiento : infoUtilState.inicio_floracion;
+        selFecha.value = f || fechaHoyISO();
+      };
+      editor.hidden = false;
+    }
+
+    function cerrarEditorFase() {
+      document.getElementById('infoEditor').hidden = true;
+    }
+
+    async function guardarFase(btn) {
+      var fase = document.getElementById('editFase').value;
+      var fecha = document.getElementById('editFecha').value;
+      if (!fecha) {
+        toast('Selecciona una fecha', true);
+        return;
+      }
+      var busy = lockBtn(btn, 'Guardando…');
+      try {
+        var res = await fetch(base_url + '/info-floracion-actualizar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fase: fase, fecha: fecha })
         });
+        if (!res.ok) throw new Error('http ' + res.status);
+        cerrarEditorFase();
+        await cargarInfoLanding();
+        toast('Fase actualizada');
+      } catch (e) {
+        toast('Error al guardar', true);
+      } finally {
+        unlockBtn(btn, busy);
       }
     }
 
