@@ -2622,10 +2622,18 @@
         }),
       });
       if (r && r.ok) {
-        const sufijo = r.tarea_actualizada
-          ? "(tarea de evaluar vigor también actualizada)"
-          : "(no había tarea de evaluar vigor pendiente)";
-        toast(`Fecha actualizada a ${r.nueva_fecha} ${sufijo}`);
+        if (r.tarea_actualizada) {
+          toast(`Fecha actualizada a ${r.nueva_fecha} (tarea de evaluar vigor también actualizada)`);
+        } else {
+          const huerfanas = r.tareas_huerfanas_candidatas || [];
+          if (huerfanas.length > 0) {
+            const lista = huerfanas.map(h => `${h.id_evento_origen} → ${h.id} (fecha ${h.fecha})`).join("\n  • ");
+            toast(`Fecha actualizada a ${r.nueva_fecha}, pero la tarea de evaluar vigor no se sincronizó: hay ${huerfanas.length} huérfana(s) — revisa Sheets`, true);
+            console.warn("[cortes-actualizar-proximo] tareas huérfanas candidatas:\n  • " + lista);
+          } else {
+            toast(`Fecha actualizada a ${r.nueva_fecha} (no había tarea de evaluar vigor pendiente)`);
+          }
+        }
         await cargarCortes();
       } else {
         alert("No se pudo actualizar: " + (r?.error || "respuesta inválida"));
