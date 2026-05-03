@@ -18,9 +18,13 @@ Cambios:
      credencial por ID — el token nunca queda en el repo.
 
 Lectura de secretos (en este orden):
-  1. Variables de entorno TELEGRAM_BOT_TOKEN y TELEGRAM_CHAT_ID.
-  2. ~/.zshrc parseado (export TELEGRAM_BOT_TOKEN="..." / export TELEGRAM_CHAT_ID="...").
-  3. Falla si no se encuentran.
+  1. Variables de entorno TELEGRAM_BOT_TOKEN y TELEGRAM_CHAT_ID_GRUPO.
+  2. ~/.zshrc parseado (export TELEGRAM_BOT_TOKEN="..." / export TELEGRAM_CHAT_ID_GRUPO="...").
+  3. Fallback a TELEGRAM_CHAT_ID (chat privado) — solo por compatibilidad legacy.
+
+Destino: grupo Telegram "CuttingsClones · Avisos" (chat_id en TELEGRAM_CHAT_ID_GRUPO).
+Migrado del chat privado al grupo el 2026-05-03 para que el aviso 25d
+también lo vea el hermano de Eric.
 
 Idempotente:
   - Aborta si ya existe el nodo "Telegram sendMessage 25d".
@@ -28,7 +32,7 @@ Idempotente:
 
 Requisitos:
   - N8N_KEY (env o ~/.n8n_key)
-  - TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (env o ~/.zshrc)
+  - TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID_GRUPO (env o ~/.zshrc)
 """
 import json
 import os
@@ -72,14 +76,15 @@ def _load_from_zshrc(*names):
 
 
 def _load_telegram():
+    """Lee TELEGRAM_BOT_TOKEN y el chat_id del grupo (preferido) o el privado (fallback)."""
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    chat = os.environ.get("TELEGRAM_CHAT_ID")
+    chat = os.environ.get("TELEGRAM_CHAT_ID_GRUPO") or os.environ.get("TELEGRAM_CHAT_ID")
     if not (token and chat):
-        from_rc = _load_from_zshrc("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID")
+        from_rc = _load_from_zshrc("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID_GRUPO", "TELEGRAM_CHAT_ID")
         token = token or from_rc["TELEGRAM_BOT_TOKEN"]
-        chat = chat or from_rc["TELEGRAM_CHAT_ID"]
+        chat = chat or from_rc["TELEGRAM_CHAT_ID_GRUPO"] or from_rc["TELEGRAM_CHAT_ID"]
     if not (token and chat):
-        raise SystemExit("TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID no encontrados en env ni en ~/.zshrc")
+        raise SystemExit("TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID_GRUPO/TELEGRAM_CHAT_ID no encontrados")
     return token, chat
 
 

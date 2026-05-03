@@ -111,7 +111,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const evento = $('Preparar Evento').first().json;\n\n// id de tarea siguiendo patron Crear_Tarea (T + timestamp + 3 random digits)\nconst id = 'T' + Date.now() + String(Math.floor(Math.random() * 900 + 100));\n\nreturn [{\n  json: {\n    id,\n    zona: 'madres',\n    tarea: 'Evaluar vigor — proximo corte ' + evento.genetica,\n    prioridad: 'media',\n    estado: 'pendiente',\n    fecha: evento.fecha_proximo_corte_estimada,\n    recurrente: '',\n    dia_recurrencia: '',\n    observaciones: 'Tarea generada por evento ' + evento.id_evento + ' (corte ' + evento.fecha_corte + ', ' + evento.num_esquejes + ' esquejes)',\n    id_evento_origen: evento.id_evento,\n    tipo_origen: 'corte'\n  }\n}];"
+        "jsCode": "const evento = $('Preparar Evento').first().json;\n\n// Calcular fecha = fecha_corte + N dias (UTC, mismo metodo que Preparar Evento)\nfunction offsetDate(baseISO, days) {\n  const d = new Date(baseISO + 'T00:00:00Z');\n  d.setUTCDate(d.getUTCDate() + days);\n  return d.getUTCFullYear() + '-' +\n    String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +\n    String(d.getUTCDate()).padStart(2, '0');\n}\n\nconst trazabilidad = 'Generada por evento ' + evento.id_evento +\n  ' (corte ' + evento.fecha_corte + ', ' + evento.num_esquejes + ' esquejes)';\n\n// 4 tareas asociadas al lote — 3 mirando al esqueje + 1 a la madre\nconst tareas = [\n  {\n    offset_dias: 3,\n    zona: 'esquejes',\n    prioridad: 'media',\n    tarea: 'Pulverizar bandejas lote ' + evento.id_evento + ' con Clonex Mist',\n    observaciones: trazabilidad\n  },\n  {\n    offset_dias: 6,\n    zona: 'esquejes',\n    prioridad: 'media',\n    tarea: 'Pulverizar bandejas lote ' + evento.id_evento + ' con Formulez y Rhyzotonic',\n    observaciones: 'Formulez 3ml/litro de agua y Rhyzo 4ml por litro de agua.'\n  },\n  {\n    offset_dias: 9,\n    zona: 'esquejes',\n    prioridad: 'media',\n    tarea: 'Sumergir bandejas lote ' + evento.id_evento + ' con Formulez y Rhyzotonic',\n    observaciones: 'Formulez 3ml/litro de agua y Rhyzo 4ml por litro de agua. PH:5,8'\n  },\n  {\n    offset_dias: evento.intervalo_dias,\n    zona: 'madres',\n    prioridad: 'alta',\n    tarea: 'Evaluar vigor — proximo corte ' + evento.genetica,\n    observaciones: trazabilidad\n  }\n];\n\n// id unico por tarea: T + (timestamp+i) + 3 random — patron Crear_Tarea\n// El +i garantiza unicidad aunque las 4 ejecuten en el mismo milisegundo\nconst baseTs = Date.now();\nreturn tareas.map((t, i) => ({\n  json: {\n    id: 'T' + (baseTs + i) + String(Math.floor(Math.random() * 900 + 100)),\n    zona: t.zona,\n    tarea: t.tarea,\n    prioridad: t.prioridad,\n    estado: 'pendiente',\n    fecha: offsetDate(evento.fecha_corte, t.offset_dias),\n    recurrente: '',\n    dia_recurrencia: '',\n    observaciones: t.observaciones,\n    id_evento_origen: evento.id_evento,\n    tipo_origen: 'corte'\n  }\n}));"
       },
       "id": "68c1625a-879b-478c-a00b-1a76babbfa53",
       "name": "Preparar Tarea",
@@ -1142,7 +1142,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const data = $('Calcular Eventos Caducados 25d').first().json;\nconst alertas = data.alertas || [];\n\nlet texto = '⚠️ Lotes con 25d+ y reservas pendientes (' + alertas.length + ')\\n\\n';\nfor (const a of alertas) {\n  texto += '• ' + a.id_evento + ' — ' + a.dias + 'd — ' + a.reservas_cantidad + ' reservados\\n';\n}\ntexto += '\\nRevisar manualmente:\\n' + \"https://eric-crypto-ai.github.io/CuttingsClones/gestion.html?tab=cortes\";\n\nreturn [{\n  json: {\n    chat_id: 1559631681,\n    text: texto,\n  }\n}];\n"
+        "jsCode": "const data = $('Calcular Eventos Caducados 25d').first().json;\nconst alertas = data.alertas || [];\n\nlet texto = '⚠️ Lotes con 25d+ y reservas pendientes (' + alertas.length + ')\\n\\n';\nfor (const a of alertas) {\n  texto += '• ' + a.id_evento + ' — ' + a.dias + 'd — ' + a.reservas_cantidad + ' reservados\\n';\n}\ntexto += '\\nRevisar manualmente:\\n' + \"https://eric-crypto-ai.github.io/CuttingsClones/gestion.html?tab=cortes\";\n\nreturn [{\n  json: {\n    chat_id: -5023756424,\n    text: texto,\n  }\n}];\n"
       },
       "id": "5a1fc717-58be-4cb4-a607-aa916764f7a7",
       "name": "Format Mensaje Telegram",
@@ -1172,7 +1172,8 @@
           "id": "gIKUgl2QLI4kwXIY",
           "name": "Telegram CuttingClones"
         }
-      }
+      },
+      "webhookId": "d366a06e-4b82-4296-aae6-bbaebf621579"
     },
     {
       "parameters": {},
@@ -1183,6 +1184,314 @@
       "position": [
         1600,
         2200
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cortes-actualizar-proximo",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "12974782-38f1-49bb-96e7-81e8beeb9095",
+      "name": "Webhook Actualizar Proximo",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        2520
+      ],
+      "webhookId": "19997067-75ac-4ab2-a6b2-1903bd30b73b"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte"
+        },
+        "options": {}
+      },
+      "id": "dc540dcf-3bd4-43ee-919b-cb98fcfa0c5d",
+      "name": "Read eventos_corte (actualizar)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        480,
+        2520
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1404161276,
+          "mode": "list",
+          "cachedResultName": "tareas"
+        },
+        "options": {}
+      },
+      "id": "582042f1-e7d6-48b8-a4e1-027a547b291b",
+      "name": "Read tareas (actualizar)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        2520
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('Webhook Actualizar Proximo').first().json.body || $('Webhook Actualizar Proximo').first().json;\nconst id_evento = String(body.id_evento || '').trim();\nconst nueva_fecha = String(body.nueva_fecha_proximo_corte_estimada || '').trim();\n\nif (!id_evento) {\n  return [{ json: { ok: false, error: 'falta id_evento' } }];\n}\nif (!nueva_fecha || !/^\\d{4}-\\d{2}-\\d{2}$/.test(nueva_fecha)) {\n  return [{ json: { ok: false, error: 'formato fecha invalido (YYYY-MM-DD)' } }];\n}\nconst fechaTest = new Date(nueva_fecha + 'T00:00:00Z');\nif (isNaN(fechaTest.getTime())) {\n  return [{ json: { ok: false, error: 'fecha invalida' } }];\n}\n\nconst eventos = $('Read eventos_corte (actualizar)').all().map(i => i.json);\nconst evento = eventos.find(e => String(e.id_evento || '').trim() === id_evento);\nif (!evento) {\n  return [{ json: { ok: false, error: 'lote no encontrado: ' + id_evento } }];\n}\nconst estado = (String(evento.estado || '').trim().toLowerCase()) || 'activo';\nif (estado !== 'activo') {\n  return [{ json: { ok: false, error: 'lote no activo (estado=' + estado + '). No se permite editar fechas de lotes cerrados.' } }];\n}\n\n// Tarea #4 asociada (zona=madres, tipo_origen=corte, id_evento_origen=X, estado=pendiente)\nconst tareas = $('Read tareas (actualizar)').all().map(i => i.json);\nconst tarea = tareas.find(t =>\n  String(t.id_evento_origen || '').trim() === id_evento &&\n  String(t.tipo_origen || '').trim().toLowerCase() === 'corte' &&\n  String(t.zona || '').trim().toLowerCase() === 'madres' &&\n  String(t.estado || '').trim().toLowerCase() === 'pendiente'\n);\n\nreturn [{ json: {\n  ok: true,\n  id_evento: id_evento,\n  fecha_proximo_corte_estimada: nueva_fecha,\n  tarea_existe: !!tarea,\n  id_tarea: tarea ? String(tarea.id || '').trim() : ''\n} }];\n"
+      },
+      "id": "93fe07c9-5676-496c-96e3-0d81225b9830",
+      "name": "Validar Actualizar Proximo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        2520
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "56cbdbab-cd55-4943-b08b-396bafa4f262",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2d8d1d11-7c1e-42a5-9326-5d5c4cbf2de0",
+      "name": "¿Validar OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        2520
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_evento": "={{ $json.id_evento }}",
+            "fecha_proximo_corte_estimada": "={{ $json.fecha_proximo_corte_estimada }}"
+          },
+          "matchingColumns": [
+            "id_evento"
+          ],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "d50dde82-20e3-4b60-a873-8667af1083c6",
+      "name": "Update Evento Proximo",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1440,
+        2440
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "d517d85d-0d95-43c2-a829-a78dbbe7f256",
+              "leftValue": "={{ $('Validar Actualizar Proximo').first().json.tarea_existe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8c9236e1-1a72-4738-ab5a-a16b9e479c98",
+      "name": "¿Hay Tarea Pendiente?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        2440
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1404161276,
+          "mode": "list",
+          "cachedResultName": "tareas"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Validar Actualizar Proximo').first().json.id_tarea }}",
+            "fecha": "={{ $('Validar Actualizar Proximo').first().json.fecha_proximo_corte_estimada }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "79b858f0-d62b-485e-9501-769f1e7df6de",
+      "name": "Update Tarea Fecha",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1920,
+        2360
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const v = $('Validar Actualizar Proximo').first().json;\nreturn [{ json: {\n  ok: true,\n  id_evento: v.id_evento,\n  nueva_fecha: v.fecha_proximo_corte_estimada,\n  tarea_actualizada: true,\n  id_tarea: v.id_tarea\n} }];\n"
+      },
+      "id": "a6c4c4a3-2865-46fd-91d3-ae758fb4e67f",
+      "name": "Format Respuesta OK Con Tarea",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        2360
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const v = $('Validar Actualizar Proximo').first().json;\nreturn [{ json: {\n  ok: true,\n  id_evento: v.id_evento,\n  nueva_fecha: v.fecha_proximo_corte_estimada,\n  tarea_actualizada: false,\n  motivo_sin_tarea: 'tarea #4 no existe o no esta pendiente'\n} }];\n"
+      },
+      "id": "24cd0b82-8ba2-4698-88be-6d753d922282",
+      "name": "Format Respuesta OK Sin Tarea",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        2520
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "6cd29966-8906-4f49-96c3-a26b557b55f4",
+      "name": "Respond Actualizar OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2400,
+        2440
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "827d5166-bb58-43b2-a83d-a941cbf9965f",
+      "name": "Respond Actualizar Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        2600
       ]
     }
   ],
@@ -1610,6 +1919,130 @@
         [
           {
             "node": "Cron Fin Alertas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Actualizar Proximo": {
+      "main": [
+        [
+          {
+            "node": "Read eventos_corte (actualizar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read eventos_corte (actualizar)": {
+      "main": [
+        [
+          {
+            "node": "Read tareas (actualizar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read tareas (actualizar)": {
+      "main": [
+        [
+          {
+            "node": "Validar Actualizar Proximo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Actualizar Proximo": {
+      "main": [
+        [
+          {
+            "node": "¿Validar OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Validar OK?": {
+      "main": [
+        [
+          {
+            "node": "Update Evento Proximo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Actualizar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Evento Proximo": {
+      "main": [
+        [
+          {
+            "node": "¿Hay Tarea Pendiente?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay Tarea Pendiente?": {
+      "main": [
+        [
+          {
+            "node": "Update Tarea Fecha",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Respuesta OK Sin Tarea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Tarea Fecha": {
+      "main": [
+        [
+          {
+            "node": "Format Respuesta OK Con Tarea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Respuesta OK Con Tarea": {
+      "main": [
+        [
+          {
+            "node": "Respond Actualizar OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Respuesta OK Sin Tarea": {
+      "main": [
+        [
+          {
+            "node": "Respond Actualizar OK",
             "type": "main",
             "index": 0
           }

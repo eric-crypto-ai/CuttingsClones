@@ -1142,7 +1142,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const data = $('Calcular Eventos Caducados 25d').first().json;\nconst alertas = data.alertas || [];\n\nlet texto = '⚠️ Lotes con 25d+ y reservas pendientes (' + alertas.length + ')\\n\\n';\nfor (const a of alertas) {\n  texto += '• ' + a.id_evento + ' — ' + a.dias + 'd — ' + a.reservas_cantidad + ' reservados\\n';\n}\ntexto += '\\nRevisar manualmente:\\n' + \"https://eric-crypto-ai.github.io/CuttingsClones/gestion.html?tab=cortes\";\n\nreturn [{\n  json: {\n    chat_id: 1559631681,\n    text: texto,\n  }\n}];\n"
+        "jsCode": "const data = $('Calcular Eventos Caducados 25d').first().json;\nconst alertas = data.alertas || [];\n\nlet texto = '⚠️ Lotes con 25d+ y reservas pendientes (' + alertas.length + ')\\n\\n';\nfor (const a of alertas) {\n  texto += '• ' + a.id_evento + ' — ' + a.dias + 'd — ' + a.reservas_cantidad + ' reservados\\n';\n}\ntexto += '\\nRevisar manualmente:\\n' + \"https://eric-crypto-ai.github.io/CuttingsClones/gestion.html?tab=cortes\";\n\nreturn [{\n  json: {\n    chat_id: -5023756424,\n    text: texto,\n  }\n}];\n"
       },
       "id": "5a1fc717-58be-4cb4-a607-aa916764f7a7",
       "name": "Format Mensaje Telegram",
