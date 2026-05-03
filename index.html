@@ -432,6 +432,10 @@
     .corte-item.urgente .corte-genetica { color: var(--dorado-dark); }
     .corte-dias.urgente { color: var(--dorado-dark); font-weight: 600; }
 
+    .corte-item.vencido { background: var(--rojo-suave); }
+    .corte-item.vencido .corte-genetica { color: var(--rojo); }
+    .corte-dias.vencido { color: var(--rojo); font-weight: 600; }
+
     /* ── FORM ── */
     .form-row {
       display: flex;
@@ -1313,16 +1317,17 @@
       }
 
       var semana = Math.floor(dias / 7) + 1;
+      var diaSemana = (dias % 7) + 1;
 
       if (fase === 'floracion') {
         if (semana >= 9) {
-          contadorEl.textContent = 'Semana 9 — listo para cosecha · Día ' + dias;
+          contadorEl.textContent = 'Semana 9 — listo para cosecha · Día ' + diaSemana;
           contadorEl.className = 'info-contador cosecha';
         } else {
-          contadorEl.textContent = 'Día ' + dias + ' · Semana ' + semana + ' / 9';
+          contadorEl.textContent = 'Semana ' + semana + ' / 9 · Día ' + diaSemana;
         }
       } else {
-        contadorEl.textContent = 'Día ' + dias + ' · Semana ' + semana;
+        contadorEl.textContent = 'Semana ' + semana + ' · Día ' + diaSemana;
       }
     }
 
@@ -1341,13 +1346,13 @@
         else if (d === 0) texto = 'Hoy';
         else if (d === 1) texto = 'Mañana';
         else texto = 'En ' + d + ' días';
-        var urgente = (d <= 2) ? ' urgente' : '';
-        html += '<div class="corte-item' + urgente + '">';
+        var estado = (d <= 0) ? ' vencido' : (d <= 2 ? ' urgente' : '');
+        html += '<div class="corte-item' + estado + '">';
         html += '<div class="corte-info">';
         html += '<div class="corte-genetica">' + escapeHtml(c.genetica || '—') + '</div>';
         html += '<div class="corte-fecha">' + escapeHtml(formatearFechaCorta(c.fecha || '')) + '</div>';
         html += '</div>';
-        html += '<div class="corte-dias' + urgente + '">' + escapeHtml(texto) + '</div>';
+        html += '<div class="corte-dias' + estado + '">' + escapeHtml(texto) + '</div>';
         html += '</div>';
       }
       cont.innerHTML = html;
