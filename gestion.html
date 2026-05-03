@@ -431,6 +431,36 @@
       line-height: 1.5;
     }
 
+    /* ── QUICK PICKS (chips bajo input, mobile-friendly) ── */
+    .quick-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+      min-width: 0;
+    }
+    .quick-row::-webkit-scrollbar { display: none; }
+    .quick-pick {
+      flex: 0 0 auto;
+      font-family: 'Geist Mono', monospace;
+      font-size: 12px;
+      padding: 6px 10px;
+      min-height: 32px;
+      border: 1px solid var(--linea-fuerte);
+      border-radius: var(--r-xs);
+      background: transparent;
+      color: var(--carbon);
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background var(--t), border-color var(--t);
+    }
+    .quick-pick:hover { background: var(--hueso); border-color: var(--verde-bosque); }
+    .quick-pick:active { transform: translateY(1px); }
+    .quick-pick.is-active { background: var(--verde-bosque); color: white; border-color: var(--verde-bosque); }
+
     .pill {
       display: inline-block;
       font-family: 'Geist Mono', monospace;
@@ -971,41 +1001,15 @@
           </div>
           <div>
             <label>Cantidad</label>
-            <input id="pedido-cantidad" type="number" min="1" placeholder="50" list="pedido-cantidad-opciones" oninput="onChangeCantidadPedido()" />
-            <datalist id="pedido-cantidad-opciones">
-              <option value="50"></option>
-              <option value="100"></option>
-              <option value="150"></option>
-              <option value="200"></option>
-              <option value="250"></option>
-              <option value="300"></option>
-              <option value="350"></option>
-              <option value="400"></option>
-              <option value="450"></option>
-              <option value="500"></option>
-              <option value="550"></option>
-              <option value="600"></option>
-              <option value="650"></option>
-              <option value="700"></option>
-              <option value="750"></option>
-              <option value="800"></option>
-              <option value="850"></option>
-              <option value="900"></option>
-              <option value="950"></option>
-              <option value="1000"></option>
-            </datalist>
+            <input id="pedido-cantidad" type="number" min="1" placeholder="50" oninput="onChangeCantidadPedido(); markQuickPicks('pedido-cantidad-row', this.value);" />
+            <div class="quick-row" id="pedido-cantidad-row" role="listbox" aria-label="Cantidades habituales"></div>
           </div>
         </div>
         <div class="grid2">
           <div>
             <label>Precio unitario €</label>
-            <input id="pedido-precio" type="number" step="0.1" min="0" placeholder="3.0" list="pedido-precio-opciones" />
-            <datalist id="pedido-precio-opciones">
-              <option value="2"></option>
-              <option value="2.5"></option>
-              <option value="3"></option>
-              <option value="3.5"></option>
-            </datalist>
+            <input id="pedido-precio" type="number" step="0.1" min="0" placeholder="3.0" oninput="markQuickPicks('pedido-precio-row', this.value);" />
+            <div class="quick-row" id="pedido-precio-row" role="listbox" aria-label="Precios habituales"></div>
           </div>
           <div>
             <label>Fecha entrega prometida</label>
@@ -1770,6 +1774,8 @@
         if (r.success) {
           toast("Pedido creado ✓ total " + fmtEuro(r.data.total));
           ["pedido-genetica","pedido-cantidad","pedido-precio","pedido-fecha","pedido-notas"].forEach(id => document.getElementById(id).value = "");
+          markQuickPicks("pedido-cantidad-row", "");
+          markQuickPicks("pedido-precio-row", "");
           document.getElementById("pedido-sin-reservar").checked = false;
           state.sinReservar = false;
           state.lotesDisponibles = [];
@@ -1797,6 +1803,34 @@
     function onChangeCantidadPedido() {
       aplicarFIFO();
       renderLotesPedido();
+    }
+
+    // ── Quick picks (chips bajo input) ──
+    function renderQuickPicks(rowId, inputId, values) {
+      const row = document.getElementById(rowId);
+      const input = document.getElementById(inputId);
+      if (!row || !input) return;
+      row.innerHTML = values.map(v =>
+        `<button type="button" class="quick-pick" data-val="${v}">${v}</button>`
+      ).join("");
+      row.querySelectorAll(".quick-pick").forEach(btn => {
+        btn.addEventListener("click", () => {
+          input.value = btn.dataset.val;
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.focus({ preventScroll: true });
+        });
+      });
+      markQuickPicks(rowId, input.value);
+    }
+
+    function markQuickPicks(rowId, value) {
+      const row = document.getElementById(rowId);
+      if (!row) return;
+      const v = value === "" || value == null ? null : Number(value);
+      row.querySelectorAll(".quick-pick").forEach(btn => {
+        const match = v !== null && Number(btn.dataset.val) === v;
+        btn.classList.toggle("is-active", match);
+      });
     }
 
     async function fetchLotesParaPedido(g) {
@@ -2665,6 +2699,11 @@
       document.getElementById("pedido-fecha").value = hoy;
       document.getElementById("cortFecha").value = hoy;
       document.getElementById("ntFecha").value = hoy;
+
+      // Chips de cantidad (50→1000 de 50 en 50) y precio (2/2.5/3/3.5)
+      const cantidadesPedido = Array.from({ length: 20 }, (_, i) => (i + 1) * 50);
+      renderQuickPicks("pedido-cantidad-row", "pedido-cantidad", cantidadesPedido);
+      renderQuickPicks("pedido-precio-row",   "pedido-precio",   [2, 2.5, 3, 3.5]);
 
       // Tab inicial: lee ?tab=X o cae a "pedidos"
       let tabInicial = "pedidos";
