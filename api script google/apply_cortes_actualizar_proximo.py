@@ -316,14 +316,18 @@ new_nodes = [
         matching_columns=["id_evento"],
         pos=[BASE_X + COL_W*5, BASE_Y - 80],
     ),
-    if_node("¿Hay Tarea Pendiente?", "={{ $json.tarea_existe }}",
+    # IF y Update Tarea referencian Validar directamente porque Update Evento
+    # sobrescribe el item con la fila actualizada de eventos_corte (perdiendo
+    # tarea_existe e id_tarea). Sin esto, el IF siempre evalúa false y la
+    # tarea #4 nunca se sincroniza. Bug detectado y corregido 2026-05-03.
+    if_node("¿Hay Tarea Pendiente?",
+            "={{ $('Validar Actualizar Proximo').first().json.tarea_existe }}",
             [BASE_X + COL_W*6, BASE_Y - 80]),
-    # TRUE branch: Update tarea + format con tarea + respond
     sheets_update_node(
         "Update Tarea Fecha", TAREAS_GID, "tareas",
         value_map={
-            "id": "={{ $json.id_tarea }}",
-            "fecha": "={{ $json.fecha_proximo_corte_estimada }}",
+            "id": "={{ $('Validar Actualizar Proximo').first().json.id_tarea }}",
+            "fecha": "={{ $('Validar Actualizar Proximo').first().json.fecha_proximo_corte_estimada }}",
         },
         matching_columns=["id"],
         pos=[BASE_X + COL_W*7, BASE_Y - 160],

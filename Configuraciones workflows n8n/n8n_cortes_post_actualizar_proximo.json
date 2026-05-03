@@ -1371,7 +1371,7 @@
           "conditions": [
             {
               "id": "d517d85d-0d95-43c2-a829-a78dbbe7f256",
-              "leftValue": "={{ $json.tarea_existe }}",
+              "leftValue": "={{ $('Validar Actualizar Proximo').first().json.tarea_existe }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -1411,8 +1411,8 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "id": "={{ $json.id_tarea }}",
-            "fecha": "={{ $json.fecha_proximo_corte_estimada }}"
+            "id": "={{ $('Validar Actualizar Proximo').first().json.id_tarea }}",
+            "fecha": "={{ $('Validar Actualizar Proximo').first().json.fecha_proximo_corte_estimada }}"
           },
           "matchingColumns": [
             "id"
