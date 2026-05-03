@@ -2423,9 +2423,11 @@
               ${alerta25d ? '<span class="pill alerta25d">+25d</span>' : ''}
             </h4>
             ${lineaStock}
-            <div class="meta">
+            <div class="meta" id="proximo-${c.id_evento}" data-fecha="${c.fecha_proximo_corte_estimada || ''}">
               Próximo corte estimado:
-              <b style="${proximaPasada ? 'color: var(--rojo);' : ''}">${c.fecha_proximo_corte_estimada || '—'}</b>
+              ${esActivo
+                ? `<a href="#" class="editable-fecha" onclick="event.preventDefault(); editarProximoCorte('${c.id_evento}'); return false;" style="${proximaPasada ? 'color: var(--rojo); ' : ''}font-weight: bold; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px;">${c.fecha_proximo_corte_estimada || '—'}</a> <span style="opacity: 0.5; font-size: 11px;">✏</span>`
+                : `<b style="${proximaPasada ? 'color: var(--rojo);' : ''}">${c.fecha_proximo_corte_estimada || '—'}</b>`}
               · ${c.intervalo_dias}d${c.operario ? ' · ' + c.operario : ''}
             </div>
             ${lineaCierre}
@@ -2468,6 +2470,57 @@
         alert("No se pudo reactivar: " + (r?.error || "respuesta inválida"));
         btn.disabled = false;
         btn.textContent = "Reactivar";
+      }
+    }
+
+    // ── Edición inline de fecha próximo corte ──
+    function editarProximoCorte(idEvento) {
+      const div = document.getElementById("proximo-" + idEvento);
+      if (!div) return;
+      const fechaActual = div.dataset.fecha || "";
+      div.innerHTML = `
+        Próximo corte estimado:
+        <input type="date" id="input-proximo-${idEvento}" value="${fechaActual}" style="font-size: 14px; padding: 4px 6px; border: 1px solid var(--gris-borde); border-radius: 4px; vertical-align: middle;">
+        <button onclick="guardarProximoCorte('${idEvento}', this)" class="btn" style="font-size: 12px; padding: 4px 10px; vertical-align: middle;">✓</button>
+        <button onclick="cancelarProximoCorte('${idEvento}')" class="btn ghost" style="font-size: 12px; padding: 4px 10px; vertical-align: middle;">✗</button>
+      `;
+      const input = document.getElementById("input-proximo-" + idEvento);
+      if (input) { input.focus(); }
+    }
+
+    function cancelarProximoCorte() {
+      // Ruta más simple: re-renderizar la lista entera. Mantiene consistencia
+      // con el resto del estado (filtros, totales, etc.) sin duplicar lógica.
+      renderCortes();
+    }
+
+    async function guardarProximoCorte(idEvento, btn) {
+      const input = document.getElementById("input-proximo-" + idEvento);
+      if (!input) return;
+      const nuevaFecha = input.value;
+      if (!nuevaFecha || !/^\d{4}-\d{2}-\d{2}$/.test(nuevaFecha)) {
+        alert("Fecha inválida");
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = "…";
+      const r = await api("/cortes-actualizar-proximo", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_evento: idEvento,
+          nueva_fecha_proximo_corte_estimada: nuevaFecha,
+        }),
+      });
+      if (r && r.ok) {
+        const sufijo = r.tarea_actualizada
+          ? "(tarea de evaluar vigor también actualizada)"
+          : "(no había tarea de evaluar vigor pendiente)";
+        toast(`Fecha actualizada a ${r.nueva_fecha} ${sufijo}`);
+        await cargarCortes();
+      } else {
+        alert("No se pudo actualizar: " + (r?.error || "respuesta inválida"));
+        btn.disabled = false;
+        btn.textContent = "✓";
       }
     }
 
