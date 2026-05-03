@@ -947,13 +947,7 @@
       <a href="index.html" class="drawer-link"><span class="drawer-icon">🏠</span> Inicio</a>
       <a href="gestion.html?tab=pedidos" class="drawer-link" data-drawer-tab="pedidos"><span class="drawer-icon">🛒</span> Pedidos</a>
 
-      <button type="button" class="drawer-group" onclick="toggleDrawerGroup(this)" aria-expanded="false">
-        <span class="drawer-icon">✂️</span> Cortes <span class="drawer-chevron">▾</span>
-      </button>
-      <div class="drawer-sub">
-        <a href="gestion.html?tab=registrar-corte" class="drawer-sublink" data-drawer-tab="registrar-corte">Registrar cortes</a>
-        <a href="gestion.html?tab=cortes" class="drawer-sublink" data-drawer-tab="cortes">Histórico de cortes</a>
-      </div>
+      <a href="gestion.html?tab=cortes" class="drawer-link" data-drawer-tab="cortes"><span class="drawer-icon">✂️</span> Cortes</a>
 
       <button type="button" class="drawer-group" onclick="toggleDrawerGroup(this)" aria-expanded="false">
         <span class="drawer-icon">💰</span> Gestión económica <span class="drawer-chevron">▾</span>
@@ -974,8 +968,7 @@
 
   <nav class="tabs">
     <button data-tab="pedidos" class="active">🛒 Pedidos</button>
-    <button data-tab="registrar-corte">✂️ Registrar corte</button>
-    <button data-tab="cortes">📜 Histórico cortes</button>
+    <button data-tab="cortes">✂️ Cortes</button>
     <button data-tab="bote">💰 Bote</button>
     <button data-tab="repartos">✅ Repartos</button>
     <button data-tab="gastos">💸 Gastos</button>
@@ -1171,36 +1164,6 @@
     <!-- ========= CORTES ========= -->
     <section id="tab-cortes" class="tab-content" hidden>
       <div class="card">
-        <h3>Histórico de cortes</h3>
-        <div class="filters">
-          <button data-cortefilter="" class="active" onclick="filtrarCortes('')">Todos</button>
-          <button data-cortefilter="Amnesia" onclick="filtrarCortes('Amnesia')">Amnesia</button>
-          <button data-cortefilter="Hokuzai" onclick="filtrarCortes('Hokuzai')">Hokuzai</button>
-        </div>
-        <div id="lista-cortes" class="loading">Cargando…</div>
-      </div>
-    </section>
-
-    <!-- ========= CLIENTES ========= -->
-    <section id="tab-clientes" class="tab-content" hidden>
-      <div class="card">
-        <h3>➕ Nuevo cliente</h3>
-        <label>Nombre</label>
-        <input id="cli-nombre" placeholder="p. ej. Grow Shop La Indica" />
-        <label>Anotaciones (opcional)</label>
-        <input id="cli-notas" placeholder="p. ej. pide los lunes, paga al contado" />
-        <button class="btn" onclick="crearCliente(this)">Crear cliente</button>
-      </div>
-      <div class="card">
-        <h3>Cartera</h3>
-        <input id="cli-busqueda" placeholder="Buscar por nombre…" oninput="renderClientes()" style="margin-bottom: 10px;" />
-        <div id="lista-clientes" class="loading">Cargando…</div>
-      </div>
-    </section>
-
-    <!-- ========= REGISTRAR CORTE ========= -->
-    <section id="tab-registrar-corte" class="tab-content" hidden>
-      <div class="card">
         <h3>✂️ Registrar corte</h3>
         <form id="formCorte">
           <div class="grid2">
@@ -1232,6 +1195,32 @@
           <button type="submit" class="btn">Registrar corte</button>
           <div id="mensajeCorte" class="mensaje"></div>
         </form>
+      </div>
+      <div class="card">
+        <h3>📜 Histórico de cortes</h3>
+        <div class="filters">
+          <button data-cortefilter="" class="active" onclick="filtrarCortes('')">Todos</button>
+          <button data-cortefilter="Amnesia" onclick="filtrarCortes('Amnesia')">Amnesia</button>
+          <button data-cortefilter="Hokuzai" onclick="filtrarCortes('Hokuzai')">Hokuzai</button>
+        </div>
+        <div id="lista-cortes" class="loading">Cargando…</div>
+      </div>
+    </section>
+
+    <!-- ========= CLIENTES ========= -->
+    <section id="tab-clientes" class="tab-content" hidden>
+      <div class="card">
+        <h3>➕ Nuevo cliente</h3>
+        <label>Nombre</label>
+        <input id="cli-nombre" placeholder="p. ej. Grow Shop La Indica" />
+        <label>Anotaciones (opcional)</label>
+        <input id="cli-notas" placeholder="p. ej. pide los lunes, paga al contado" />
+        <button class="btn" onclick="crearCliente(this)">Crear cliente</button>
+      </div>
+      <div class="card">
+        <h3>Cartera</h3>
+        <input id="cli-busqueda" placeholder="Buscar por nombre…" oninput="renderClientes()" style="margin-bottom: 10px;" />
+        <div id="lista-clientes" class="loading">Cargando…</div>
       </div>
     </section>
 
@@ -1439,8 +1428,7 @@
     // ========== Tabs ==========
     const TAB_META = {
       "pedidos":         { titulo: "Pedidos",            sub: "Crear · entregar" },
-      "registrar-corte": { titulo: "Registrar corte",    sub: "Madres · esquejes" },
-      "cortes":          { titulo: "Histórico cortes",   sub: "Lotes · stock" },
+      "cortes":          { titulo: "Cortes",             sub: "Registrar · histórico" },
       "bote":            { titulo: "Bote",               sub: "Saldo · movimientos" },
       "repartos":        { titulo: "Repartos",           sub: "Pendientes" },
       "gastos":          { titulo: "Gastos",             sub: "Registro · histórico" },
@@ -1494,7 +1482,7 @@
       else if (tab === "clientes") { await cargarClientes(); renderClientes(); }
       else if (tab === "cortes") { await cargarCortes(); }
       else if (tab === "compras") { await cargarCompras(); }
-      // registrar-corte y nueva-tarea son forms locales, no requieren carga remota
+      // nueva-tarea es form local, no requiere carga remota
     }
 
     // ========== DRAWER ==========
@@ -2709,7 +2697,8 @@
       let tabInicial = "pedidos";
       try {
         const params = new URLSearchParams(window.location.search);
-        const t = params.get("tab");
+        let t = params.get("tab");
+        if (t === "registrar-corte") t = "cortes"; // compat: pestaña fusionada
         if (t && TAB_META[t]) tabInicial = t;
       } catch (e) {}
       activarTab(tabInicial);
