@@ -495,6 +495,25 @@
     .entrega-aviso.urgente { color: var(--dorado-dark); }
     .entrega-aviso.vencida { color: var(--rojo); }
 
+    /* ── Badge de días en histórico de cortes ── */
+    .lote-dias {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-family: 'Geist Mono', 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--linea-fuerte);
+      background: var(--hueso);
+      color: var(--carbon-60);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    .lote-dias.alerta { color: var(--rojo); border-color: rgba(163,36,36,0.4); background: var(--rojo-suave); }
+    .list-item.con-badge h4 { padding-right: 64px; }
+
     /* ── SALDO GIGANTE — el hero del bote ── */
     .saldo-big {
       font-family: 'Geist Mono', 'JetBrains Mono', monospace;
@@ -2454,6 +2473,9 @@
         const tieneStock = c.disponible !== undefined && c.total_neto !== undefined;
         const dias = diasEntre(c.fecha_corte, hoy);
         const alerta25d = esActivo && dias !== null && dias >= 25;
+        const badgeDias = (dias !== null && esActivo)
+          ? `<span class="lote-dias${dias >= 12 ? ' alerta' : ''}" title="Días desde el corte">${dias}d</span>`
+          : '';
         let lineaStock;
         if (tieneStock) {
           const agotado = Number(c.disponible) <= 0;
@@ -2461,13 +2483,13 @@
           const etiquetaDisp = agotado ? 'AGOTADO' : `<b>${c.disponible} disponibles</b>`;
           lineaStock = `
             <div class="meta">
-              <b>${c.genetica}</b> · corte ${c.fecha_corte}${dias !== null ? ` · <span style="opacity:0.7;">${dias}d</span>` : ''}
+              <b>${c.genetica}</b> · corte ${c.fecha_corte}
             </div>
             <div class="meta">
               ${c.total_neto} cortados · ${c.reservado} reservados · <span style="color: ${colorDisp};">${etiquetaDisp}</span>
             </div>`;
         } else {
-          lineaStock = `<div class="meta"><b>${c.genetica}</b> · ${c.num_esquejes} esquejes · corte ${c.fecha_corte}${dias !== null ? ` · <span style="opacity:0.7;">${dias}d</span>` : ''}</div>`;
+          lineaStock = `<div class="meta"><b>${c.genetica}</b> · ${c.num_esquejes} esquejes · corte ${c.fecha_corte}</div>`;
         }
         // Línea de cierre si está inactivo
         let lineaCierre = '';
@@ -2503,7 +2525,8 @@
           ? `<button class="btn ghost" style="font-size: 12px; padding: 6px 10px;" onclick="cerrarLote('${c.id_evento}', this)">Cerrar lote</button>`
           : `<button class="btn ghost" style="font-size: 12px; padding: 6px 10px;" onclick="reactivarLote('${c.id_evento}', this)">Reactivar</button>`;
         return `
-          <div class="list-item" style="${!esActivo ? 'opacity: 0.78;' : ''}">
+          <div class="list-item${badgeDias ? ' con-badge' : ''}" style="${!esActivo ? 'opacity: 0.78;' : ''}">
+            ${badgeDias}
             <h4>
               <span class="mono">${c.id_evento}</span>
               <span class="pill ${estadoLote}">${estadoLote}</span>
