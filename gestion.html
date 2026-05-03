@@ -488,6 +488,13 @@
     .pill.inactivo { color: var(--carbon-60); border-color: var(--linea-fuerte); background: transparent; }
     .pill.alerta25d { color: var(--naranja); border-color: rgba(179,77,18,0.35); background: rgba(179,77,18,0.08); }
 
+    /* ── Aviso de entrega en pedidos pendientes ── */
+    .list-item.entrega-urgente { border-color: rgba(155,126,34,0.45); background: var(--dorado-suave); }
+    .list-item.entrega-vencida { border-color: rgba(163,36,36,0.45); background: var(--rojo-suave); }
+    .entrega-aviso { font-weight: 600; }
+    .entrega-aviso.urgente { color: var(--dorado-dark); }
+    .entrega-aviso.vencida { color: var(--rojo); }
+
     /* ── SALDO GIGANTE — el hero del bote ── */
     .saldo-big {
       font-family: 'Geist Mono', 'JetBrains Mono', monospace;
@@ -1289,6 +1296,19 @@
     </div>
   </dialog>
 
+  <dialog id="dialog-fecha-entrega">
+    <div class="dialog-body">
+      <h3>Cambiar fecha de entrega</h3>
+      <div id="fecha-entrega-info" class="meta" style="margin-bottom: 10px;"></div>
+      <label>Nueva fecha entrega prometida</label>
+      <input id="fecha-entrega-input" type="date" />
+      <div class="action-row" style="margin-top: 12px;">
+        <button class="btn ghost" onclick="cerrarCambiarFecha()">Cancelar</button>
+        <button class="btn" id="btn-confirmar-fecha-entrega" onclick="confirmarCambiarFecha(this)">Guardar fecha</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="dialog-entregar">
     <div class="dialog-body">
       <h3>Entregar pedido</h3>
@@ -1597,19 +1617,48 @@
       cargarPedidos();
     }
 
+    function diasHastaEntrega(fechaIso) {
+      if (!fechaIso) return null;
+      const f = new Date(fechaIso);
+      if (isNaN(f.getTime())) return null;
+      f.setHours(0, 0, 0, 0);
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      return Math.round((f - hoy) / 86400000);
+    }
+
+    function textoEntrega(d) {
+      if (d === null) return "";
+      if (d < 0) return "Hace " + Math.abs(d) + " día" + (Math.abs(d) === 1 ? "" : "s");
+      if (d === 0) return "Hoy";
+      if (d === 1) return "Mañana";
+      return "En " + d + " días";
+    }
+
     function renderPedidos() {
       const el = document.getElementById("lista-pedidos");
       if (state.pedidos.length === 0) { el.innerHTML = '<div class="empty">Sin pedidos</div>'; return; }
       const conReservas = pedidosConReservasActivas();
       el.innerHTML = state.pedidos.map(p => {
         const sinReservas = p.estado === "pendiente" && !conReservas.has(p.id_pedido);
+        const d = p.estado === "pendiente" ? diasHastaEntrega(p.fecha_entrega_prometida) : null;
+        let claseEntrega = "";
+        let avisoTxt = "";
+        if (d !== null) {
+          if (d <= 0) { claseEntrega = " entrega-vencida"; avisoTxt = textoEntrega(d); }
+          else if (d <= 3) { claseEntrega = " entrega-urgente"; avisoTxt = textoEntrega(d); }
+        }
+        const avisoSpan = avisoTxt
+          ? ` · <span class="entrega-aviso ${d <= 0 ? "vencida" : "urgente"}">${avisoTxt}</span>`
+          : "";
         return `
-        <div class="list-item">
+        <div class="list-item${claseEntrega}">
           <h4>${p.genetica} × ${p.cantidad} <span class="pill ${p.estado}">${p.estado}</span>${sinReservas ? ' <span class="pill alerta25d">sin reservas</span>' : ''}</h4>
           <div class="meta">${nombreCliente(p.id_cliente)}</div>
-          <div class="meta">${fmtEuro(p.total)} · entrega ${p.fecha_entrega_prometida || "—"}${p.fecha_entrega_real ? ' · real ' + p.fecha_entrega_real : ''}</div>
+          <div class="meta">${fmtEuro(p.total)} · entrega ${p.fecha_entrega_prometida || "—"}${avisoSpan}${p.fecha_entrega_real ? ' · real ' + p.fecha_entrega_real : ''}</div>
           ${p.notas ? `<div class="meta" style="margin-top: 4px;"><em>${p.notas}</em></div>` : ""}
           ${p.estado === "pendiente" ? `<div class="action-row">
+            <button class="btn ghost" onclick='abrirCambiarFecha(${JSON.stringify(p)})'>📅 Fecha</button>
             ${sinReservas ? `<button class="btn dorado" onclick='abrirReservar(${JSON.stringify(p)})'>Reservar lotes</button>` : ''}
             <button class="btn ghost" onclick='cancelarPedido(${JSON.stringify(p)})'>Cancelar</button>
             <button class="btn" onclick='abrirEntregar(${JSON.stringify(p)})'>Entregar y cobrar</button>
@@ -1722,6 +1771,44 @@
         cargarPedidos();
       } else {
         toast("Error: " + (r.error || "desconocido"), true);
+      }
+    }
+
+    let pedidoCambioFecha = null;
+
+    function abrirCambiarFecha(p) {
+      pedidoCambioFecha = p;
+      document.getElementById("fecha-entrega-info").textContent =
+        `${p.genetica} × ${p.cantidad} · ${nombreCliente(p.id_cliente)} · actual ${p.fecha_entrega_prometida || "—"}`;
+      document.getElementById("fecha-entrega-input").value = p.fecha_entrega_prometida || "";
+      document.getElementById("dialog-fecha-entrega").showModal();
+    }
+
+    function cerrarCambiarFecha() {
+      document.getElementById("dialog-fecha-entrega").close();
+      pedidoCambioFecha = null;
+    }
+
+    async function confirmarCambiarFecha(btn) {
+      if (!pedidoCambioFecha) return;
+      const fecha = document.getElementById("fecha-entrega-input").value;
+      if (!fecha) { toast("Selecciona una fecha", true); return; }
+      if (fecha === pedidoCambioFecha.fecha_entrega_prometida) { cerrarCambiarFecha(); return; }
+      btn.disabled = true;
+      btn.textContent = "Guardando…";
+      const r = await api("/pedidos-actualizar-entrega", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_pedido: pedidoCambioFecha.id_pedido, fecha_entrega_prometida: fecha }),
+      });
+      if (r.success) {
+        toast("Fecha actualizada ✓");
+        cerrarCambiarFecha();
+        await cargarPedidos();
+      } else {
+        toast("Error: " + (r.error || "desconocido"), true);
+        btn.disabled = false;
+        btn.textContent = "Guardar fecha";
       }
     }
 
