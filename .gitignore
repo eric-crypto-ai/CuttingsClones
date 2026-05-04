@@ -8,3 +8,6 @@ clave del bot api script de google
 
 # Symlink local al vault de Obsidian — no funciona fuera de este Mac
 obsidian
+
+# Playwright MCP — snapshots, screenshots y logs de sesiones de testing
+.playwright-mcp/

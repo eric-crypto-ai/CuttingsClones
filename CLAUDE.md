@@ -36,6 +36,7 @@ Objetivo del proyecto: construir un **sistema profesional de producción vegetal
 - **Gmail** para resúmenes diarios
 - **Anthropic API** como capa IA futura (diagnóstico, IPM, fichas)
 - **Obsidian** como segundo cerebro del negocio
+- **Playwright MCP** (`@playwright/mcp@0.0.73`, user-scope) — testing E2E del portal y validación móvil-first automática. Viewport por defecto **390×844** (ver sección "Cómo responder")
 
 ---
 
@@ -163,6 +164,7 @@ Este agente **no es de marketing ni de SaaS**. Es **técnico, operativo y estrat
 - **Fórmulas Google Sheets con separador `;`** (locale ES).
 - Piensa en una evolución natural: **Sheets → Airtable/Supabase**.
 - Piensa siempre en **móvil-first** para cualquier UI.
+- **Testing del portal con Playwright MCP** → siempre `browser_resize(390, 844)` antes de `browser_navigate`. El user-scope de Playwright no fija viewport (es genérico para todos mis proyectos); aquí en CuttingClones es móvil-first obligatorio. Doc de MCPs en `<VAULT Stack Común>/01 MCPs/mcp_servers.md`.
 - Cuando propongas tareas o SOPs, **aterriza a las 6 zonas reales**: madres, esquejes, floración, limpieza, mantenimiento, general. La zona `general` cubre tareas que no pertenecen a un espacio físico concreto.
 - Cuando hables de IPM, piensa **preventivo antes que reactivo** y documenta dosis/intervalos en datos, no en código.
 
