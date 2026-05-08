@@ -11,3 +11,12 @@ obsidian
 
 # Playwright MCP — snapshots, screenshots y logs de sesiones de testing
 .playwright-mcp/
+
+# Python bytecode cache (api script google/)
+__pycache__/
+
+# Skills locales de Claude Code (entorno, no proyecto)
+Skills/
+
+# Backups locales
+*.bak.*
