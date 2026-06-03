@@ -1,0 +1,38 @@
+name: keep-alive
+
+# Mantiene "despierto" el contenedor de n8n en Railway para evitar el cold start
+# (medido: 6,2s en frío vs 1,4s en caliente). Hace ping cada 10 min a /healthz,
+# que despierta el contenedor sin ejecutar ningún workflow ni tocar Google Sheets.
+#
+# NOTA: GitHub puede retrasar los crons en horas punta. Si necesitas algo más
+# fiable, un monitor externo gratuito (UptimeRobot, cada 5 min) hace lo mismo.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # cada 10 minutos
+  workflow_dispatch:           # permite lanzarlo a mano desde la pestaña Actions
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping a n8n (Railway) para evitar cold start
+        run: |
+          URL="https://primary-production-2cf7.up.railway.app/healthz"
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -m 30 "$URL" || echo "000")
+            echo "Intento $i -> HTTP $code"
+            # Cualquier respuesta del servidor (incluido 404) significa que el
+            # contenedor ya está despierto, que es justo lo que buscamos.
+            if [ "$code" != "000" ]; then
+              echo "Contenedor despierto."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Aviso: Railway no respondio tras 3 intentos (no se considera fallo)."
+          exit 0

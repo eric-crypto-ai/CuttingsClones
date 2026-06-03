@@ -1215,6 +1215,25 @@
   <script>
     const base_url = 'https://primary-production-2cf7.up.railway.app/webhook';
 
+    // GET con reintentos (backoff 0.6s/1.2s). Solo para lecturas idempotentes:
+    // recupera errores transitorios de red (wifi de sala) sin que el operario
+    // tenga que recargar. NUNCA usar para POST (podría duplicar escrituras).
+    async function fetchGet(path, intentos) {
+      intentos = intentos || 3;
+      var err;
+      for (var i = 0; i < intentos; i++) {
+        try {
+          var res = await fetch(base_url + path);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res;
+        } catch (e) {
+          err = e;
+          if (i < intentos - 1) await new Promise(function (r) { setTimeout(r, 600 * (i + 1)); });
+        }
+      }
+      throw err;
+    }
+
     // ── ICONOS POR ZONA ──
     const zonaIconos = {
       madres: '\u{1F331}',
@@ -1279,7 +1298,7 @@
 
     async function cargarInfoLanding() {
       try {
-        const res = await fetch(base_url + '/info-landing');
+        const res = await fetchGet('/info-landing');
         if (!res.ok) throw new Error('error');
         const data = await res.json();
         infoUtilState = {
@@ -1427,7 +1446,7 @@
     async function cargarProductosIPM() {
       var select = document.getElementById('producto');
       try {
-        var res = await fetch(base_url + '/ipm-productos');
+        var res = await fetchGet('/ipm-productos');
         if (!res.ok) throw new Error('error');
         var data = await res.json();
         var items = Array.isArray(data) ? (data[0] && data[0].items ? data[0].items : []) : (data.items || []);
@@ -1451,7 +1470,7 @@
     async function cargarTablaIPM() {
       var tabla = document.getElementById('tablaIPM');
       try {
-        var res = await fetch(base_url + '/ipm-lista');
+        var res = await fetchGet('/ipm-lista');
         if (!res.ok) throw new Error('error');
         var data = await res.json();
         var items = Array.isArray(data) ? (data[0] && data[0].items ? data[0].items : []) : (data.items || []);
@@ -1556,7 +1575,7 @@
     async function cargarTareas() {
       var contenedor = document.getElementById('contenedorTareas');
       try {
-        var res = await fetch(base_url + '/tareas-lista');
+        var res = await fetchGet('/tareas-lista');
         if (!res.ok) throw new Error('error');
         var data = await res.json();
         var itemsPorZona = data.items_por_zona || {};

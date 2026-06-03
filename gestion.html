@@ -1453,15 +1453,24 @@
     }
     async function api(path, opts) {
       const url = BASE + path;
-      try {
-        const res = await fetch(url, opts);
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const txt = await res.text();
-        if (!txt) return { success: false, error: "respuesta vacía del servidor" };
-        return JSON.parse(txt);
-      } catch (e) {
-        return { success: false, error: e.message || String(e) };
+      // Solo reintentamos lecturas (GET): son idempotentes. Las escrituras (POST)
+      // van a 1 intento para no arriesgar duplicados si la respuesta se pierde.
+      const esGet = !opts || !opts.method || String(opts.method).toUpperCase() === "GET";
+      const intentos = esGet ? 3 : 1;
+      let err;
+      for (let i = 0; i < intentos; i++) {
+        try {
+          const res = await fetch(url, opts);
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const txt = await res.text();
+          if (!txt) return { success: false, error: "respuesta vacía del servidor" };
+          return JSON.parse(txt);
+        } catch (e) {
+          err = e;
+          if (i < intentos - 1) await new Promise(r => setTimeout(r, 600 * (i + 1)));
+        }
       }
+      return { success: false, error: (err && err.message) || String(err) };
     }
 
     // ========== Tabs ==========
@@ -1513,7 +1522,7 @@
     });
 
     async function cargarTab(tab) {
-      if (tab === "pedidos") { await cargarClientes(); await cargarPedidos(); }
+      if (tab === "pedidos") { await Promise.all([cargarClientes(), cargarPedidos()]); renderPedidos(); }
       else if (tab === "bote") { await cargarEstadoBote(); }
       else if (tab === "repartos") { await cargarEstadoBote(); renderRepartos(); }
       else if (tab === "gastos") { await cargarEstadoBote(); renderGastosFromMovs(); }
@@ -1558,13 +1567,23 @@
     });
 
     // ========== CLIENTES ==========
-    async function cargarClientes() {
-      const r = await api("/clientes-lista");
-      if (r && r.success) state.clientes = r.data.clientes || [];
-      const sel = document.getElementById("pedido-cliente");
-      sel.innerHTML = '<option value="">Selecciona cliente…</option>' +
-        state.clientes.filter(c => c.activo === "si").map(c =>
-          `<option value="${c.id_cliente}">${c.nombre}</option>`).join("");
+    // Memoizado: la lista de clientes apenas cambia dentro de una sesión, así que
+    // se carga UNA vez y las llamadas concurrentes comparten la misma promesa
+    // (antes se pedía /clientes-lista hasta 2 veces al abrir). Se refresca con
+    // cargarClientes(true) tras crear un cliente.
+    let _clientesPromise = null;
+    async function cargarClientes(force) {
+      if (!force && _clientesPromise) return _clientesPromise;
+      _clientesPromise = (async () => {
+        const r = await api("/clientes-lista");
+        if (r && r.success) state.clientes = r.data.clientes || [];
+        else _clientesPromise = null; // si falló, permite reintentar en la próxima llamada
+        const sel = document.getElementById("pedido-cliente");
+        if (sel) sel.innerHTML = '<option value="">Selecciona cliente…</option>' +
+          state.clientes.filter(c => c.activo === "si").map(c =>
+            `<option value="${c.id_cliente}">${c.nombre}</option>`).join("");
+      })();
+      return _clientesPromise;
     }
 
     function renderClientes() {
@@ -1594,7 +1613,7 @@
         if (r.success) {
           toast("Cliente creado ✓");
           ["cli-nombre","cli-notas"].forEach(id => document.getElementById(id).value = "");
-          await cargarClientes();
+          await cargarClientes(true);
           renderClientes();
         } else { toast("Error: " + (r.error || "desconocido"), true); }
       } finally { unlockBtn(btn, busy); }
@@ -1613,7 +1632,10 @@
       if (cr && Array.isArray(cr.items)) state.cortes = cr.items;
       else if (cr && cr.success && cr.data && Array.isArray(cr.data.items)) state.cortes = cr.data.items;
       renderPedidos();
-      cargarPedidosTodos();  // mantener actualizado el cache para desglose de reservas en Cortes
+      // Sin filtro, /pedidos-lista YA devuelve todos los pedidos: reutilizamos el
+      // resultado en vez de volver a pedirlo (antes era una 3ª llamada redundante).
+      if (state.pedidosFiltro) cargarPedidosTodos();
+      else state.pedidosTodos = state.pedidos;
     }
 
     function pedidosConReservasActivas() {
@@ -2874,10 +2896,13 @@
       } catch (e) {}
       activarTab(tabInicial);
 
-      // Datos siempre necesarios para cruces (clientes para cortes/pedidos, lista pedidos para reservas)
+      // Datos siempre necesarios para cruces (clientes para cortes/pedidos, lista pedidos para reservas).
+      // cargarClientes() está memoizado: si la pestaña inicial ya lo lanzó, esto NO repite la llamada.
       await cargarClientes();
       cargarGeneticasConocidas();
-      cargarPedidosTodos();
+      // En la pestaña "pedidos", cargarPedidos() ya rellenó pedidosTodos; solo lo pedimos
+      // explícitamente para las demás pestañas iniciales (p. ej. ?tab=cortes).
+      if (tabInicial !== "pedidos") cargarPedidosTodos();
     })();
   </script>
 </body>
