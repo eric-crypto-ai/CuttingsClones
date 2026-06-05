@@ -1,0 +1,23 @@
+{
+  "folders": [
+    {
+      "name": "Proyecto_CuttingsClones",
+      "path": "."
+    },
+    {
+      "name": "Bóveda CuttinngClones (Obsidian)",
+      "path": "/Users/ericcastillo/Library/Mobile Documents/iCloud~md~obsidian/Documents/Bóveda CuttinngClones"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.DS_Store": true,
+      "**/.obsidian": true,
+      "**/.trash": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/.obsidian": true
+    }
+  }
+}
