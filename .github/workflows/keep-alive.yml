@@ -1,8 +1,9 @@
 name: keep-alive
 
-# Mantiene "despierto" el contenedor de n8n en Railway para evitar el cold start
-# (medido: 6,2s en frío vs 1,4s en caliente). Hace ping cada 10 min a /healthz,
-# que despierta el contenedor sin ejecutar ningún workflow ni tocar Google Sheets.
+# Mantiene "despiertos" (cada 10 min) para evitar el cold start:
+#  - el contenedor de n8n en Railway (/healthz): 6,2s frío -> 1,4s caliente.
+#  - la app Next.js en Vercel (/api/health): ~1,7s frío -> ~0,3s caliente.
+# Ninguno de los dos pings toca Google Sheets ni ejecuta workflows.
 #
 # NOTA: GitHub puede retrasar los crons en horas punta. Si necesitas algo más
 # fiable, un monitor externo gratuito (UptimeRobot, cada 5 min) hace lo mismo.
@@ -35,4 +36,21 @@ jobs:
             sleep 10
           done
           echo "Aviso: Railway no respondio tras 3 intentos (no se considera fallo)."
+          exit 0
+
+      - name: Ping a la app Next.js (Vercel) para evitar cold start
+        run: |
+          URL="https://cuttingsclones-web.vercel.app/api/health"
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -m 30 "$URL" || echo "000")
+            echo "Intento $i -> HTTP $code"
+            # /api/health responde 200 "ok" sin tocar Sheets; cualquier respuesta
+            # significa que la funcion serverless de Next ya esta caliente.
+            if [ "$code" != "000" ]; then
+              echo "Funcion Vercel despierta."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Aviso: Vercel no respondio tras 3 intentos (no se considera fallo)."
           exit 0
