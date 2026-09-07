@@ -29,7 +29,7 @@ from datetime import datetime, timezone, timedelta
 WORKFLOW_ID = "CPUlOabXvRrGIVjy"
 N8N_BASE = "https://primary-production-2cf7.up.railway.app/api/v1"
 SPREADSHEET_ID = "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI"
-API_SCRIPT = "/Users/ericcastillo/Library/Mobile Documents/com~apple~CloudDocs/Proyecto_CuttingsClones/api script google/api_script.js"
+API_SCRIPT = "/Users/ericcastillo/Proyectos/cuttings-clones/api script google/api_script.js"
 
 CRON_NORMAL = "0 6 * * *"
 CRON_FAST = "*/2 * * * *"
