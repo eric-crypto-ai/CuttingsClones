@@ -20,3 +20,6 @@ Skills/
 
 # Backups locales
 *.bak.*
+
+# Permisos locales de Claude Code — entorno de este Mac, no del proyecto
+.claude/settings.local.json
