@@ -19,7 +19,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const body = $('Webhook Crear').first().json.body;\n\nconst tarea = String(body.tarea || '').trim();\nconst zona = String(body.zona || '').trim().toLowerCase();\nconst prioridad = String(body.prioridad || 'media').trim().toLowerCase();\nconst fecha = String(body.fecha || '').trim();\nconst observaciones = String(body.observaciones || '').trim();\n\nconst id = 'T' + Date.now();\n\nreturn [{\n  json: {\n    id,\n    zona,\n    tarea,\n    prioridad,\n    estado: 'pendiente',\n    fecha,\n    recurrente: '',\n    dia_recurrencia: '',\n    observaciones\n  }\n}];"
+        "jsCode": "const body = $('Webhook Crear').first().json.body;\n\nconst tarea = String(body.tarea || '').trim();\nconst zona = String(body.zona || '').trim().toLowerCase();\nconst prioridad = String(body.prioridad || 'media').trim().toLowerCase();\nconst fecha = String(body.fecha || '').trim();\nconst observaciones = String(body.observaciones || '').trim();\n\n// Sufijo aleatorio de 3 digitos para evitar colisiones cuando varias ejecuciones caen en el mismo milisegundo\nconst id = 'T' + Date.now() + String(Math.floor(Math.random() * 900 + 100));\n\nreturn [{\n  json: {\n    id,\n    zona,\n    tarea,\n    prioridad,\n    estado: 'pendiente',\n    fecha,\n    recurrente: '',\n    dia_recurrencia: '',\n    observaciones\n  }\n}];"
       },
       "id": "ct000001-4444-4aaa-b444-000000000004",
       "name": "Preparar Datos",
