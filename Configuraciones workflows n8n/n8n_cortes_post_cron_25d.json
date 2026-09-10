@@ -1,0 +1,1501 @@
+{
+  "name": "Cortes",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cortes-crear",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "4e8696d3-c485-466f-969d-9b2bd9ad3677",
+      "name": "Webhook Crear Corte",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        200,
+        300
+      ],
+      "webhookId": "cortes-crear"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "options": {}
+      },
+      "id": "ce889ab7-4d46-473e-9ef4-d5f56346605e",
+      "name": "Leer Eventos Existentes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        420,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('Webhook Crear Corte').first().json.body;\nconst filas = $input.all().map(i => i.json);\n\nconst fecha_corte = String(body.fecha_corte || '').trim();\nconst genetica = String(body.genetica || '').trim();\nconst num_esquejes = parseInt(body.num_esquejes, 10);\nconst intervalo_dias = parseInt(body.intervalo_dias, 10) || 14;\nconst operario = String(body.operario || '').trim();\nconst observaciones = String(body.observaciones || '').trim();\n\nif (!fecha_corte) throw new Error('falta fecha_corte');\nif (!genetica) throw new Error('falta genetica');\nif (!num_esquejes || num_esquejes <= 0) throw new Error('num_esquejes invalido');\n\nconst prefixMap = { 'Amnesia': 'AMN', 'Hokuzai': 'HOK' };\nconst prefix = prefixMap[genetica] || genetica.slice(0, 3).toUpperCase();\n\n// Secuencial del dia para misma genetica\nconst mismoDia = filas.filter(f =>\n  String(f.fecha_corte || '').trim() === fecha_corte &&\n  String(f.genetica || '').trim() === genetica\n);\nconst secuencial = mismoDia.length + 1;\nconst id_evento = prefix + '-' + fecha_corte + '-' + secuencial;\n\n// Fecha proximo corte = fecha_corte + intervalo_dias\nconst d = new Date(fecha_corte + 'T00:00:00Z');\nd.setUTCDate(d.getUTCDate() + intervalo_dias);\nconst fecha_proximo = d.getUTCFullYear() + '-' +\n  String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +\n  String(d.getUTCDate()).padStart(2, '0');\n\nreturn [{\n  json: {\n    id_evento,\n    fecha_corte,\n    genetica,\n    num_esquejes,\n    intervalo_dias,\n    fecha_proximo_corte_estimada: fecha_proximo,\n    operario,\n    observaciones,\n    estado: 'activo'\n  }\n}];"
+      },
+      "id": "538531f9-ccd2-40ed-b66e-c7c93daa0f01",
+      "name": "Preparar Evento",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "661e034f-ac78-4b27-8d2b-aa62525bf433",
+      "name": "Guardar Evento",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        860,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const evento = $('Preparar Evento').first().json;\n\n// id de tarea siguiendo patron Crear_Tarea (T + timestamp + 3 random digits)\nconst id = 'T' + Date.now() + String(Math.floor(Math.random() * 900 + 100));\n\nreturn [{\n  json: {\n    id,\n    zona: 'madres',\n    tarea: 'Evaluar vigor — proximo corte ' + evento.genetica,\n    prioridad: 'media',\n    estado: 'pendiente',\n    fecha: evento.fecha_proximo_corte_estimada,\n    recurrente: '',\n    dia_recurrencia: '',\n    observaciones: 'Tarea generada por evento ' + evento.id_evento + ' (corte ' + evento.fecha_corte + ', ' + evento.num_esquejes + ' esquejes)',\n    id_evento_origen: evento.id_evento,\n    tipo_origen: 'corte'\n  }\n}];"
+      },
+      "id": "68c1625a-879b-478c-a00b-1a76babbfa53",
+      "name": "Preparar Tarea",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1404161276,
+          "mode": "list",
+          "cachedResultName": "tareas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1404161276"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "a0274158-4360-4006-92f5-0677fffad5b1",
+      "name": "Guardar Tarea",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1300,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"id_evento\": $('Preparar Evento').item.json.id_evento, \"fecha_proximo_corte_estimada\": $('Preparar Evento').item.json.fecha_proximo_corte_estimada } }}",
+        "options": {}
+      },
+      "id": "913944bb-5997-4f87-9699-838f8f29a47f",
+      "name": "Respuesta Crear OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "cortes-lista",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "cabeab8e-ee5a-4e89-9aaa-689d0c6c8825",
+      "name": "Webhook Lista Cortes",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        200,
+        600
+      ],
+      "webhookId": "cortes-lista"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 793345778,
+          "mode": "list",
+          "cachedResultName": "reservas_pedidos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=793345778"
+        },
+        "options": {}
+      },
+      "id": "95e9efe4-8769-49a5-89f2-95a0cae8a229",
+      "name": "Leer Reservas para Lista",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        420,
+        600
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "options": {}
+      },
+      "id": "7734e65a-1b08-4c42-9aef-b8c631bfb6b4",
+      "name": "Leer Eventos para Lista",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        640,
+        600
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const eventos = $('Leer Eventos para Lista').all().map(i => i.json);\nconst reservas = $('Leer Reservas para Lista').all().map(i => i.json);\n\nconst reservasPorEvento = {};\nfor (const r of reservas) {\n  const idEvento = String(r.id_evento || '').trim();\n  if (!idEvento) continue;\n  const estado = String(r.estado || '').trim().toLowerCase();\n  if (estado === 'reservada' || estado === 'consumida') {\n    if (!reservasPorEvento[idEvento]) reservasPorEvento[idEvento] = [];\n    reservasPorEvento[idEvento].push(r);\n  }\n}\n\nconst items = eventos\n  .map(f => {\n    const id_evento = String(f.id_evento || '').trim();\n    const num_esquejes = Number(f.num_esquejes) || 0;\n    const n_descartados = Number(f.n_descartados) || 0;\n    const total_neto = num_esquejes - n_descartados;\n    const resList = reservasPorEvento[id_evento] || [];\n    const reservado = resList.reduce((acc, r) => acc + (Number(r.cantidad) || 0), 0);\n    const disponible = total_neto - reservado;\n    return {\n      id_evento,\n      fecha_corte: String(f.fecha_corte || '').trim(),\n      genetica: String(f.genetica || '').trim(),\n      num_esquejes,\n      intervalo_dias: Number(f.intervalo_dias) || 14,\n      fecha_proximo_corte_estimada: String(f.fecha_proximo_corte_estimada || '').trim(),\n      operario: String(f.operario || '').trim(),\n      observaciones: String(f.observaciones || '').trim(),\n      estado: String(f.estado || '').trim() || 'activo',\n      fecha_cierre: String(f.fecha_cierre || '').trim(),\n      motivo_cierre: String(f.motivo_cierre || '').trim(),\n      total_neto,\n      reservado,\n      disponible,\n      reservas_activas: resList.map(r => ({\n        id_reserva: String(r.id_reserva || '').trim(),\n        id_pedido: String(r.id_pedido || '').trim(),\n        cantidad: Number(r.cantidad) || 0,\n        estado: String(r.estado || '').trim(),\n        fecha_reserva: String(r.fecha_reserva || '').trim(),\n      })),\n    };\n  })\n  .filter(f => f.id_evento)\n  .sort((a, b) => {\n    if (b.fecha_corte !== a.fecha_corte) return b.fecha_corte.localeCompare(a.fecha_corte);\n    return b.id_evento.localeCompare(a.id_evento);\n  });\n\nreturn [{ json: { items } }];\n"
+      },
+      "id": "aee19e9a-7ce0-4296-a670-5344ec4e4178",
+      "name": "Formatear Lista",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        860,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "bc44411c-4169-4c4c-b130-0c1ae8ce9412",
+      "name": "Respuesta Lista",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1080,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "cortes-disponibilidad",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "a58ceef9-ded2-49a4-b946-a9d92f20dfea",
+      "name": "Webhook Disponibilidad",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        200,
+        920
+      ],
+      "webhookId": "cortes-disponibilidad"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 793345778,
+          "mode": "list",
+          "cachedResultName": "reservas_pedidos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=793345778"
+        },
+        "options": {}
+      },
+      "id": "b6c36a19-1247-4b36-9b1c-6fb75db81279",
+      "name": "Leer Reservas Disponibilidad",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        420,
+        920
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "options": {}
+      },
+      "id": "6913ecc4-11d0-4d7a-8364-74fa72507c3c",
+      "name": "Leer Eventos Disponibilidad",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        640,
+        920
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const eventos = $('Leer Eventos Disponibilidad').all().map(i => i.json);\nconst reservas = $('Leer Reservas Disponibilidad').all().map(i => i.json);\n\nconst trigger = $('Webhook Disponibilidad').first().json;\nconst geneticaFilter = String((trigger.query && trigger.query.genetica) || '').trim().toLowerCase();\n\nconst reservasPorEvento = {};\nfor (const r of reservas) {\n  const idEvento = String(r.id_evento || '').trim();\n  if (!idEvento) continue;\n  const estado = String(r.estado || '').trim().toLowerCase();\n  if (estado === 'reservada' || estado === 'consumida') {\n    reservasPorEvento[idEvento] = (reservasPorEvento[idEvento] || 0) + (Number(r.cantidad) || 0);\n  }\n}\n\nconst items = eventos\n  .map(f => {\n    const id_evento = String(f.id_evento || '').trim();\n    const estado = String(f.estado || '').trim().toLowerCase() || 'activo';\n    const num_esquejes = Number(f.num_esquejes) || 0;\n    const n_descartados = Number(f.n_descartados) || 0;\n    const total_neto = num_esquejes - n_descartados;\n    const reservado = reservasPorEvento[id_evento] || 0;\n    return {\n      id_evento,\n      genetica: String(f.genetica || '').trim(),\n      fecha_corte: String(f.fecha_corte || '').trim(),\n      total_neto,\n      reservado,\n      disponible: total_neto - reservado,\n      estado,\n    };\n  })\n  .filter(e => e.id_evento)\n  .filter(e => e.estado === 'activo')\n  .filter(e => !geneticaFilter || e.genetica.toLowerCase() === geneticaFilter)\n  .filter(e => e.disponible > 0)\n  .sort((a, b) => (a.fecha_corte || '').localeCompare(b.fecha_corte || ''));\n\nreturn [{ json: { items } }];\n"
+      },
+      "id": "ec6d634e-a0b9-4a55-88ff-6c8cabce5c31",
+      "name": "Calcular Disponibilidad",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        860,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "c222cb73-10e7-4c0b-ae80-4b554110386d",
+      "name": "Respuesta Disponibilidad",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1080,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cortes-cerrar",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "d6bbfd6e-0126-4802-90e7-2766a7d41f6e",
+      "name": "Webhook Cerrar Lote",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        200,
+        1240
+      ],
+      "webhookId": "cortes-cerrar"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst id_evento = String(body.id_evento || '').trim();\nconst motivo = String(body.motivo || 'manual').trim().toLowerCase() || 'manual';\nif (!id_evento) {\n  return [{ json: { ok: false, error: 'id_evento requerido', _stop: true } }];\n}\nreturn [{ json: { id_evento, motivo, ok: true } }];\n"
+      },
+      "id": "a6dfa316-3808-412e-8a6b-3d4d11380fdc",
+      "name": "Prepare Cerrar Lote",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        1240
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "options": {}
+      },
+      "id": "5ceba737-cb76-4561-8050-1e7340e63946",
+      "name": "Read eventos_corte (cerrar)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        600,
+        1240
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const prep = $('Prepare Cerrar Lote').first().json;\nif (prep._stop) return [{ json: prep }];\n\nconst eventos = $input.all().map(i => i.json);\nconst evento = eventos.find(e => String(e.id_evento || '').trim() === prep.id_evento);\nif (!evento) {\n  return [{ json: { ok: false, error: 'lote no encontrado: ' + prep.id_evento, _stop: true } }];\n}\nconst estado = (String(evento.estado || '').trim().toLowerCase()) || 'activo';\nif (estado !== 'activo') {\n  return [{ json: { ok: false, error: 'lote ya cerrado: ' + prep.id_evento, _stop: true } }];\n}\n\nconst hoy = new Date().toISOString().slice(0, 10);\nreturn [{\n  json: {\n    id_evento: prep.id_evento,\n    estado: 'cerrado',\n    fecha_cierre: hoy,\n    motivo_cierre: prep.motivo,\n    ok: true,\n  }\n}];\n"
+      },
+      "id": "9c5e6e4b-0a48-4e9e-9a33-d4a37a8cd0c4",
+      "name": "Validar Cerrar Lote",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        1240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "37b6c8c9-5057-44ac-b2ea-6badd4aadc97",
+              "leftValue": "={{ $json.ok && !$json._stop }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "28a7d9b5-178f-4b56-90a7-57f2b638ca54",
+      "name": "Cierre OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        1240
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_evento": "={{ $json.id_evento }}",
+            "estado": "={{ $json.estado }}",
+            "fecha_cierre": "={{ $json.fecha_cierre }}",
+            "motivo_cierre": "={{ $json.motivo_cierre }}"
+          },
+          "matchingColumns": [
+            "id_evento"
+          ],
+          "schema": [
+            {
+              "id": "id_evento",
+              "displayName": "id_evento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "fecha_cierre",
+              "displayName": "fecha_cierre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "motivo_cierre",
+              "displayName": "motivo_cierre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "39c150b2-4730-4122-9772-9878914fea2d",
+      "name": "Update lote cerrado",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1200,
+        1120
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"id_evento\": $('Validar Cerrar Lote').first().json.id_evento, \"motivo_cierre\": $('Validar Cerrar Lote').first().json.motivo_cierre } }}",
+        "options": {}
+      },
+      "id": "4af042fd-f8ad-43e1-aeaf-e00410624e78",
+      "name": "Respond Cerrar OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1400,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": false, \"error\": ($('Validar Cerrar Lote').first().json.error || $('Prepare Cerrar Lote').first().json.error || 'error desconocido') } }}",
+        "options": {}
+      },
+      "id": "47e421e0-4d14-48a9-808a-e89ac3f582fa",
+      "name": "Respond Cerrar Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1200,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cortes-reactivar",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "dff4e8a1-c7cb-403b-bbf7-7b599b294ef9",
+      "name": "Webhook Reactivar Lote",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        200,
+        1560
+      ],
+      "webhookId": "cortes-reactivar"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst id_evento = String(body.id_evento || '').trim();\nif (!id_evento) {\n  return [{ json: { ok: false, error: 'id_evento requerido', _stop: true } }];\n}\nreturn [{ json: { id_evento, ok: true } }];\n"
+      },
+      "id": "397ba393-1e64-4d4b-b354-8389c70bd738",
+      "name": "Prepare Reactivar Lote",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        1560
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "options": {}
+      },
+      "id": "df32d1ab-870b-4a14-9056-b6d5978f243e",
+      "name": "Read eventos_corte (reactivar)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        600,
+        1560
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const prep = $('Prepare Reactivar Lote').first().json;\nif (prep._stop) return [{ json: prep }];\n\nconst eventos = $input.all().map(i => i.json);\nconst evento = eventos.find(e => String(e.id_evento || '').trim() === prep.id_evento);\nif (!evento) {\n  return [{ json: { ok: false, error: 'lote no encontrado: ' + prep.id_evento, _stop: true } }];\n}\nconst estado = (String(evento.estado || '').trim().toLowerCase()) || 'activo';\nif (estado === 'activo') {\n  return [{ json: { ok: false, error: 'lote ya activo: ' + prep.id_evento, _stop: true } }];\n}\n\nreturn [{\n  json: {\n    id_evento: prep.id_evento,\n    estado: 'activo',\n    fecha_cierre: '',\n    motivo_cierre: '',\n    ok: true,\n  }\n}];\n"
+      },
+      "id": "12f600da-b1ba-4657-a71e-56390fb4f1dc",
+      "name": "Validar Reactivar Lote",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        1560
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "35b14962-7b73-46a0-8af3-802ba54dcc00",
+              "leftValue": "={{ $json.ok && !$json._stop }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "736d94cc-03d1-4d9b-a056-088cd1a57361",
+      "name": "Reactivar OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        1560
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_evento": "={{ $json.id_evento }}",
+            "estado": "={{ $json.estado }}",
+            "fecha_cierre": "={{ $json.fecha_cierre }}",
+            "motivo_cierre": "={{ $json.motivo_cierre }}"
+          },
+          "matchingColumns": [
+            "id_evento"
+          ],
+          "schema": [
+            {
+              "id": "id_evento",
+              "displayName": "id_evento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "fecha_cierre",
+              "displayName": "fecha_cierre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "motivo_cierre",
+              "displayName": "motivo_cierre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "e4a78018-ea23-40fc-a16e-c8fb221d6510",
+      "name": "Update lote reactivado",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1200,
+        1440
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"id_evento\": $('Validar Reactivar Lote').first().json.id_evento } }}",
+        "options": {}
+      },
+      "id": "a468206d-3cdd-4424-82db-bc3b194000aa",
+      "name": "Respond Reactivar OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1400,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": false, \"error\": ($('Validar Reactivar Lote').first().json.error || $('Prepare Reactivar Lote').first().json.error || 'error desconocido') } }}",
+        "options": {}
+      },
+      "id": "1b68f8dd-b336-48f8-8bfb-5ca13505bfaf",
+      "name": "Respond Reactivar Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1200,
+        1680
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 6,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "id": "4a60493a-9238-4a8b-8013-3900c5e1b567",
+      "name": "Cron Auto-cierre 25d",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        1880
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "options": {}
+      },
+      "id": "5352baec-63a1-4cfd-8412-87d2e35bad1f",
+      "name": "Read eventos_corte (cron)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        1880
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 793345778,
+          "mode": "list",
+          "cachedResultName": "reservas_pedidos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=793345778"
+        },
+        "options": {}
+      },
+      "id": "946eb2fe-5c85-4adc-aeec-c52c4a37bd62",
+      "name": "Read reservas_pedidos (cron)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        600,
+        1880
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const eventos = $('Read eventos_corte (cron)').all().map(i => i.json);\nconst reservas = $('Read reservas_pedidos (cron)').all().map(i => i.json);\n\nconst hoyStr = new Date().toISOString().slice(0, 10);\nconst hoyMs = new Date(hoyStr + 'T00:00:00Z').getTime();\nconst DIAS_LIMITE = 25;\n\n// Eventos con reserva pendiente (estado='reservada')\nconst eventosConReservasPendientes = new Set();\nfor (const r of reservas) {\n  const est = String(r.estado || '').trim().toLowerCase();\n  if (est === 'reservada') {\n    const id = String(r.id_evento || '').trim();\n    if (id) eventosConReservasPendientes.add(id);\n  }\n}\n\nconst aCerrar = [];\nfor (const e of eventos) {\n  const idEvento = String(e.id_evento || '').trim();\n  if (!idEvento) continue;\n  const estado = (String(e.estado || '').trim().toLowerCase()) || 'activo';\n  if (estado !== 'activo') continue;\n\n  const fecha_corte = String(e.fecha_corte || '').trim();\n  if (!fecha_corte) continue;\n  const corteMs = new Date(fecha_corte + 'T00:00:00Z').getTime();\n  if (isNaN(corteMs)) continue;\n  const dias = Math.floor((hoyMs - corteMs) / 86400000);\n  if (dias < DIAS_LIMITE) continue;\n\n  // Si hay reservas pendientes, NO cerrar (respeta trazabilidad)\n  if (eventosConReservasPendientes.has(idEvento)) continue;\n\n  aCerrar.push({\n    id_evento: idEvento,\n    estado: 'cerrado',\n    fecha_cierre: hoyStr,\n    motivo_cierre: 'caducado_25d',\n  });\n}\n\nreturn [{ json: { has_caducados: aCerrar.length > 0, eventos: aCerrar } }];\n"
+      },
+      "id": "89f0c101-3255-449f-a5ec-99533c9166af",
+      "name": "Calcular Eventos Caducados 25d",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        1880
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "b2649248-b3f5-4b4a-898a-91562bb77101",
+              "leftValue": "={{ $json.has_caducados }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2b5b9719-5d79-43fc-9d86-c1ea120f1652",
+      "name": "Hay Caducados?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        1880
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const eventos = $('Calcular Eventos Caducados 25d').first().json.eventos || [];\nreturn eventos.map(e => ({ json: e }));\n"
+      },
+      "id": "e876e0ad-fc91-4d9f-9f07-03a6ac6ad4df",
+      "name": "Marcar Caducados",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        1760
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_evento": "={{ $json.id_evento }}",
+            "estado": "={{ $json.estado }}",
+            "fecha_cierre": "={{ $json.fecha_cierre }}",
+            "motivo_cierre": "={{ $json.motivo_cierre }}"
+          },
+          "matchingColumns": [
+            "id_evento"
+          ],
+          "schema": [
+            {
+              "id": "id_evento",
+              "displayName": "id_evento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "fecha_cierre",
+              "displayName": "fecha_cierre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "motivo_cierre",
+              "displayName": "motivo_cierre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "f1a42bc8-1c85-4309-96ae-1a43a938f346",
+      "name": "Update eventos caducados",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1400,
+        1760
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "d1ff0a64-148c-48fc-87a3-d39c1e216c5a",
+      "name": "Cron Fin",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        1880
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Crear Corte": {
+      "main": [
+        [
+          {
+            "node": "Leer Eventos Existentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Eventos Existentes": {
+      "main": [
+        [
+          {
+            "node": "Preparar Evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Evento": {
+      "main": [
+        [
+          {
+            "node": "Guardar Evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Evento": {
+      "main": [
+        [
+          {
+            "node": "Preparar Tarea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Tarea": {
+      "main": [
+        [
+          {
+            "node": "Guardar Tarea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Tarea": {
+      "main": [
+        [
+          {
+            "node": "Respuesta Crear OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Lista Cortes": {
+      "main": [
+        [
+          {
+            "node": "Leer Reservas para Lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Reservas para Lista": {
+      "main": [
+        [
+          {
+            "node": "Leer Eventos para Lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Eventos para Lista": {
+      "main": [
+        [
+          {
+            "node": "Formatear Lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatear Lista": {
+      "main": [
+        [
+          {
+            "node": "Respuesta Lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Disponibilidad": {
+      "main": [
+        [
+          {
+            "node": "Leer Reservas Disponibilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Reservas Disponibilidad": {
+      "main": [
+        [
+          {
+            "node": "Leer Eventos Disponibilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Eventos Disponibilidad": {
+      "main": [
+        [
+          {
+            "node": "Calcular Disponibilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular Disponibilidad": {
+      "main": [
+        [
+          {
+            "node": "Respuesta Disponibilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Cerrar Lote": {
+      "main": [
+        [
+          {
+            "node": "Prepare Cerrar Lote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Cerrar Lote": {
+      "main": [
+        [
+          {
+            "node": "Read eventos_corte (cerrar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read eventos_corte (cerrar)": {
+      "main": [
+        [
+          {
+            "node": "Validar Cerrar Lote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Cerrar Lote": {
+      "main": [
+        [
+          {
+            "node": "Cierre OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cierre OK?": {
+      "main": [
+        [
+          {
+            "node": "Update lote cerrado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Cerrar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update lote cerrado": {
+      "main": [
+        [
+          {
+            "node": "Respond Cerrar OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Reactivar Lote": {
+      "main": [
+        [
+          {
+            "node": "Prepare Reactivar Lote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Reactivar Lote": {
+      "main": [
+        [
+          {
+            "node": "Read eventos_corte (reactivar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read eventos_corte (reactivar)": {
+      "main": [
+        [
+          {
+            "node": "Validar Reactivar Lote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Reactivar Lote": {
+      "main": [
+        [
+          {
+            "node": "Reactivar OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reactivar OK?": {
+      "main": [
+        [
+          {
+            "node": "Update lote reactivado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Reactivar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update lote reactivado": {
+      "main": [
+        [
+          {
+            "node": "Respond Reactivar OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron Auto-cierre 25d": {
+      "main": [
+        [
+          {
+            "node": "Read eventos_corte (cron)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read eventos_corte (cron)": {
+      "main": [
+        [
+          {
+            "node": "Read reservas_pedidos (cron)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read reservas_pedidos (cron)": {
+      "main": [
+        [
+          {
+            "node": "Calcular Eventos Caducados 25d",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular Eventos Caducados 25d": {
+      "main": [
+        [
+          {
+            "node": "Hay Caducados?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hay Caducados?": {
+      "main": [
+        [
+          {
+            "node": "Marcar Caducados",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cron Fin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar Caducados": {
+      "main": [
+        [
+          {
+            "node": "Update eventos caducados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update eventos caducados": {
+      "main": [
+        [
+          {
+            "node": "Cron Fin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

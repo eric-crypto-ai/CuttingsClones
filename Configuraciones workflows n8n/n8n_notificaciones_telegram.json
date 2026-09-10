@@ -1,0 +1,1115 @@
+{
+  "name": "Notificaciones_Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "0aa6f0f1-0399-4773-a0ca-0eaf6cc1d5ee",
+      "name": "Cron Tareas Atrasadas",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "tareas",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "0c596a1b-639f-48b7-93c3-5034a409487d",
+      "name": "Read tareas (Tareas Atrasadas)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        460,
+        0
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const filas = $input.all().map(i => i.json);\nconst hoy = new Date(); hoy.setHours(0,0,0,0);\nconst hoyStr = hoy.toISOString().slice(0,10);\nconst manana = new Date(hoy); manana.setDate(manana.getDate()+1);\nconst mananaStr = manana.toISOString().slice(0,10);\n\nconst matched = filas.filter(f => {\n  const fecha = String(f.fecha || '').trim();\n  const estado = String(f.estado || '').trim().toLowerCase();\n  if (estado !== 'pendiente') return false;\n  if (!fecha) return false;\n  return fecha < hoyStr;\n});\n\nif (matched.length === 0) return [{ json: { _stop: true } }];\n\nconst porZona = {};\nfor (const t of matched) {\n  const z = String(t.zona || 'sin zona').toLowerCase();\n  if (!porZona[z]) porZona[z] = [];\n  porZona[z].push(t);\n}\n\nlet texto = '🚨 Tareas atrasadas (' + matched.length + ')\\n\\n';\nconst zonas = Object.keys(porZona).sort();\nfor (const z of zonas) {\n  texto += '• ' + z.toUpperCase() + '\\n';\n  porZona[z].sort((a,b) => String(a.fecha).localeCompare(String(b.fecha)));\n  for (const t of porZona[z]) {\n    const prio = String(t.prioridad || '').toLowerCase();\n    const flag = prio === 'alta' ? '🔴 ' : '';\n    texto += '  ' + flag + t.fecha + ' · ' + t.tarea + '\\n';\n  }\n  texto += '\\n';\n}\n\nreturn [{ json: { chat_id: -5023756424, text: texto.trim() } }];\n"
+      },
+      "id": "e1b0bcba-79b2-490c-9fdc-a7b74ccf59fa",
+      "name": "Code Tareas Atrasadas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c17296f4-1eef-4dff-89bb-81e629b8aeb3",
+              "leftValue": "={{ !$json._stop }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bd1bfccb-0675-4b2f-84c5-76d207309d77",
+      "name": "¿Hay Tareas Atrasadas?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "a23a666f-262a-4d4e-92f1-7ba2d91dff56",
+      "name": "Telegram Tareas Atrasadas",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "gIKUgl2QLI4kwXIY",
+          "name": "Telegram CuttingClones"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 19,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "55d1c227-0b83-4fa5-b0f5-7c4383a3914a",
+      "name": "Cron Tareas Mañana",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "tareas",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "46126e3d-19e3-4625-bbb7-741285f41ef3",
+      "name": "Read tareas (Tareas Mañana)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        460,
+        200
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const filas = $input.all().map(i => i.json);\nconst hoy = new Date(); hoy.setHours(0,0,0,0);\nconst hoyStr = hoy.toISOString().slice(0,10);\nconst manana = new Date(hoy); manana.setDate(manana.getDate()+1);\nconst mananaStr = manana.toISOString().slice(0,10);\n\nconst matched = filas.filter(f => {\n  const fecha = String(f.fecha || '').trim();\n  const estado = String(f.estado || '').trim().toLowerCase();\n  if (estado !== 'pendiente') return false;\n  if (!fecha) return false;\n  return fecha === mananaStr;\n});\n\nif (matched.length === 0) return [{ json: { _stop: true } }];\n\nconst porZona = {};\nfor (const t of matched) {\n  const z = String(t.zona || 'sin zona').toLowerCase();\n  if (!porZona[z]) porZona[z] = [];\n  porZona[z].push(t);\n}\n\nlet texto = '📋 Tareas para mañana (' + matched.length + ')\\n\\n';\nconst zonas = Object.keys(porZona).sort();\nfor (const z of zonas) {\n  texto += '• ' + z.toUpperCase() + '\\n';\n  porZona[z].sort((a,b) => String(a.fecha).localeCompare(String(b.fecha)));\n  for (const t of porZona[z]) {\n    const prio = String(t.prioridad || '').toLowerCase();\n    const flag = prio === 'alta' ? '🔴 ' : '';\n    texto += '  ' + flag + t.fecha + ' · ' + t.tarea + '\\n';\n  }\n  texto += '\\n';\n}\n\nreturn [{ json: { chat_id: -5023756424, text: texto.trim() } }];\n"
+      },
+      "id": "e90b7f06-4d12-44c0-83b5-b99118753d60",
+      "name": "Code Tareas Mañana",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "eb4987b3-a742-4476-a5b6-fcb216fa9db0",
+              "leftValue": "={{ !$json._stop }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "70962480-5b4c-4ace-aed5-060f8a41c62c",
+      "name": "¿Hay Tareas Mañana?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "9c27c2d6-6609-44d0-86cc-f987426fdea9",
+      "name": "Telegram Tareas Mañana",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        200
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "gIKUgl2QLI4kwXIY",
+          "name": "Telegram CuttingClones"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 18,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "7b7c98f4-0497-4ce7-b43e-cfe818c50962",
+      "name": "Cron Cortes Próximos",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "eventos_corte",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "a608aa5d-41a2-4983-a3a6-e8a86ae4efd0",
+      "name": "Read eventos_corte (Cortes Próximos)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        460,
+        400
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const filas = $input.all().map(i => i.json);\nconst hoy = new Date(); hoy.setHours(0,0,0,0);\nconst OFFSETS = [4, 2];\n\nconst candidatos = [];\nfor (const e of filas) {\n  const estado = String(e.estado || 'activo').toLowerCase();\n  if (estado !== 'activo') continue;\n  const fp = String(e.fecha_proximo_corte_estimada || '').trim();\n  if (!fp) continue;\n  const fpDate = new Date(fp + 'T00:00:00Z');\n  if (isNaN(fpDate.getTime())) continue;\n  const dias = Math.round((fpDate - hoy) / 86400000);\n  if (OFFSETS.includes(dias)) {\n    candidatos.push({ id_evento: e.id_evento, genetica: e.genetica, fp, dias });\n  }\n}\n\nif (candidatos.length === 0) return [{ json: { _stop: true } }];\n\ncandidatos.sort((a,b) => a.dias - b.dias);\nlet texto = '✂️ Próximos cortes\\n\\n';\nfor (const c of candidatos) {\n  const sufijo = c.dias === 0 ? 'hoy' : (c.dias === 1 ? 'mañana' : 'en ' + c.dias + ' días');\n  texto += '• ' + sufijo + ' (' + c.fp + ') — ' + c.genetica + ' · lote ' + c.id_evento + '\\n';\n}\n\nreturn [{ json: { chat_id: -5023756424, text: texto.trim() } }];\n"
+      },
+      "id": "3030ea2d-5f21-47f2-a0d1-8c51f5f3618d",
+      "name": "Code Cortes Próximos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "a4bc80c2-9179-4fc7-a6eb-e9de31c12eae",
+              "leftValue": "={{ !$json._stop }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6b280ff4-4fd9-4cdb-90db-0387d24398a9",
+      "name": "¿Hay Cortes Próximos?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "593255a8-3b83-40f8-a838-2903626f3746",
+      "name": "Telegram Cortes Próximos",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        400
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "gIKUgl2QLI4kwXIY",
+          "name": "Telegram CuttingClones"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 18,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "08ba738f-5c45-4681-ae01-090134144ee4",
+      "name": "Cron Pedidos Víspera",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "pedidos",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "016c8ebd-21ca-487b-a81c-093f5ff01894",
+      "name": "Read pedidos (Pedidos Víspera)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        460,
+        600
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const filas = $input.all().map(i => i.json);\nconst hoy = new Date(); hoy.setHours(0,0,0,0);\nconst OFFSET = 2;\n\nconst candidatos = [];\nfor (const p of filas) {\n  const estado = String(p.estado || '').trim().toLowerCase();\n  if (estado === 'entregado' || estado === 'cancelado') continue;\n  const fep = String(p.fecha_entrega_prometida || '').trim();\n  if (!fep) continue;\n  const fepDate = new Date(fep + 'T00:00:00Z');\n  if (isNaN(fepDate.getTime())) continue;\n  const dias = Math.round((fepDate - hoy) / 86400000);\n  if (dias === OFFSET) {\n    candidatos.push({ id_pedido: p.id_pedido, id_cliente: p.id_cliente, genetica: p.genetica, cantidad: p.cantidad, total: p.total, fep });\n  }\n}\n\nif (candidatos.length === 0) return [{ json: { _stop: true } }];\n\nlet texto = '📦 Pedidos a entregar en 2 días (' + candidatos.length + ')\\n\\n';\nfor (const c of candidatos) {\n  texto += '• ' + c.id_pedido + ' — ' + c.cantidad + ' ' + c.genetica + ' · ' + c.total + '€\\n';\n  texto += '  cliente ' + c.id_cliente + ' · entrega ' + c.fep + '\\n';\n}\n\nreturn [{ json: { chat_id: -5023756424, text: texto.trim() } }];\n"
+      },
+      "id": "680281ab-d963-47a4-bfcb-9021a8ee9f6d",
+      "name": "Code Pedidos Víspera",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "ff91aca1-f8ca-40aa-853b-ed6b74bab952",
+              "leftValue": "={{ !$json._stop }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9e75b8f5-b59f-471d-b6b5-9cb32315ce23",
+      "name": "¿Hay Pedidos Víspera?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "283533c2-98fa-45d9-aceb-87fa6bc85c12",
+      "name": "Telegram Pedidos Víspera",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        600
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "gIKUgl2QLI4kwXIY",
+          "name": "Telegram CuttingClones"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "d91d62b1-547c-4cc8-aa4e-f3b1b9e935ff",
+      "name": "Cron Pedidos Hoy",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "pedidos",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "ccb52fab-ae32-46f4-a792-a092880de4a3",
+      "name": "Read pedidos (Pedidos Hoy)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        460,
+        800
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const filas = $input.all().map(i => i.json);\nconst hoy = new Date(); hoy.setHours(0,0,0,0);\nconst OFFSET = 0;\n\nconst candidatos = [];\nfor (const p of filas) {\n  const estado = String(p.estado || '').trim().toLowerCase();\n  if (estado === 'entregado' || estado === 'cancelado') continue;\n  const fep = String(p.fecha_entrega_prometida || '').trim();\n  if (!fep) continue;\n  const fepDate = new Date(fep + 'T00:00:00Z');\n  if (isNaN(fepDate.getTime())) continue;\n  const dias = Math.round((fepDate - hoy) / 86400000);\n  if (dias === OFFSET) {\n    candidatos.push({ id_pedido: p.id_pedido, id_cliente: p.id_cliente, genetica: p.genetica, cantidad: p.cantidad, total: p.total, fep });\n  }\n}\n\nif (candidatos.length === 0) return [{ json: { _stop: true } }];\n\nlet texto = '📦 Pedidos a entregar HOY (' + candidatos.length + ')\\n\\n';\nfor (const c of candidatos) {\n  texto += '• ' + c.id_pedido + ' — ' + c.cantidad + ' ' + c.genetica + ' · ' + c.total + '€\\n';\n  texto += '  cliente ' + c.id_cliente + ' · entrega ' + c.fep + '\\n';\n}\n\nreturn [{ json: { chat_id: -5023756424, text: texto.trim() } }];\n"
+      },
+      "id": "3cc8e96e-8450-4840-b01b-3ff22f7cf773",
+      "name": "Code Pedidos Hoy",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "9cd50e69-8177-4339-917a-3b393bcb335b",
+              "leftValue": "={{ !$json._stop }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b118d0e2-4bfa-4228-b3ca-8cf7249042f1",
+      "name": "¿Hay Pedidos Hoy?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "fef888c6-e5fd-41f6-8700-72e0289e7cc0",
+      "name": "Telegram Pedidos Hoy",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        800
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "gIKUgl2QLI4kwXIY",
+          "name": "Telegram CuttingClones"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 8,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "d0bff4ad-1cf1-4d25-9c37-0cb4774dd0bb",
+      "name": "Cron Floración Semana",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "info_util",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "4ca3dc75-2f4a-4818-97d7-e4b62b702563",
+      "name": "Read info_util (Floración Semana)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        460,
+        1000
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const filas = $input.all().map(i => i.json);\n\nconst data = {};\nfor (const f of filas) {\n  const k = String(f.clave || '').trim();\n  const v = String(f.valor || '').trim();\n  if (k) data[k] = v;\n}\n\nconst fase = (data.fase_actual || '').toLowerCase();\nconst inicio = data.inicio_floracion || '';\n\nif (fase !== 'floracion' || !inicio) return [{ json: { _stop: true } }];\n\nconst hoy = new Date(); hoy.setHours(0,0,0,0);\nconst inicioDate = new Date(inicio + 'T00:00:00Z');\nif (isNaN(inicioDate.getTime())) return [{ json: { _stop: true } }];\n\nconst dias = Math.round((hoy - inicioDate) / 86400000);\nif (dias <= 0 || dias % 7 !== 0) return [{ json: { _stop: true } }];\n\nconst semana = dias / 7 + 1;  // dia 0-6 = semana 1, dia 7 = inicio semana 2, etc.\nconst ciclo_total_semanas = 9; // ciclo de floracion estandar (modificar si cambia)\n\nlet texto = '🌸 Nueva semana de floración\\n\\n';\ntexto += 'Hoy empieza la SEMANA ' + semana + ' / ' + ciclo_total_semanas + '\\n';\ntexto += 'Día ' + dias + ' desde el inicio (' + inicio + ')\\n';\n\nreturn [{ json: { chat_id: -5023756424, text: texto.trim() } }];\n"
+      },
+      "id": "51c4a58b-de39-4e47-977f-3f6cbfcf1001",
+      "name": "Code Floración Semana",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "276c36bf-52de-4098-9230-398b81559ce7",
+              "leftValue": "={{ !$json._stop }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "017615dd-60c5-4592-8f81-c806c4f5410d",
+      "name": "¿Hay Floración Semana?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "722e73c6-d225-4103-bb3d-501c27950f59",
+      "name": "Telegram Floración Semana",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        1000
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "gIKUgl2QLI4kwXIY",
+          "name": "Telegram CuttingClones"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "monthsInterval": 1,
+              "triggerAtDayOfMonth": 1,
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "b70d7a69-6b01-44bd-b50a-2779d19b11d0",
+      "name": "Cron Cobros Mensual",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "cobros",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "4d3b483b-d6b0-430f-8411-cb587c802c5b",
+      "name": "Read cobros (Cobros Mensual)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        460,
+        1200
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const filas = $input.all().map(i => i.json);\n\n// Mes anterior\nconst hoy = new Date();\nconst anioActual = hoy.getFullYear();\nconst mesActual = hoy.getMonth(); // 0-11\nconst mesAnterior = mesActual === 0 ? 11 : mesActual - 1;\nconst anioMesAnterior = mesActual === 0 ? anioActual - 1 : anioActual;\n\nconst yyyy = anioMesAnterior;\nconst mm = String(mesAnterior + 1).padStart(2, '0');\nconst prefijoMes = yyyy + '-' + mm; // \"2026-04\"\n\nconst meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];\nconst labelMes = meses[mesAnterior] + ' ' + yyyy;\n\nconst cobrosMes = filas.filter(c => String(c.fecha || '').trim().startsWith(prefijoMes));\n\nif (cobrosMes.length === 0) {\n  // No hubo cobros — igual mandamos un breve \"sin cobros\" para tener pulso del mes\n  return [{ json: { chat_id: -5023756424, text: '💰 Resumen ' + labelMes + '\\n\\nSin cobros registrados este mes.' } }];\n}\n\n// Total y desglose por socio\nconst totalImporte = cobrosMes.reduce((acc, c) => acc + (Number(c.importe) || 0), 0);\nconst porSocio = {};\nfor (const c of cobrosMes) {\n  const quien = String(c.quien_cobro || 'sin asignar').trim() || 'sin asignar';\n  if (!porSocio[quien]) porSocio[quien] = { count: 0, importe_directo: 0, suma_reparto: 0 };\n  porSocio[quien].count += 1;\n  porSocio[quien].importe_directo += Number(c.importe) || 0;\n  porSocio[quien].suma_reparto += Number(c.por_socio_calculado) || 0;\n}\n\nlet texto = '💰 Resumen ' + labelMes + '\\n\\n';\ntexto += '*Total cobrado:* ' + totalImporte + '€ (' + cobrosMes.length + ' cobros)\\n\\n';\ntexto += '*Reparto por socio:*\\n';\nconst socios = Object.keys(porSocio).sort();\nfor (const s of socios) {\n  const p = porSocio[s];\n  texto += '• ' + s + ': ' + p.suma_reparto + '€ (de ' + p.count + ' cobros · cobró directo ' + p.importe_directo + '€)\\n';\n}\n\nreturn [{ json: { chat_id: -5023756424, text: texto.trim() } }];\n"
+      },
+      "id": "bfae4fbb-5f65-4304-8efa-d0af59952581",
+      "name": "Code Cobros Mensual",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "75ba78b8-c280-4ddf-b31e-bae2946b400c",
+      "name": "Telegram Cobros Mensual",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        900,
+        1200
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "gIKUgl2QLI4kwXIY",
+          "name": "Telegram CuttingClones"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Cron Tareas Atrasadas": {
+      "main": [
+        [
+          {
+            "node": "Read tareas (Tareas Atrasadas)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read tareas (Tareas Atrasadas)": {
+      "main": [
+        [
+          {
+            "node": "Code Tareas Atrasadas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Tareas Atrasadas": {
+      "main": [
+        [
+          {
+            "node": "¿Hay Tareas Atrasadas?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay Tareas Atrasadas?": {
+      "main": [
+        [
+          {
+            "node": "Telegram Tareas Atrasadas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Cron Tareas Mañana": {
+      "main": [
+        [
+          {
+            "node": "Read tareas (Tareas Mañana)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read tareas (Tareas Mañana)": {
+      "main": [
+        [
+          {
+            "node": "Code Tareas Mañana",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Tareas Mañana": {
+      "main": [
+        [
+          {
+            "node": "¿Hay Tareas Mañana?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay Tareas Mañana?": {
+      "main": [
+        [
+          {
+            "node": "Telegram Tareas Mañana",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Cron Cortes Próximos": {
+      "main": [
+        [
+          {
+            "node": "Read eventos_corte (Cortes Próximos)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read eventos_corte (Cortes Próximos)": {
+      "main": [
+        [
+          {
+            "node": "Code Cortes Próximos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Cortes Próximos": {
+      "main": [
+        [
+          {
+            "node": "¿Hay Cortes Próximos?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay Cortes Próximos?": {
+      "main": [
+        [
+          {
+            "node": "Telegram Cortes Próximos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Cron Pedidos Víspera": {
+      "main": [
+        [
+          {
+            "node": "Read pedidos (Pedidos Víspera)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read pedidos (Pedidos Víspera)": {
+      "main": [
+        [
+          {
+            "node": "Code Pedidos Víspera",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Pedidos Víspera": {
+      "main": [
+        [
+          {
+            "node": "¿Hay Pedidos Víspera?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay Pedidos Víspera?": {
+      "main": [
+        [
+          {
+            "node": "Telegram Pedidos Víspera",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Cron Pedidos Hoy": {
+      "main": [
+        [
+          {
+            "node": "Read pedidos (Pedidos Hoy)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read pedidos (Pedidos Hoy)": {
+      "main": [
+        [
+          {
+            "node": "Code Pedidos Hoy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Pedidos Hoy": {
+      "main": [
+        [
+          {
+            "node": "¿Hay Pedidos Hoy?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay Pedidos Hoy?": {
+      "main": [
+        [
+          {
+            "node": "Telegram Pedidos Hoy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Cron Floración Semana": {
+      "main": [
+        [
+          {
+            "node": "Read info_util (Floración Semana)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read info_util (Floración Semana)": {
+      "main": [
+        [
+          {
+            "node": "Code Floración Semana",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Floración Semana": {
+      "main": [
+        [
+          {
+            "node": "¿Hay Floración Semana?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay Floración Semana?": {
+      "main": [
+        [
+          {
+            "node": "Telegram Floración Semana",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Cron Cobros Mensual": {
+      "main": [
+        [
+          {
+            "node": "Read cobros (Cobros Mensual)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read cobros (Cobros Mensual)": {
+      "main": [
+        [
+          {
+            "node": "Code Cobros Mensual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Cobros Mensual": {
+      "main": [
+        [
+          {
+            "node": "Telegram Cobros Mensual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

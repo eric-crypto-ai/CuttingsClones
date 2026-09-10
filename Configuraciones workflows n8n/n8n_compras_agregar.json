@@ -1,0 +1,90 @@
+{
+  "name": "Compras_Agregar",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "compras-agregar",
+        "responseMode": "responseNode",
+        "options": { "allowedOrigins": "*" }
+      },
+      "id": "ca000001-1111-4aaa-b111-000000000001",
+      "name": "Webhook Agregar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [260, 340],
+      "webhookId": "compras-agregar"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('Webhook Agregar').first().json.body;\nconst item = String(body.item || '').trim();\nconst id = 'C' + Date.now();\nreturn [{ json: { id, item, estado: 'pendiente' } }];"
+      },
+      "id": "ca000001-2222-4aaa-b222-000000000002",
+      "name": "Preparar Item",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 340]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 396906245,
+          "mode": "list",
+          "cachedResultName": "compras",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=396906245"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "ca000001-3333-4aaa-b333-000000000003",
+      "name": "Guardar Item",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [740, 340],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"ok\": true }",
+        "options": {}
+      },
+      "id": "ca000001-4444-4aaa-b444-000000000004",
+      "name": "Respuesta OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [980, 340]
+    }
+  ],
+  "connections": {
+    "Webhook Agregar": { "main": [[{ "node": "Preparar Item", "type": "main", "index": 0 }]] },
+    "Preparar Item": { "main": [[{ "node": "Guardar Item", "type": "main", "index": 0 }]] },
+    "Guardar Item": { "main": [[{ "node": "Respuesta OK", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "1",
+  "meta": { "instanceId": "" },
+  "tags": []
+}

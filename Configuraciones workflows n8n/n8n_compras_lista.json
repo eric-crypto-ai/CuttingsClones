@@ -1,0 +1,81 @@
+{
+  "name": "Compras_Lista",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "compras-lista",
+        "responseMode": "responseNode",
+        "options": { "allowedOrigins": "*" }
+      },
+      "id": "cl000001-1111-4aaa-b111-000000000001",
+      "name": "Webhook Lista",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [260, 340],
+      "webhookId": "compras-lista"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 396906245,
+          "mode": "list",
+          "cachedResultName": "compras",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=396906245"
+        },
+        "options": {}
+      },
+      "id": "cl000001-2222-4aaa-b222-000000000002",
+      "name": "Leer Compras",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [500, 340],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const filas = $input.all().map(i => i.json);\nconst pendientes = filas.filter(f => String(f.estado || '').trim().toLowerCase() === 'pendiente');\nreturn [{ json: { items: pendientes } }];"
+      },
+      "id": "cl000001-3333-4aaa-b333-000000000003",
+      "name": "Filtrar Pendientes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [740, 340]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "cl000001-4444-4aaa-b444-000000000004",
+      "name": "Respuesta",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [980, 340]
+    }
+  ],
+  "connections": {
+    "Webhook Lista": { "main": [[{ "node": "Leer Compras", "type": "main", "index": 0 }]] },
+    "Leer Compras": { "main": [[{ "node": "Filtrar Pendientes", "type": "main", "index": 0 }]] },
+    "Filtrar Pendientes": { "main": [[{ "node": "Respuesta", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "1",
+  "meta": { "instanceId": "" },
+  "tags": []
+}

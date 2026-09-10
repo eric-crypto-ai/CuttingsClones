@@ -1,0 +1,561 @@
+{
+  "name": "Cortes",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cortes-crear",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "4e8696d3-c485-466f-969d-9b2bd9ad3677",
+      "name": "Webhook Crear Corte",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        200,
+        300
+      ],
+      "webhookId": "cortes-crear"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "options": {}
+      },
+      "id": "ce889ab7-4d46-473e-9ef4-d5f56346605e",
+      "name": "Leer Eventos Existentes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        420,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('Webhook Crear Corte').first().json.body;\nconst filas = $input.all().map(i => i.json);\n\nconst fecha_corte = String(body.fecha_corte || '').trim();\nconst genetica = String(body.genetica || '').trim();\nconst num_esquejes = parseInt(body.num_esquejes, 10);\nconst intervalo_dias = parseInt(body.intervalo_dias, 10) || 14;\nconst operario = String(body.operario || '').trim();\nconst observaciones = String(body.observaciones || '').trim();\n\nif (!fecha_corte) throw new Error('falta fecha_corte');\nif (!genetica) throw new Error('falta genetica');\nif (!num_esquejes || num_esquejes <= 0) throw new Error('num_esquejes invalido');\n\nconst prefixMap = { 'Amnesia': 'AMN', 'Hokuzai': 'HOK' };\nconst prefix = prefixMap[genetica] || genetica.slice(0, 3).toUpperCase();\n\n// Secuencial del dia para misma genetica\nconst mismoDia = filas.filter(f =>\n  String(f.fecha_corte || '').trim() === fecha_corte &&\n  String(f.genetica || '').trim() === genetica\n);\nconst secuencial = mismoDia.length + 1;\nconst id_evento = prefix + '-' + fecha_corte + '-' + secuencial;\n\n// Fecha proximo corte = fecha_corte + intervalo_dias\nconst d = new Date(fecha_corte + 'T00:00:00Z');\nd.setUTCDate(d.getUTCDate() + intervalo_dias);\nconst fecha_proximo = d.getUTCFullYear() + '-' +\n  String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +\n  String(d.getUTCDate()).padStart(2, '0');\n\nreturn [{\n  json: {\n    id_evento,\n    fecha_corte,\n    genetica,\n    num_esquejes,\n    intervalo_dias,\n    fecha_proximo_corte_estimada: fecha_proximo,\n    operario,\n    observaciones,\n    estado: 'activo'\n  }\n}];"
+      },
+      "id": "538531f9-ccd2-40ed-b66e-c7c93daa0f01",
+      "name": "Preparar Evento",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "661e034f-ac78-4b27-8d2b-aa62525bf433",
+      "name": "Guardar Evento",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        860,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const evento = $('Preparar Evento').first().json;\n\n// id de tarea siguiendo patron Crear_Tarea (T + timestamp + 3 random digits)\nconst id = 'T' + Date.now() + String(Math.floor(Math.random() * 900 + 100));\n\nreturn [{\n  json: {\n    id,\n    zona: 'madres',\n    tarea: 'Evaluar vigor — proximo corte ' + evento.genetica,\n    prioridad: 'media',\n    estado: 'pendiente',\n    fecha: evento.fecha_proximo_corte_estimada,\n    recurrente: '',\n    dia_recurrencia: '',\n    observaciones: 'Tarea generada por evento ' + evento.id_evento + ' (corte ' + evento.fecha_corte + ', ' + evento.num_esquejes + ' esquejes)',\n    id_evento_origen: evento.id_evento,\n    tipo_origen: 'corte'\n  }\n}];"
+      },
+      "id": "68c1625a-879b-478c-a00b-1a76babbfa53",
+      "name": "Preparar Tarea",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1404161276,
+          "mode": "list",
+          "cachedResultName": "tareas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1404161276"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "a0274158-4360-4006-92f5-0677fffad5b1",
+      "name": "Guardar Tarea",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1300,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"id_evento\": $('Preparar Evento').item.json.id_evento, \"fecha_proximo_corte_estimada\": $('Preparar Evento').item.json.fecha_proximo_corte_estimada } }}",
+        "options": {}
+      },
+      "id": "913944bb-5997-4f87-9699-838f8f29a47f",
+      "name": "Respuesta Crear OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "cortes-lista",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "c9ca527f-29c5-4aa7-b7bf-57cb3e4808aa",
+      "name": "Webhook Lista Cortes",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        200,
+        600
+      ],
+      "webhookId": "cortes-lista"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "options": {}
+      },
+      "id": "0e8682dd-aee5-4174-a899-76b06ddd9617",
+      "name": "Leer Eventos para Lista",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        420,
+        600
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const eventos = $('Leer Eventos para Lista').all().map(i => i.json);\nconst reservas = $('Leer Reservas para Lista').all().map(i => i.json);\n\n// Reservas que cuentan como ocupadas (reservada + consumida)\nconst reservasPorEvento = {};\nfor (const r of reservas) {\n  const idEvento = String(r.id_evento || '').trim();\n  if (!idEvento) continue;\n  const estado = String(r.estado || '').trim().toLowerCase();\n  if (estado === 'reservada' || estado === 'consumida') {\n    if (!reservasPorEvento[idEvento]) reservasPorEvento[idEvento] = [];\n    reservasPorEvento[idEvento].push(r);\n  }\n}\n\nconst items = eventos\n  .map(f => {\n    const id_evento = String(f.id_evento || '').trim();\n    const num_esquejes = Number(f.num_esquejes) || 0;\n    const n_descartados = Number(f.n_descartados) || 0;\n    const total_neto = num_esquejes - n_descartados;\n    const resList = reservasPorEvento[id_evento] || [];\n    const reservado = resList.reduce((acc, r) => acc + (Number(r.cantidad) || 0), 0);\n    const disponible = total_neto - reservado;\n    return {\n      id_evento,\n      fecha_corte: String(f.fecha_corte || '').trim(),\n      genetica: String(f.genetica || '').trim(),\n      num_esquejes,\n      intervalo_dias: Number(f.intervalo_dias) || 14,\n      fecha_proximo_corte_estimada: String(f.fecha_proximo_corte_estimada || '').trim(),\n      operario: String(f.operario || '').trim(),\n      observaciones: String(f.observaciones || '').trim(),\n      estado: String(f.estado || '').trim(),\n      total_neto,\n      reservado,\n      disponible,\n      reservas_activas: resList.map(r => ({\n        id_reserva: String(r.id_reserva || '').trim(),\n        id_pedido: String(r.id_pedido || '').trim(),\n        cantidad: Number(r.cantidad) || 0,\n        estado: String(r.estado || '').trim(),\n        fecha_reserva: String(r.fecha_reserva || '').trim(),\n      })),\n    };\n  })\n  .filter(f => f.id_evento)\n  .sort((a, b) => {\n    if (b.fecha_corte !== a.fecha_corte) return b.fecha_corte.localeCompare(a.fecha_corte);\n    return b.id_evento.localeCompare(a.id_evento);\n  });\n\nreturn [{ json: { items } }];\n"
+      },
+      "id": "132800ad-0ebc-4559-9909-232124eec344",
+      "name": "Formatear Lista",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "bf52c011-4f60-4b7c-9d90-2bddcbcf24c0",
+      "name": "Respuesta Lista",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        860,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 793345778,
+          "mode": "list",
+          "cachedResultName": "reservas_pedidos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=793345778"
+        },
+        "options": {}
+      },
+      "id": "7766503d-daa2-442c-bc4d-96bacb61822d",
+      "name": "Leer Reservas para Lista",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        420,
+        760
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "cortes-disponibilidad",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "ff567a20-fd51-43a5-822a-dfab18742b87",
+      "name": "Webhook Disponibilidad",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        200,
+        920
+      ],
+      "webhookId": "cortes-disponibilidad"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1143539242,
+          "mode": "list",
+          "cachedResultName": "eventos_corte",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1143539242"
+        },
+        "options": {}
+      },
+      "id": "6fffab74-f321-44c4-80ba-a7ab281c2b32",
+      "name": "Leer Eventos Disponibilidad",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        420,
+        920
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 793345778,
+          "mode": "list",
+          "cachedResultName": "reservas_pedidos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=793345778"
+        },
+        "options": {}
+      },
+      "id": "634980ed-7ec2-4e7a-9c83-62ca6227b8db",
+      "name": "Leer Reservas Disponibilidad",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        420,
+        1080
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const eventos = $('Leer Eventos Disponibilidad').all().map(i => i.json);\nconst reservas = $('Leer Reservas Disponibilidad').all().map(i => i.json);\n\n// Query param genetica (n8n v2.1: $json.query.<key>)\nconst trigger = $('Webhook Disponibilidad').first().json;\nconst geneticaFilter = String((trigger.query && trigger.query.genetica) || '').trim().toLowerCase();\n\nconst reservasPorEvento = {};\nfor (const r of reservas) {\n  const idEvento = String(r.id_evento || '').trim();\n  if (!idEvento) continue;\n  const estado = String(r.estado || '').trim().toLowerCase();\n  if (estado === 'reservada' || estado === 'consumida') {\n    reservasPorEvento[idEvento] = (reservasPorEvento[idEvento] || 0) + (Number(r.cantidad) || 0);\n  }\n}\n\nconst items = eventos\n  .map(f => {\n    const id_evento = String(f.id_evento || '').trim();\n    const estado = String(f.estado || '').trim().toLowerCase() || 'activo';\n    const num_esquejes = Number(f.num_esquejes) || 0;\n    const n_descartados = Number(f.n_descartados) || 0;\n    const total_neto = num_esquejes - n_descartados;\n    const reservado = reservasPorEvento[id_evento] || 0;\n    return {\n      id_evento,\n      genetica: String(f.genetica || '').trim(),\n      fecha_corte: String(f.fecha_corte || '').trim(),\n      total_neto,\n      reservado,\n      disponible: total_neto - reservado,\n      estado,\n    };\n  })\n  .filter(e => e.id_evento)\n  .filter(e => e.estado === 'activo')\n  .filter(e => !geneticaFilter || e.genetica.toLowerCase() === geneticaFilter)\n  .filter(e => e.disponible > 0)\n  .sort((a, b) => (a.fecha_corte || '').localeCompare(b.fecha_corte || ''));\n\nreturn [{ json: { items } }];\n"
+      },
+      "id": "d93d0f70-ec24-40c5-8d06-c19f9081754b",
+      "name": "Calcular Disponibilidad",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "d6350923-9cd9-47fb-8648-5ae81df9bf69",
+      "name": "Respuesta Disponibilidad",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        860,
+        920
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Crear Corte": {
+      "main": [
+        [
+          {
+            "node": "Leer Eventos Existentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Eventos Existentes": {
+      "main": [
+        [
+          {
+            "node": "Preparar Evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Evento": {
+      "main": [
+        [
+          {
+            "node": "Guardar Evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Evento": {
+      "main": [
+        [
+          {
+            "node": "Preparar Tarea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Tarea": {
+      "main": [
+        [
+          {
+            "node": "Guardar Tarea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Tarea": {
+      "main": [
+        [
+          {
+            "node": "Respuesta Crear OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Lista Cortes": {
+      "main": [
+        [
+          {
+            "node": "Leer Eventos para Lista",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Leer Reservas para Lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Eventos para Lista": {
+      "main": [
+        [
+          {
+            "node": "Formatear Lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatear Lista": {
+      "main": [
+        [
+          {
+            "node": "Respuesta Lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Disponibilidad": {
+      "main": [
+        [
+          {
+            "node": "Leer Eventos Disponibilidad",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Leer Reservas Disponibilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Eventos Disponibilidad": {
+      "main": [
+        [
+          {
+            "node": "Calcular Disponibilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular Disponibilidad": {
+      "main": [
+        [
+          {
+            "node": "Respuesta Disponibilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

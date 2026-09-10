@@ -1,0 +1,232 @@
+{
+  "name": "Posponer Tareas",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tareas-posponer",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-880, 800],
+      "id": "a1b2c3d4-posponer-webhook-0001",
+      "name": "Webhook Posponer",
+      "webhookId": "c9a29272-bac6-48fc-96e8-4ff2b0fbe702"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1404161276,
+          "mode": "list",
+          "cachedResultName": "tareas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1404161276"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [-640, 800],
+      "id": "a1b2c3d4-posponer-getrows-0002",
+      "name": "Get rows tareas posponer",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const idBuscado = $('Webhook Posponer').first().json.body.id;\nconst nuevaFecha = $('Webhook Posponer').first().json.body.nueva_fecha;\n\nif (!idBuscado || !nuevaFecha) {\n  throw new Error('Faltan campos requeridos: id y nueva_fecha');\n}\n\nconst filas = $input.all().map(item => item.json);\n\nconst tareaEncontrada = filas.find(\n  fila => String(fila.id).trim() === String(idBuscado).trim()\n);\n\nif (!tareaEncontrada) {\n  throw new Error(`No se encontró ninguna tarea con id ${idBuscado}`);\n}\n\nreturn [\n  {\n    json: {\n      row_number: tareaEncontrada.row_number,\n      id: tareaEncontrada.id,\n      tarea: tareaEncontrada.tarea,\n      fecha: nuevaFecha\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-336, 800],
+      "id": "a1b2c3d4-posponer-code-0003",
+      "name": "Buscar tarea y preparar fecha"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI",
+          "mode": "list",
+          "cachedResultName": "Control_IPM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1404161276,
+          "mode": "list",
+          "cachedResultName": "tareas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17_jk3kGPB9ukeMbhFhwgJyO3OpbWo0MY6T8ZajN7aNI/edit#gid=1404161276"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "row_number": "={{ $json.row_number }}",
+            "tarea": "={{ $json.tarea }}",
+            "fecha": "={{ $json.fecha }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tarea",
+              "displayName": "tarea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [-64, 800],
+      "id": "a1b2c3d4-posponer-update-0004",
+      "name": "Actualizar fecha tarea",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "U9MmYhXUgVdOQej5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"ok\": true,\n  \"mensaje\": \"tarea_pospuesta_correctamente\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [176, 800],
+      "id": "a1b2c3d4-posponer-set-0005",
+      "name": "Respuesta OK posponer"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [416, 800],
+      "id": "a1b2c3d4-posponer-respond-0006",
+      "name": "Respond Posponer"
+    }
+  ],
+  "connections": {
+    "Webhook Posponer": {
+      "main": [
+        [
+          {
+            "node": "Get rows tareas posponer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get rows tareas posponer": {
+      "main": [
+        [
+          {
+            "node": "Buscar tarea y preparar fecha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar tarea y preparar fecha": {
+      "main": [
+        [
+          {
+            "node": "Actualizar fecha tarea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar fecha tarea": {
+      "main": [
+        [
+          {
+            "node": "Respuesta OK posponer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta OK posponer": {
+      "main": [
+        [
+          {
+            "node": "Respond Posponer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-03-27T00:00:00.000Z",
+  "versionId": "1"
+}
